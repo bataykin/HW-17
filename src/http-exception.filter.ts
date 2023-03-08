@@ -19,7 +19,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus();
     const exeptionResponse: any = exception.getResponse();
 
-    console.log(exeptionResponse.message);
     const arr = exeptionResponse.message;
     const errorsMessages = [];
     for (let i = 0; i < arr.length; i++) {

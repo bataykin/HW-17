@@ -13,7 +13,8 @@ export class AppService {
   getHello(): any {
     // console.log(this.configService.get<string>('POSTGRES_HOST'));
     // console.dir(this.configService.get('db', {infer: true}).mongo)
-    return 'Hello World!';
+    return "Hello World!";
+
     // {
     //     repoType: this.configService.get<string>('REPO_TYPE'),
     //     auth: this.authConfigService.get<AuthConfigType>('authorization'),

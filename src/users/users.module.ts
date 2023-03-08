@@ -1,31 +1,19 @@
-import { Module } from '@nestjs/common';
-import { UsersController } from './users.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './user.schema';
-import { AuthUtilsClass } from '../auth/auth.utils';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from './entity/user.entity';
-import { useRepositoryClassGeneric } from '../common/useRepositoryClassGeneric';
-import { IUsersRepoToken } from './IUsersRepo';
-import { UsersORM } from './users.ORM';
-import { CqrsModule } from '@nestjs/cqrs';
-import { CreateUserHandler } from './useCase/createUserHandler';
-import { GetUsersHandler } from './useCase/getUsersHandler';
-import { DeleteUserHandler } from './useCase/deleteUserHandler';
-import { BanUnbanUserHandler } from './useCase/banUnbanUserHandler';
-import { IDevicesRepoToken } from '../device/IDevicesRepo';
-import { DevicesORM } from '../device/devices.ORM';
-import { DeviceEntity } from '../device/entities/device.entity';
-
-// const useUserServiceClass = () => {
-//   if (process.env.REPO_TYPE === 'MONGO') {
-//     return UsersMongoService;
-//   } else if (process.env.REPO_TYPE === 'SQL') {
-//     return UsersSQLService;
-//   } else if (process.env.REPO_TYPE === 'ORM') {
-//     return UsersORMService;
-//   } else return UsersORMService; // by DEFAULT if not in enum
-// };
+import { Module } from "@nestjs/common";
+import { UsersController } from "./users.controller";
+import { AuthUtilsClass } from "../auth/auth.utils";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { UserEntity } from "./entity/user.entity";
+import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
+import { IUsersRepoToken } from "./IUsersRepo";
+import { UsersORM } from "./users.ORM";
+import { CqrsModule } from "@nestjs/cqrs";
+import { CreateUserHandler } from "./useCase/createUserHandler";
+import { GetUsersHandler } from "./useCase/getUsersHandler";
+import { DeleteUserHandler } from "./useCase/deleteUserHandler";
+import { BanUnbanUserHandler } from "./useCase/banUnbanUserHandler";
+import { IDevicesRepoToken } from "../device/IDevicesRepo";
+import { DevicesORM } from "../device/devices.ORM";
+import { DeviceEntity } from "../device/entities/device.entity";
 
 const usersRouteHandlers = [
   CreateUserHandler,
@@ -39,7 +27,7 @@ const usersRouteHandlers = [
     CqrsModule,
     TypeOrmModule.forFeature([UserEntity, DeviceEntity]),
 
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    // MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
 
   controllers: [UsersController],

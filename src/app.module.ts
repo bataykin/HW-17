@@ -23,44 +23,14 @@ import { SuperAdminModule } from "./superadmin/superAdminModule";
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) =>
-        process.env.REPO_TYPE === 'SQL'
-          ? config.get('db.sql')
-          : config.get('db.orm'),
+        process.env.REPO_TYPE === "SQL"
+          ? config.get("db.sql")
+          : config.get("db.orm"),
       inject: [ConfigService],
     }),
 
-    // TypeOrmModule.forRoot(
-    //
-    //     // useConfigDB
-    //     // 'database'
-    //     // useConfigDB.getDBConfig()
-    //     // ...ConfigDB
-    //     {
-    //         type: 'postgres',
-    //         host: 'ec2-44-209-186-51.compute-1.amazonaws.com',
-    //         port: 5432,
-    //         username: 'cvgiiixvsbqffh',
-    //         password: 'b7572ff957991b35f119a7243fd3d9c86a1a8e3910a1ea0e092dea42766224a3',
-    //         database: 'd4077oemu2h6p7',
-    //         // type: useConfigDB().type,
-    //         // host: useConfigDB().host,
-    //         // port: useConfigDB().port,
-    //         // username: useConfigDB().username,
-    //         // password: useConfigDB().password,
-    //         // database: useConfigDB().database,
-    //         ssl: {
-    //             rejectUnauthorized: false
-    //         },
-    //         autoLoadEntities: true,
-    //         synchronize: true,
-    //
-    //         // entities: [BloggerEntity],
-    //
-    //     }
-    // ),
-
     MongooseModule.forRoot(process.env.MONGO_URI, {
-      dbName: 'local',
+      dbName: "local",
       autoIndex: true,
     }),
     QuizModule,
@@ -72,27 +42,8 @@ import { SuperAdminModule } from "./superadmin/superAdminModule";
     CommentsModule,
     DeviceModule,
     SuperAdminModule,
-    // BlogPostModule
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    // IsBlogExistConstraint,
-    // {
-    //     provide: APP_FILTER,
-    //     useClass: HttpExceptionFilter,
-    // },
-  ],
+  providers: [AppService],
 })
-export class AppModule {
-  // constructor(private dataSource: DataSource) {}
-}
-
-// export class AppModule implements NestModule {
-//     configure(consumer: MiddlewareConsumer) {
-//         consumer
-//             .apply(LoggerMiddleware)
-//             .forRoutes(UpdatePostByBlogHandler)
-//
-//     }
-// }
+export class AppModule {}

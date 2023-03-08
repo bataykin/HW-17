@@ -2,9 +2,9 @@ import { INestApplication } from "@nestjs/common";
 
 // jest.setTimeout(20000)
 
-describe('AppController (e2e)', () => {
+describe("AppController (e2e)", () => {
   let app: INestApplication;
-  it('/ (fake test)', () => {
+  it("/ (fake test)", () => {
     return undefined;
   });
 

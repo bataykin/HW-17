@@ -16,37 +16,43 @@ export const getConfiguration = () => {
       },
 
       sql: {
-        // datastore: 'postgresql-reticulated-47709',
-        type: 'postgres',
-        host: 'localhost',
+        // datastore: 'postgresql-perpendicular-36302',
+        type: "postgres",
+        host: process.env.POSTGRES_HOST,
         port: 5432,
-        username: 'postgres',
-        password: '1984',
-        database: 'TestBase',
+        username: "pcczftgtqzmswy",
+        password:
+          "649ce68a3f44da48fc46b6f4140394500ff4b5c14ae7554ccd10a2134300fd25",
+        database: "d5h25idgo0jfol",
         ssl: {
           rejectUnauthorized: false,
         },
         autoLoadEntities: true,
         synchronize: true,
-        logging: false,
+        entities: [],
+        logging: ["error"],
+
+        migrations: [
+          /*...*/
+        ],
       },
 
       orm: {
         // datastore: 'postgresql-perpendicular-36302',
-        type: 'postgres',
+        type: "postgres",
         host: process.env.POSTGRES_HOST,
         port: 5432,
-        username: 'pcczftgtqzmswy',
+        username: "pcczftgtqzmswy",
         password:
-          '649ce68a3f44da48fc46b6f4140394500ff4b5c14ae7554ccd10a2134300fd25',
-        database: 'd5h25idgo0jfol',
+          "649ce68a3f44da48fc46b6f4140394500ff4b5c14ae7554ccd10a2134300fd25",
+        database: "d5h25idgo0jfol",
         ssl: {
           rejectUnauthorized: false,
         },
         autoLoadEntities: true,
         synchronize: true,
         entities: [BlogEntity, DeviceEntity],
-        logging: ['error'],
+        logging: ["error"],
 
         migrations: [
           /*...*/
@@ -54,16 +60,16 @@ export const getConfiguration = () => {
       },
     },
 
-    port: parseInt(process.env.PORT, 10) || 3000,
-    database: {
-      host: process.env.DATABASE_HOST,
-      port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
-    },
+    // port: parseInt(process.env.PORT, 10) || 3000,
+    // database: {
+    //   host: process.env.DATABASE_HOST,
+    //   port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
+    // },
     // auth: getAuthConfiguration(),
   };
 };
 
 export type ConfigType = ReturnType<typeof getConfiguration> & {
   REPO_TYPE: string;
-  NODE_ENV: 'production' | 'development' | 'testing';
+  NODE_ENV: "production" | "development" | "testing";
 };
