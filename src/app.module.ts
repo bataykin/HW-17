@@ -11,10 +11,10 @@ import { PostsModule } from "./posts/posts.module";
 import { CommentsModule } from "./comments/comments.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { QuizModule } from "./quiz/quiz.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { DeviceModule } from "./device/device.module";
 import { SuperAdminModule } from "./superadmin/superAdminModule";
+import { QuizModule } from "./quiz/quiz.module";
 
 @Module({
   imports: [

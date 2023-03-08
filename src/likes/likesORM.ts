@@ -1,10 +1,10 @@
-import { Repository } from 'typeorm';
-import { LikeEntity } from './entities/like.entity';
-import { ILikesRepo } from './ILikesRepo';
-import { InjectRepository } from '@nestjs/typeorm';
-import { LikeStatusEnum } from '../comments/comment.schema';
-import { PostEntity } from '../posts/entities/post.entity';
-import { CommentEntity } from '../comments/entities/comment.entity';
+import { Repository } from "typeorm";
+import { LikeEntity } from "./entities/like.entity";
+import { ILikesRepo } from "./ILikesRepo";
+import { InjectRepository } from "@nestjs/typeorm";
+import { LikeStatusEnum } from "../likes/LikeStatusEnum";
+import { PostEntity } from "../posts/entities/post.entity";
+import { CommentEntity } from "../comments/entities/comment.entity";
 
 export class LikesORM
   extends Repository<LikeEntity>
@@ -29,7 +29,7 @@ export class LikesORM
         commentId: commentId,
         reaction: likeStatus,
       },
-      ['userId', 'commentId'],
+      ["userId", "commentId"],
     );
     // console.log(result)
     return result;
@@ -46,7 +46,7 @@ export class LikesORM
         postId: postId,
         reaction: likeStatus,
       },
-      ['userId', 'postId'],
+      ["userId", "postId"],
     );
 
     return result;
@@ -84,13 +84,13 @@ export class LikesORM
       },
       where: {
         postId: postId,
-        reaction: 'Like',
+        reaction: "Like",
         user: {
           isBanned: false,
         },
       },
       order: {
-        addedAt: 'DESC',
+        addedAt: "DESC",
       },
       take: 3,
     });
@@ -132,17 +132,17 @@ export class LikesORM
   async getUserLikeStatusPost(userId: string, postId: string) {
     const result = this.likesRepo
       .createQueryBuilder()
-      .select('reaction')
-      .where('postId = :postId', { postId })
-      .andWhere('userId = :userId', { userId })
-      .andWhere('user.isBanned = false');
+      .select("reaction")
+      .where("postId = :postId", { postId })
+      .andWhere("userId = :userId", { userId })
+      .andWhere("user.isBanned = false");
     return result;
   }
 
   async getCommentLikeDislikeCounts(commentId: string) {
     const result = await this.likesRepo
-      .createQueryBuilder('l')
-      .leftJoin('users', 'u', 'l.userId = u.id')
+      .createQueryBuilder("l")
+      .leftJoin("users", "u", "l.userId = u.id")
       .select(
         `
             COALESCE(
@@ -153,7 +153,7 @@ export class LikesORM
                     END )
             ,0 )   
             `,
-        'dislikesCount',
+        "dislikesCount",
       )
 
       .addSelect(
@@ -166,11 +166,11 @@ export class LikesORM
                 END )
                 ,0)
             `,
-        'likesCount',
+        "likesCount",
       )
 
-      .where('l.commentId = :commentId', { commentId })
-      .andWhere('u.isBanned = false')
+      .where("l.commentId = :commentId", { commentId })
+      .andWhere("u.isBanned = false")
 
       .getRawOne();
     return result;
@@ -178,8 +178,8 @@ export class LikesORM
 
   async getPostLikeDislikeCounts(postId: string) {
     const result = await this.likesRepo
-      .createQueryBuilder('l')
-      .leftJoin('users', 'u', 'l.userId = u.id')
+      .createQueryBuilder("l")
+      .leftJoin("users", "u", "l.userId = u.id")
       .select(
         `
             COALESCE(
@@ -190,7 +190,7 @@ export class LikesORM
                     END )
             ,0 )   
             `,
-        'dislikesCount',
+        "dislikesCount",
       )
 
       .addSelect(
@@ -203,11 +203,11 @@ export class LikesORM
                 END )
                 ,0)
             `,
-        'likesCount',
+        "likesCount",
       )
 
-      .where('l.postId = :postId', { postId })
-      .andWhere('u.isBanned = false')
+      .where("l.postId = :postId", { postId })
+      .andWhere("u.isBanned = false")
       .getRawOne();
     return result;
   }

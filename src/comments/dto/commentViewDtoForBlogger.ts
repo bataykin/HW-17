@@ -1,4 +1,4 @@
-import { LikeStatusEnum } from "../comment.schema";
+import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
 
 export class CommentViewDtoForBlogger {
   id: string;

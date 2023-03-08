@@ -1,8 +1,8 @@
-import { LikeStatusEnum } from '../comments/comment.schema';
-import { PostEntity } from '../posts/entities/post.entity';
-import { CommentEntity } from '../comments/entities/comment.entity';
+import { LikeStatusEnum } from "../likes/LikeStatusEnum";
+import { PostEntity } from "../posts/entities/post.entity";
+import { CommentEntity } from "../comments/entities/comment.entity";
 
-export const ILikesRepoToken = Symbol('ILikesRepoToken');
+export const ILikesRepoToken = Symbol("ILikesRepoToken");
 
 export interface ILikesRepo<GenericRepoType> {
   addReactionToComment(

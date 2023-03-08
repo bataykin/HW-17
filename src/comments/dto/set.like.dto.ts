@@ -1,7 +1,7 @@
-import {LikeStatusEnum} from "../comment.schema";
-import {IsEnum} from "class-validator";
+import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
+import { IsEnum } from "class-validator";
 
 export class SetLikeDto {
-    @IsEnum(LikeStatusEnum)
-    likeStatus: LikeStatusEnum
+  @IsEnum(LikeStatusEnum)
+  likeStatus: LikeStatusEnum;
 }

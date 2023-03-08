@@ -14,27 +14,27 @@ import {
   Query,
   Request,
   UseGuards,
-} from '@nestjs/common';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { PaginationPostsDto } from './dto/pagination.posts.dto';
-import { BaseAuthGuard } from '../guards/base.auth.guard';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { LikeStatusEnum } from '../comments/comment.schema';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { GetAllPostsCommand } from './useCase/getAllPostsHandler';
-import { CreatePostCommand } from './useCase/createPostHandler';
-import { FindPostByIdCommand } from './useCase/findPostByIdHandler';
-import { UpdateBlogCommand } from './useCase/updatePostHandler';
-import { RemovePostCommand } from './useCase/removePostHandler';
-import { GetCommentsByPostCommand } from './useCase/getCommentsByPostHandler';
-import { CreateCommentByPostCommand } from './useCase/createCommentByPostHandler';
-import { SetLikeToPostCommand } from './useCase/setLikeToPostHandler';
-import { ContentDto } from '../comments/dto/contentDto';
-import { SkipThrottle } from '@nestjs/throttler';
+} from "@nestjs/common";
+import { CreatePostDto } from "./dto/create-post.dto";
+import { UpdatePostDto } from "./dto/update-post.dto";
+import { PaginationPostsDto } from "./dto/pagination.posts.dto";
+import { BaseAuthGuard } from "../guards/base.auth.guard";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { CommandBus, QueryBus } from "@nestjs/cqrs";
+import { GetAllPostsCommand } from "./useCase/getAllPostsHandler";
+import { CreatePostCommand } from "./useCase/createPostHandler";
+import { FindPostByIdCommand } from "./useCase/findPostByIdHandler";
+import { UpdateBlogCommand } from "./useCase/updatePostHandler";
+import { RemovePostCommand } from "./useCase/removePostHandler";
+import { GetCommentsByPostCommand } from "./useCase/getCommentsByPostHandler";
+import { CreateCommentByPostCommand } from "./useCase/createCommentByPostHandler";
+import { SetLikeToPostCommand } from "./useCase/setLikeToPostHandler";
+import { ContentDto } from "../comments/dto/contentDto";
+import { SkipThrottle } from "@nestjs/throttler";
+import { LikeStatusEnum } from "../likes/LikeStatusEnum";
 
 @SkipThrottle()
-@Controller('posts')
+@Controller("posts")
 export class PostsController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -44,14 +44,14 @@ export class PostsController {
   //  COMMENT-related query
   //  QUERY  Returns comments for specific post
   //
-  @Get(':postId/comments')
+  @Get(":postId/comments")
   async getCommentsByPost(
-    @Param('postId') postId: string,
+    @Param("postId") postId: string,
     @Query() dto: PaginationPostsDto,
     @Request() req,
   ) {
     await this.findPostById(postId, req);
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.queryBus.execute(
       new GetCommentsByPostCommand(postId, dto, accessToken),
     );
@@ -61,14 +61,14 @@ export class PostsController {
   //  COMMAND  Create new comment for specific post
   //
   @UseGuards(JwtAuthGuard)
-  @Post(':postId/comments')
+  @Post(":postId/comments")
   async createCommentByPost(
-    @Param('postId', ParseUUIDPipe) postId: string,
+    @Param("postId", ParseUUIDPipe) postId: string,
     @Body() dto: ContentDto,
     @Request() req,
   ) {
     await this.findPostById(postId, req);
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.commandBus.execute(
       new CreateCommentByPostCommand(postId, dto.content, accessToken),
     );
@@ -85,7 +85,7 @@ export class PostsController {
   @Get()
   @HttpCode(200)
   async getAll(@Query() paginationDto: PaginationPostsDto, @Request() req) {
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.queryBus.execute(
       new GetAllPostsCommand(paginationDto, accessToken),
     );
@@ -109,10 +109,10 @@ export class PostsController {
 
   //  QUERY  Returns post by Id
   //
-  @Get(':id')
+  @Get(":id")
   // @UseGuards(JwtAuthGuard)
   async findPostById(
-    @Param('id', ParseUUIDPipe) postId: string,
+    @Param("id", ParseUUIDPipe) postId: string,
     @Request() req,
   ) {
     // const accessToken = req.headers.authorization?.split(' ')[1];
@@ -133,8 +133,8 @@ export class PostsController {
   //
   @HttpCode(204)
   @UseGuards(BaseAuthGuard)
-  @Put(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdatePostDto) {
+  @Put(":id")
+  update(@Param("id", ParseUUIDPipe) id: string, @Body() dto: UpdatePostDto) {
     return this.commandBus.execute(new UpdateBlogCommand(id, dto));
     // return this.postsService.update(id, dto);
   }
@@ -143,8 +143,8 @@ export class PostsController {
   //
   @HttpCode(204)
   @UseGuards(BaseAuthGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete(":id")
+  remove(@Param("id") id: string) {
     return this.commandBus.execute(new RemovePostCommand(id));
     // return this.postsService.remove(id);
   }
@@ -154,17 +154,17 @@ export class PostsController {
   //
   @UseGuards(JwtAuthGuard)
   @HttpCode(204)
-  @Put(':postId/like-status')
+  @Put(":postId/like-status")
   async setLikeStatus(
-    @Param('postId') postId: string,
+    @Param("postId") postId: string,
     @Body(
-      'likeStatus',
+      "likeStatus",
       new ParseEnumPipe(LikeStatusEnum, {
         errorHttpStatusCode: HttpStatus.BAD_REQUEST,
         exceptionFactory: (error) => {
           throw new BadRequestException({
-            message: 'likeStatus ' + error,
-            field: 'likeStatus',
+            message: "likeStatus " + error,
+            field: "likeStatus",
           });
         },
       }),
@@ -173,7 +173,7 @@ export class PostsController {
     @Request() req,
   ) {
     await this.findPostById(postId, req);
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.commandBus.execute(
       new SetLikeToPostCommand(postId, likeStatus, accessToken),
     );

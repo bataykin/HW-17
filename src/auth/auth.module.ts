@@ -1,18 +1,13 @@
 import { Logger, MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
-import { AuthMongoService } from "./oldServiceRepos/auth.Mongo.service";
 import { AuthController } from "./auth.controller";
 import { AuthUtilsClass } from "./auth.utils";
-import { MongooseModule } from "@nestjs/mongoose";
-import { User, UserSchema } from "../users/user.schema";
 import { EmailService } from "../common/email/email.service";
 import { UsersModule } from "../users/users.module";
 import { APP_GUARD } from "@nestjs/core";
 import { EmailsModule } from "../common/email/emails.module";
-import { Request, RequestSchema } from "../guards/request.schema";
 import { RequestRepoClass } from "./reuest.repo";
 import { LoggerMiddleware } from "../middlewares/logger.middleware";
 import { JwtServiceClass } from "../common/jwt/jwt-service-class.service";
-import { RefreshToken, RefreshTokenSchema } from "../common/jwt/refresh.token.schema";
 import { JwtModule, JwtService } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { LocalStrategy } from "./strategies/local.strategy";
@@ -50,13 +45,13 @@ import { PasswordRecoveryHandler } from "./useCase/passwordRecoveryHandler";
 import { RenewPasswordHandler } from "./useCase/renewPasswordHandler";
 
 export const useAuthServiceClass = () => {
-  if (process.env.REPO_TYPE === 'MONGO') {
-    return AuthMongoService;
-  } else if (process.env.REPO_TYPE === 'SQL') {
+  if (process.env.REPO_TYPE === "MONGO") {
     return AuthSQLService;
-  } else if (process.env.REPO_TYPE === 'ORM') {
+  } else if (process.env.REPO_TYPE === "SQL") {
+    return AuthSQLService;
+  } else if (process.env.REPO_TYPE === "ORM") {
     return AuthORMService;
-  } else return AuthMongoService; // by DEFAULT if not in enum
+  } else return AuthSQLService; // by DEFAULT if not in enum
 };
 
 const authRouteHandlers = [
@@ -92,15 +87,10 @@ const authRouteHandlers = [
     DeviceModule,
     UsersModule,
 
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Request.name, schema: RequestSchema }]),
-    MongooseModule.forFeature([
-      { name: RefreshToken.name, schema: RefreshTokenSchema },
-    ]),
     EmailsModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: "60s" },
     }),
 
     PassportModule,

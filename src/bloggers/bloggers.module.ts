@@ -1,8 +1,5 @@
 import { forwardRef, Module } from "@nestjs/common";
-import { BloggersMongoService } from "./oldServicesRepos/bloggers.Mongo.service";
 import { BloggersController } from "./bloggers.controller";
-import { MongooseModule } from "@nestjs/mongoose";
-import { Blogger, BloggerSchema } from "./blogger.schema";
 import { PostsModule } from "../posts/posts.module";
 import { AuthModule } from "../auth/auth.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -47,13 +44,13 @@ import { GetBannedUsersForBlogHandler } from "./useCase/getBannedUsersForBlogHan
 //import {BlogPostModule} from "../BlogPostModule/blogPost.module";
 
 const useBloggerServiceClass = () => {
-  if (process.env.REPO_TYPE === 'MONGO') {
-    return BloggersMongoService;
-  } else if (process.env.REPO_TYPE === 'SQL') {
+  if (process.env.REPO_TYPE === "MONGO") {
     return BloggersSQLService;
-  } else if (process.env.REPO_TYPE === 'ORM') {
+  } else if (process.env.REPO_TYPE === "SQL") {
+    return BloggersSQLService;
+  } else if (process.env.REPO_TYPE === "ORM") {
     return BlogsORM;
-  } else return BloggersMongoService; // by DEFAULT if not in enum
+  } else return BloggersSQLService; // by DEFAULT if not in enum
 };
 
 const blogsRouteHandlers = [
@@ -88,7 +85,6 @@ const blogsRouteHandlers = [
       CommentEntity,
     ]),
 
-    MongooseModule.forFeature([{ name: Blogger.name, schema: BloggerSchema }]),
     forwardRef(() => PostsModule),
     // PostsModule,
     //BlogPostModule,

@@ -6,7 +6,7 @@ import { CreateCommentDto } from "./dto/create-comment.dto";
 import { PaginationCommentsDto } from "./dto/paginationCommentsDto";
 import { BlogsPaginationDto } from "../bloggers/dto/blogsPaginationDto";
 import { CommentViewDtoForBlogger } from "./dto/commentViewDtoForBlogger";
-import { LikeStatusEnum } from "./comment.schema";
+import { LikeStatusEnum } from "../likes/LikeStatusEnum";
 
 export class CommentsORM
   extends Repository<CommentEntity>
