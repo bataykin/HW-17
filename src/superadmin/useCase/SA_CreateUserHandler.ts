@@ -6,7 +6,7 @@ import { UserEntity } from "../../users/entity/user.entity";
 import { AuthHashClass } from "../../auth/auth.utils";
 import { v4 as uuidv4 } from "uuid";
 import { Custom400Exception } from "../../common/exceptions/custom400Exception";
-import { SAUserViewModel } from "../dto/SAUserViewModel";
+import { SA_UserViewModel } from "../dto/SA_UserViewModel";
 import {
   IUsersQueryRepo,
   IUsersQueryRepoToken,
@@ -28,7 +28,7 @@ export class SA_CreateUserHandler
     private readonly authUtils: AuthHashClass,
   ) {}
 
-  async execute(command: SA_CreateUserCommand): Promise<SAUserViewModel> {
+  async execute(command: SA_CreateUserCommand): Promise<SA_UserViewModel> {
     const { dto } = command;
     const isLoginEmailExists = await this.usersQueryRepo.checkLoginEmailExists(
       dto.login,
@@ -42,14 +42,13 @@ export class SA_CreateUserHandler
     }
     const passwordHash = await this.authUtils._generateHash(dto.password);
     const confirmationCode = uuidv4();
-    const user = await this.usersRepo.createUser(
-      dto.login,
-      dto.email,
-      passwordHash,
-      confirmationCode,
+    const userId: string = await this.usersRepo
+      .createUser(dto.login, dto.email, passwordHash, confirmationCode)
+      .then((res) => res[0].id);
+    const newUser = await this.usersQueryRepo.findById(userId);
+    const result = await this.usersQueryRepo.SA_mapUserEntityToResponse(
+      newUser,
     );
-
-    const result = await this.usersQueryRepo.mapUserEntityToResponse(user);
     return result;
   }
 }

@@ -10,8 +10,6 @@ import {
   Put,
   Query,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from "@nestjs/common";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { BanUserInputModel } from "./dto/BanUserInputModel";
@@ -43,13 +41,13 @@ export class SuperAdminController {
   @Get("users")
   @UseGuards(BaseAuthGuard)
   @HttpCode(200)
-  async getAllUsers(@Query() dto: Partial<SAGetUsersPaginationModel>) {
+  async getAllUsers(@Query() dto: SAGetUsersPaginationModel) {
     return this.queryBus.execute(new SA_GetUsersQuery(dto));
   }
 
   @Post("users")
   @UseGuards(BaseAuthGuard)
-  @UsePipes(new ValidationPipe({ transform: true }))
+  // @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(201)
   async createUser(@Body() createUserDto: CreateUserDto) {
     return this.commandBus.execute(new SA_CreateUserCommand(createUserDto));

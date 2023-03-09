@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
-import { CreateUserPaginatedDto } from "../dto/create.user.paginated.dto";
 import { UserEntity } from "../entity/user.entity";
 import { IUsersQueryRepo } from "./IUserQueryRepo";
-import { SAUserViewModel } from "../../superadmin/dto/SAUserViewModel";
+import { SA_UserViewModel } from "../../superadmin/dto/SA_UserViewModel";
+import { SAGetUsersPaginationModel } from "../../superadmin/dto/SAGetUsersPaginationModel";
 
 @Injectable()
 export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
@@ -12,10 +12,11 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
+
   async findById(id: string) {
     const user = await this.dataSource.query(
       `
-            SELECT id, email, login
+            SELECT *
                 FROM users
                 WHERE id = $1
                 `,
@@ -24,19 +25,52 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
     return user;
   }
 
-  async getUsers({ pageNumber = 1, pageSize = 10 }: CreateUserPaginatedDto) {
-    const skipSize = pageNumber > 1 ? pageSize * (pageNumber - 1) : 0;
+  async SA_GetUsers(dto: SAGetUsersPaginationModel) {
+    const {
+      pageNumber,
+      pageSize,
+      skipSize,
+      searchEmailTerm,
+      searchLoginTerm,
+      sortDirection,
+      sortBy,
+      banStatus,
+    } = dto;
     const users = await this.dataSource.query(
       `
             SELECT * 
-            FROM USERS
-            ORDER BY id
+            FROM USERS 
+            WHERE
+              case
+                when coalesce($4, '') = '' then true 
+              else ("login" ~ $4)
+                end
+            AND 
+              case
+                 when coalesce($5, '') = '' then true 
+              else ("email" ~ $5)
+                 end
+            AND
+              case
+                 when $6::boolean then true
+              else ("isBanned" = $7::boolean)
+                 end
+            ORDER BY $3
             LIMIT $1 OFFSET $2
         `,
-      [pageSize, skipSize],
+      [
+        pageSize,
+        skipSize,
+        sortDirection,
+        searchLoginTerm,
+        searchEmailTerm,
+        banStatus == "all",
+        (banStatus as "banned" | "unBanned") == "banned",
+      ],
     );
     return users;
   }
+
   async countDocuments() {
     // return this.bloggerModel.countDocuments(filter);
 
@@ -141,7 +175,43 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
     return Promise.resolve(false);
   }
 
-  async mapUserEntityToResponse(user: UserEntity): Promise<SAUserViewModel> {
-    return Promise.resolve(undefined);
+  async SA_mapUserEntityToResponse(
+    user: UserEntity,
+  ): Promise<SA_UserViewModel> {
+    console.log(user);
+    const res: SA_UserViewModel = {
+      id: user.id,
+      login: user.login,
+      email: user.email,
+      createdAt: user.createdAt,
+      banInfo: {
+        isBanned: user.isBanned,
+        banDate: user.banDate,
+        banReason: user.banReason,
+      },
+    };
+    console.log(res);
+    return res;
+  }
+
+  async SA_mapUserEntitiesToResponse(
+    users: UserEntity[],
+  ): Promise<SA_UserViewModel[]> {
+    const mappedUsers = [];
+    for await (const user of users) {
+      mappedUsers.push({
+        id: user.id,
+        login: user.login,
+        email: user.email,
+        createdAt: user.createdAt,
+        banInfo: {
+          isBanned: user.isBanned,
+          banDate: user.banDate,
+          banReason: user.banReason,
+        },
+      });
+    }
+
+    return mappedUsers;
   }
 }

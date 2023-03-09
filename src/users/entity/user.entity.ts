@@ -118,7 +118,7 @@ export class UserEntity {
   @Column({ type: "timestamp", nullable: true })
   codeExpDate: Date;
 
-  @Column({ type: "boolean" })
+  @Column({ type: "boolean", default: false })
   isConfirmed: boolean;
 
   @CreateDateColumn()

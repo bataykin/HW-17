@@ -24,9 +24,9 @@ export class UsersSQLRepo implements IUsersRepo<UserEntity> {
   ) {
     const result = await this.dataSource.query(
       `
-                INSERT INTO users (login, email,  "passwordHash", "confirmationCode", "expirationDate")
+                INSERT INTO users (login, email,  "passwordHash", "confirmationCode", "codeExpDate")
                 VALUES ($1, $2, $3, $4, $5)
-                RETURNING id, login
+                RETURNING id
                     `,
       [login, email, passwordHash, code, addDays(new Date(), 1)],
     );

@@ -1,6 +1,6 @@
 import { IsDate, IsEmail, IsUUID } from "class-validator";
 
-export class SAUserViewModel {
+export class SA_UserViewModel {
   @IsUUID()
   id: string;
 

@@ -13,10 +13,10 @@ export const getConfiguration = () => {
         type: "postgres",
         host: process.env.POSTGRES_HOST,
         port: 5432,
-        username: "pcczftgtqzmswy",
+        username: "vdyfkubfmsrxvz",
         password:
-          "649ce68a3f44da48fc46b6f4140394500ff4b5c14ae7554ccd10a2134300fd25",
-        database: "d5h25idgo0jfol",
+          "e4bb6634bdfef17111b8c12b344ae2d387a533843b72797c26e5c6e1833d3c01",
+        database: "d38j5ds5ohlp9r",
         ssl: {
           rejectUnauthorized: false,
         },

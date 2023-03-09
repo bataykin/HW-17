@@ -6,4 +6,5 @@ export class SAGetUsersPaginationModel {
   sortDirection: "asc" | "desc";
   pageNumber: number;
   pageSize: number;
+  skipSize: number;
 }

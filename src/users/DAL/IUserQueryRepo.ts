@@ -1,16 +1,13 @@
-import { SAUserViewModel } from "../../superadmin/dto/SAUserViewModel";
-import { CreateUserPaginatedDto } from "../dto/create.user.paginated.dto";
+import { SA_UserViewModel } from "../../superadmin/dto/SA_UserViewModel";
 import { UserEntity } from "../entity/user.entity";
+import { SAGetUsersPaginationModel } from "../../superadmin/dto/SAGetUsersPaginationModel";
 
 export const IUsersQueryRepoToken = Symbol("IUsersQueryRepoToken");
 
 export interface IUsersQueryRepo<GenericUserType> {
   findById(id: string): Promise<GenericUserType>;
 
-  getUsers({
-    pageNumber = 1,
-    pageSize = 10,
-  }: CreateUserPaginatedDto): Promise<GenericUserType[]>;
+  SA_GetUsers(dto: SAGetUsersPaginationModel): Promise<GenericUserType[]>;
 
   countDocuments(): Promise<number>;
 
@@ -29,5 +26,8 @@ export interface IUsersQueryRepo<GenericUserType> {
 
   getBanStatus(userId: string): Promise<boolean>;
 
-  mapUserEntityToResponse(user: UserEntity): Promise<SAUserViewModel>;
+  SA_mapUserEntityToResponse(user: UserEntity): Promise<SA_UserViewModel>;
+  SA_mapUserEntitiesToResponse(
+    users: UserEntity[],
+  ): Promise<SA_UserViewModel[]>;
 }
