@@ -36,39 +36,52 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
       sortBy,
       banStatus,
     } = dto;
+    //TODO repair sorting
     const users = await this.dataSource.query(
       `
             SELECT * 
             FROM USERS 
             WHERE
               case
-                when coalesce($4, '') = '' then true 
-              else ("login" ~ $4)
+                when coalesce($1, '') = '' then true 
+              else ("login" ~ $1)
                 end
             AND 
               case
-                 when coalesce($5, '') = '' then true 
-              else ("email" ~ $5)
+                 when coalesce($2, '') = '' then true 
+              else ("email" ~ $2)
                  end
             AND
               case
-                 when $6::boolean then true
-              else ("isBanned" = $7::boolean)
+                 when $3::boolean then true
+              else ("isBanned" = $4::boolean)
                  end
-            ORDER BY $3
-            LIMIT $1 OFFSET $2
+                 
+            ORDER BY 
+             (CASE 
+             WHEN $8 = 'ASC' THEN $7 END) COLLATE "C" ASC,
+             $7 COLLATE "C" DESC
+            
+             LIMIT $5 OFFSET $6;
         `,
       [
-        pageSize,
-        skipSize,
-        sortDirection,
         searchLoginTerm,
         searchEmailTerm,
         banStatus == "all",
         (banStatus as "banned" | "unBanned") == "banned",
+        pageSize,
+        skipSize,
+        sortBy,
+        sortDirection == "desc" ? "DESC" : "ASC",
       ],
     );
     return users;
+    // ORDER BY
+    // (CASE
+    // WHEN $8 = 'ASC' THEN $7 END)  ASC,
+    //   $7 DESC
+
+    // sortDirection == "desc" ? "DESC" : "ASC",
   }
 
   async countDocuments() {
@@ -88,11 +101,43 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
     return result;
   }
 
-  countUsersBySearchname(
+  async SA_CountUsersBySearch(
     searchLoginTerm: string,
     searchEmailTerm: string,
+    banStatus: string,
   ): Promise<number> {
-    return Promise.resolve(0);
+    const user = await this.dataSource.query(
+      `
+              SELECT 
+                CASE
+                    WHEN COUNT(*) > 0 THEN COUNT(*)
+                    ELSE 0
+                END AS total
+                FROM users
+                WHERE
+              case
+                when coalesce($1, '') = '' then true 
+              else ("login" ~ $1)
+                end
+            AND 
+              case
+                 when coalesce($2, '') = '' then true 
+              else ("email" ~ $2)
+                 end
+            AND
+              case
+                 when $3::boolean then true
+              else ("isBanned" = $4::boolean)
+                 end
+                `,
+      [
+        searchLoginTerm,
+        searchEmailTerm,
+        banStatus == "all",
+        (banStatus as "banned" | "unBanned") == "banned",
+      ],
+    );
+    return user;
   }
 
   async findByEmail(email: string) {
@@ -110,9 +155,6 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
       return user;
     }
   }
-  // async findOne(userFilterQuery: FilterQuery<User>): Promise<UserDocument> | null {
-  //     return this.userModel.findOne(userFilterQuery)
-  // }
 
   async findByLogin(login: string) {
     const user = await this.dataSource.query(
@@ -178,7 +220,6 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
   async SA_mapUserEntityToResponse(
     user: UserEntity,
   ): Promise<SA_UserViewModel> {
-    console.log(user);
     const res: SA_UserViewModel = {
       id: user.id,
       login: user.login,
@@ -190,7 +231,6 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
         banReason: user.banReason,
       },
     };
-    console.log(res);
     return res;
   }
 

@@ -40,8 +40,9 @@ export class ResendRegistrationEmailHandler
       command.email,
       code,
     );
-    // console.log(`UNCOMMENT resendRegistrationEmail() in auth.ORM.service to REAL resend  NEW confirmation code ${code} to ${command.email}`)
-    await this.emailService.resendRegistrationEmail(command.email, code);
+    console.log(`...sending to ${command.email}, code: ${code}`);
+
+    // await this.emailService.resendRegistrationEmail(command.email, code);
 
     return true;
   }

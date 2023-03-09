@@ -11,9 +11,10 @@ export interface IUsersQueryRepo<GenericUserType> {
 
   countDocuments(): Promise<number>;
 
-  countUsersBySearchname(
+  SA_CountUsersBySearch(
     searchLoginTerm: string,
     searchEmailTerm: string,
+    banStatus: string,
   ): Promise<number>;
 
   findByEmail(email: string): Promise<GenericUserType | null>;

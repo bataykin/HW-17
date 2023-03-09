@@ -36,16 +36,21 @@ export class SA_GetUsersHandler implements IQueryHandler<SA_GetUsersQuery> {
           ? +query.dto.pageSize * (+query.dto.pageNumber - 1)
           : 0,
     } as SAGetUsersPaginationModel;
-    const { searchLoginTerm, searchEmailTerm, pageSize, pageNumber } = paging;
+    const {
+      searchLoginTerm,
+      searchEmailTerm,
+      pageSize,
+      pageNumber,
+      banStatus,
+    } = paging;
 
     const users = await this.usersQueryRepo.SA_GetUsers(paging);
     const mappedUsers: SA_UserViewModel[] =
       await this.usersQueryRepo.SA_mapUserEntitiesToResponse(users);
 
-    const docCount = await this.usersQueryRepo.countUsersBySearchname(
-      searchLoginTerm,
-      searchEmailTerm,
-    );
+    const docCount = await this.usersQueryRepo
+      .SA_CountUsersBySearch(searchLoginTerm, searchEmailTerm, banStatus)
+      .then((res) => res[0].total);
     return {
       pagesCount: Math.ceil(docCount / pageSize),
       page: pageNumber,

@@ -14,7 +14,7 @@ import {
   UnauthorizedException,
   UseGuards,
   UsePipes,
-  ValidationPipe
+  ValidationPipe,
 } from "@nestjs/common";
 import { RegistrationDto } from "./dto/registration.dto";
 import { LoginDto } from "./dto/login.dto";
@@ -37,7 +37,7 @@ import { RenewPasswordCommand } from "./useCase/renewPasswordHandler";
 import { SkipThrottle } from "@nestjs/throttler";
 
 @SkipThrottle()
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -47,14 +47,14 @@ export class AuthController {
 
   @HttpCode(204)
   @UseGuards(RequestLimitGuard)
-  @Post('password-recovery')
+  @Post("password-recovery")
   async passwordRecovery(@Body() dto: passRecoveryDto) {
     return this.commandBus.execute(new PasswordRecoveryCommand(dto));
   }
 
   @HttpCode(204)
   @UseGuards(RequestLimitGuard)
-  @Post('new-password')
+  @Post("new-password")
   async renewPassword(@Body() dto: RenewPasswordDto) {
     return this.commandBus.execute(
       new RenewPasswordCommand(dto.newPassword, dto.recoveryCode),
@@ -63,16 +63,16 @@ export class AuthController {
 
   @HttpCode(204)
   @UseGuards(RequestLimitGuard)
-  @Post('registration-confirmation')
+  @Post("registration-confirmation")
   async confirmRegistration(
     @Body(
-      'code',
+      "code",
       new ParseUUIDPipe({
         errorHttpStatusCode: HttpStatus.BAD_REQUEST,
         exceptionFactory: (error) => {
           throw new BadRequestException({
-            message: 'code ' + error,
-            field: 'code',
+            message: "code " + error,
+            field: "code",
           });
         },
       }),
@@ -84,7 +84,7 @@ export class AuthController {
 
   @HttpCode(204)
   @UseGuards(RequestLimitGuard)
-  @Post('registration')
+  @Post("registration")
   async registration(@Body() dto: RegistrationDto) {
     return this.commandBus.execute(new RegistrationUserCommand(dto));
     // const result = await this.authService.registration(dto);
@@ -93,19 +93,18 @@ export class AuthController {
 
   @HttpCode(204)
   @UseGuards(RequestLimitGuard)
-  @Post('registration-email-resending')
+  @Post("registration-email-resending")
   async resendRegistrationEmail(@Body() email: passRecoveryDto) {
     return this.commandBus.execute(
       new ResendRegistrationEmailCommand(email.email),
     );
-    // return this.authService.resendRegistrationEmail(email);
   }
 
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   // @UseGuards(RequestLimitGuard)
   @UsePipes(new ValidationPipe())
-  @Post('login')
+  @Post("login")
   async login(
     @Request() req,
     @Response({ passthrough: true }) res,
@@ -118,9 +117,9 @@ export class AuthController {
       );
     }
     const tokens = await this.commandBus.execute(
-      new LoginCommand(req.user, req.get('user-agent'), req.get('host')),
+      new LoginCommand(req.user, req.get("user-agent"), req.get("host")),
     );
-    res.cookie('refreshToken', tokens.refreshToken, {
+    res.cookie("refreshToken", tokens.refreshToken, {
       httpOnly: jwtConstants.httpOnly,
       secure: jwtConstants.cookieSecure,
     });
@@ -130,17 +129,17 @@ export class AuthController {
   }
 
   @HttpCode(200)
-  @Post('refresh-token')
+  @Post("refresh-token")
   async refreshTokens(@Request() req, @Response({ passthrough: true }) res) {
     const refToken = req.cookies.refreshToken;
     const tokens = await this.commandBus.execute(
       new RefreshTokensCommand(
         refToken,
-        req.get('user-agent'),
-        req.get('host'),
+        req.get("user-agent"),
+        req.get("host"),
       ),
     );
-    res.cookie('refreshToken', tokens.refreshToken, {
+    res.cookie("refreshToken", tokens.refreshToken, {
       httpOnly: jwtConstants.httpOnly,
       secure: jwtConstants.cookieSecure,
     });
@@ -150,7 +149,7 @@ export class AuthController {
   }
 
   @HttpCode(204)
-  @Post('logout')
+  @Post("logout")
   async logout(@Request() req, @Response({ passthrough: true }) res) {
     const refToken = req.cookies.refreshToken;
     return await this.commandBus.execute(new LogoutCommand(refToken));
@@ -166,9 +165,9 @@ export class AuthController {
 
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
-  @Get('me')
+  @Get("me")
   async aboutMe(@Request() req) {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(" ")[1];
     return this.queryBus.execute(new AboutMeCommand(token));
     // // const userId = await this.jwtService.getUserIdByToken(token)
     // const retrievedUserFromToken = await this.authService.retrieveUser(token)

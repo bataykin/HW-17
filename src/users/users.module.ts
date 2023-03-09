@@ -25,12 +25,7 @@ const usersRouteHandlers = [
 ];
 
 @Module({
-  imports: [
-    CqrsModule,
-    TypeOrmModule.forFeature([UserEntity, DeviceEntity]),
-
-    // MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ],
+  imports: [CqrsModule, TypeOrmModule.forFeature([UserEntity, DeviceEntity])],
 
   controllers: [UsersController],
 

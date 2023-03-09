@@ -62,7 +62,7 @@ export class UsersSQLRepo implements IUsersRepo<UserEntity> {
       `
             UPDATE users
             SET "confirmationCode" = $1,
-            "expirationDate" = $2
+            "codeExpDate" = $2
             WHERE email = $3
             RETURNING *
             `,
@@ -77,5 +77,15 @@ export class UsersSQLRepo implements IUsersRepo<UserEntity> {
 
   async checkPassRecoveryCodeIsValid(recoveryCode: string) {}
 
-  async setBanStatus(userId: string, dto: BanUserInputModel) {}
+  async setBanStatus(userId: string, dto: BanUserInputModel) {
+    const result = await this.dataSource.query(
+      `
+                UPDATE USERS
+                SET "isBanned" = $1, "banReason" = $2
+                WHERE id = $3
+                    `,
+      [dto.isBanned, dto.banReason, userId],
+    );
+    return result;
+  }
 }

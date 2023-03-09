@@ -39,9 +39,10 @@ export class RegistrationUserHandler
     const passwordHash = await this.authUtils._generateHash(password);
     const code = uuidv4();
 
-    // console.log(`UNCOMMENT in registration() in auth.ORM.service to REAL send confirmation code ${code} to ${email}`)
-    await this.emailService.sendConfirmationOfRegistrationMail(email, code);
+    console.log(`...sending to ${email}, code: ${code}`);
+    // await this.emailService.sendConfirmationOfRegistrationMail(email, code);
 
-    return this.usersRepo.createUser(login, email, passwordHash, code);
+    await this.usersRepo.createUser(login, email, passwordHash, code);
+    return;
   }
 }

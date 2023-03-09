@@ -25,10 +25,10 @@ export class ConfirmRegistrationHandler
     const isUserByCodeExists = await this.usersQueryRepo.checkCodeExists(
       command.code,
     );
-    if (!isUserByCodeExists || isUserByCodeExists["isConfirmed"]) {
+    if (!isUserByCodeExists || isUserByCodeExists[0]["isConfirmed"]) {
       throw new BadRequestException("code already confirmed or not exists");
     }
-    const result = await this.usersRepo.confirmEmail(command.code);
-    return result;
+    await this.usersRepo.confirmEmail(command.code);
+    return;
   }
 }
