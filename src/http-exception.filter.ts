@@ -9,7 +9,7 @@ import { Request, Response } from "express";
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   constructor() {
-    // console.log('HttpExceptionFilter is created');
+    // console.log("HttpExceptionFilter is created");
   }
 
   catch(exception: HttpException, host: ArgumentsHost) {
@@ -20,13 +20,21 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const exeptionResponse: any = exception.getResponse();
 
     const arr = exeptionResponse.message;
+
+    console.log(arr);
     const errorsMessages = [];
-    for (let i = 0; i < arr.length; i++) {
+    if (Array.isArray(arr)) {
+      for (let i = 0; i < arr.length; i++) {
+        errorsMessages.push({
+          message: arr[i],
+          field: arr[i].split(" ")[0],
+        });
+      }
+    } else
       errorsMessages.push({
-        message: arr[i],
-        field: arr[i].split(" ")[0],
+        message: arr,
+        field: arr.split(" ")[0],
       });
-    }
 
     if (status === 400) {
       response.status(status).json({ errorsMessages });

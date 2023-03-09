@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BannedUsersEntity } from "./entities/bannedUsersEntity";
-import { IBannedUsersRepo } from "./IBannedUsersRepo";
+import { IBannedUsersRepo } from "./DAL/IBannedUsersRepo";
 import { BanUserByBlogDto } from "./dto/banUserByBlogDto";
 import { UserEntity } from "../users/entity/user.entity";
 
@@ -86,7 +86,7 @@ export class BannedUsersORM
 
     if (dto.sortBy === `createdAt`) {
       const users = await this.bannedUsersRepo
-        .createQueryBuilder('users')
+        .createQueryBuilder("users")
         .where(`LOWER(users.login) like LOWER(:login)`, {
           login: `%${dto.searchNameTerm}%`,
         })
@@ -99,7 +99,7 @@ export class BannedUsersORM
           // THEN "users." || "${dto.sortBy}" || "::bytea"
           // ELSE "users." || "${dto.sortBy}"
           // `
-          'users.banDate' /*+ dto.sortBy*/,
+          "users.banDate" /*+ dto.sortBy*/,
           // + ' COLLATE "C"'
           /*+ '::bytea'*/
           dto.sortDirection === `asc` ? `ASC` : `DESC`,
@@ -110,7 +110,7 @@ export class BannedUsersORM
       return users;
     }
     const users = await this.bannedUsersRepo
-      .createQueryBuilder('users')
+      .createQueryBuilder("users")
       .where(`LOWER(users.login) like LOWER(:login)`, {
         login: `%${dto.searchNameTerm}%`,
       })
@@ -123,7 +123,7 @@ export class BannedUsersORM
         // THEN "users." || "${dto.sortBy}" || "::bytea"
         // ELSE "users." || "${dto.sortBy}"
         // `
-        'users.' + dto.sortBy + ` COLLATE "C"`,
+        "users." + dto.sortBy + ` COLLATE "C"`,
         /*+ '::bytea'*/
         dto.sortDirection === `asc` ? `ASC` : `DESC`,
         `NULLS LAST`,
@@ -155,8 +155,8 @@ export class BannedUsersORM
 
   async countBannedUsersBySearchName(searchNameTerm: string) {
     const res = await this.bannedUsersRepo
-      .createQueryBuilder('u')
-      .where('LOWER(u.login) like LOWER(:login)', {
+      .createQueryBuilder("u")
+      .where("LOWER(u.login) like LOWER(:login)", {
         login: `%${searchNameTerm}%`,
       })
       .getCount();

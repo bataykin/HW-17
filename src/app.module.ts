@@ -9,7 +9,6 @@ import { TestingModule } from "./testing/testing.module";
 import { BloggersModule } from "./bloggers/bloggers.module";
 import { PostsModule } from "./posts/posts.module";
 import { CommentsModule } from "./comments/comments.module";
-import { MongooseModule } from "@nestjs/mongoose";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { DeviceModule } from "./device/device.module";
@@ -29,10 +28,6 @@ import { QuizModule } from "./quiz/quiz.module";
       inject: [ConfigService],
     }),
 
-    MongooseModule.forRoot(process.env.MONGO_URI, {
-      dbName: "local",
-      autoIndex: true,
-    }),
     QuizModule,
     UsersModule,
     AuthModule,

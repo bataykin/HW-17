@@ -4,8 +4,9 @@ import { Inject, UnauthorizedException } from "@nestjs/common";
 import { AuthService } from "../../auth/authService";
 import { ILikesRepo, ILikesRepoToken } from "../../likes/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
-import { IUsersRepo, IUsersRepoToken } from "../../users/IUsersRepo";
+import { IUsersRepoToken } from "../../users/DAL/IUsersRepo";
 import { UserEntity } from "../../users/entity/user.entity";
+import { IUsersQueryRepo } from "../../users/DAL/IUserQueryRepo";
 
 export class SetLikeStatusCommand {
   constructor(
@@ -26,7 +27,7 @@ export class SetLikeStatusHandler
     private readonly likesRepo: ILikesRepo<LikeEntity>,
     private readonly authService: AuthService,
     @Inject(IUsersRepoToken)
-    private readonly usersRepo: IUsersRepo<UserEntity>,
+    private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
   ) {}
 
   async execute(command: SetLikeStatusCommand): Promise<any> {
@@ -37,7 +38,7 @@ export class SetLikeStatusHandler
     const userIdFromToken = retrievedUserFromToken
       ? retrievedUserFromToken.userId
       : undefined;
-    const isBanned = await this.usersRepo.getBanStatus(userIdFromToken);
+    const isBanned = await this.usersQueryRepo.getBanStatus(userIdFromToken);
     if (isBanned) throw new UnauthorizedException("user is banned, sorry))");
     const res = userIdFromToken
       ? await this.likesRepo.addReactionToComment(

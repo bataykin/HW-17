@@ -1,20 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { Connection } from 'mongoose';
-import { InjectConnection } from '@nestjs/mongoose';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { Injectable } from "@nestjs/common";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
 
 @Injectable()
 export class TestingSQLService {
   constructor(
-    @InjectConnection() private connection: Connection,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
 
   async removeAll() {
-    await this.connection.db.dropDatabase();
-
     await this.dataSource.dropDatabase();
 
     await this.dataSource.query(`
@@ -136,7 +131,7 @@ export class TestingSQLService {
     // await this.connection.dropCollection('bloggers')
     // await this.connection.dropCollection('posts')
     // await this.connection.dropCollection('comments')
-    return 'all data deleted...';
+    return "all data deleted...";
   }
 
   async removeQuiz() {
@@ -215,6 +210,6 @@ export class TestingSQLService {
                             REFERENCES players (id);                        
       
       `);
-    return 'delete quiz data';
+    return "delete quiz data";
   }
 }

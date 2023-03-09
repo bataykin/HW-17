@@ -1,32 +1,26 @@
 import { Logger, MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { AuthController } from "./auth.controller";
-import { AuthUtilsClass } from "./auth.utils";
+import { AuthHashClass } from "./auth.utils";
 import { EmailService } from "../common/email/email.service";
 import { UsersModule } from "../users/users.module";
 import { APP_GUARD } from "@nestjs/core";
 import { EmailsModule } from "../common/email/emails.module";
-import { RequestRepoClass } from "./reuest.repo";
 import { LoggerMiddleware } from "../middlewares/logger.middleware";
-import { JwtServiceClass } from "../common/jwt/jwt-service-class.service";
 import { JwtModule, JwtService } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { LocalStrategy } from "./strategies/local.strategy";
 import { jwtConstants } from "./constants";
 import { JwtStrategy } from "./strategies/jwt.strategy";
-import { AuthSQLService } from "./oldServiceRepos/auth.SQL.service";
 import { ConfigModule } from "@nestjs/config";
 import { getAuthConfiguration } from "./configuration/authConfiguration";
-import { AuthORMService } from "./oldServiceRepos/auth.ORM.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserEntity } from "../users/entity/user.entity";
 import { ReftokenEntity } from "./entities/reftoken.entity";
-import { ReftokenORMRepo } from "./oldServiceRepos/reftoken.ORM.repo";
 import { AuthService } from "./authService";
 import { CqrsModule } from "@nestjs/cqrs";
 import { ConfirmRegistrationHandler } from "./useCase/confirmRegistrationHandler";
-import { IUsersRepoToken } from "../users/IUsersRepo";
+import { IUsersRepoToken } from "../users/DAL/IUsersRepo";
 import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
-import { UsersORM } from "../users/users.ORM";
 import { RegistrationUserHandler } from "./useCase/registrationUserHandler";
 import { ResendRegistrationEmailHandler } from "./useCase/resendRegistrationEmailHandler";
 import { LoginHandler } from "./useCase/loginHandler";
@@ -43,16 +37,10 @@ import { RequestEntity } from "./entities/request.entity";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { PasswordRecoveryHandler } from "./useCase/passwordRecoveryHandler";
 import { RenewPasswordHandler } from "./useCase/renewPasswordHandler";
-
-export const useAuthServiceClass = () => {
-  if (process.env.REPO_TYPE === "MONGO") {
-    return AuthSQLService;
-  } else if (process.env.REPO_TYPE === "SQL") {
-    return AuthSQLService;
-  } else if (process.env.REPO_TYPE === "ORM") {
-    return AuthORMService;
-  } else return AuthSQLService; // by DEFAULT if not in enum
-};
+import { IUsersQueryRepoToken } from "../users/DAL/IUserQueryRepo";
+import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
+import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
+import { ReftokenSQLRepo } from "./oldServiceRepos/reftoken.SQL.repo";
 
 const authRouteHandlers = [
   ConfirmRegistrationHandler,
@@ -86,7 +74,6 @@ const authRouteHandlers = [
 
     DeviceModule,
     UsersModule,
-
     EmailsModule,
     JwtModule.register({
       secret: jwtConstants.secret,
@@ -107,9 +94,13 @@ const authRouteHandlers = [
     ...authRouteHandlers,
     {
       provide: IUsersRepoToken,
-      useClass: useRepositoryClassGeneric(UsersORM, UsersORM, UsersORM),
+      useClass: UsersSQLRepo,
     },
-    ReftokenORMRepo,
+    {
+      provide: IUsersQueryRepoToken,
+      useClass: UsersSQLQueryRepo,
+    },
+    ReftokenSQLRepo,
     {
       provide: IDevicesRepoToken,
       useClass: useRepositoryClassGeneric(DevicesORM, DevicesORM, DevicesORM),
@@ -120,9 +111,7 @@ const authRouteHandlers = [
     },
 
     AuthService,
-    AuthUtilsClass,
-
-    RequestRepoClass,
+    AuthHashClass,
 
     // {
     //     provide: AAuthService,
@@ -139,7 +128,6 @@ const authRouteHandlers = [
     // UsersMongoRepo,
 
     LoggerMiddleware,
-    JwtServiceClass,
     LocalStrategy,
     JwtStrategy,
     JwtService,
@@ -153,9 +141,8 @@ const authRouteHandlers = [
     // ReftokenSQLRepo,
     // ReftokenORMRepo,
     AuthService,
-    AuthUtilsClass,
+    AuthHashClass,
     EmailService,
-    JwtServiceClass,
     JwtService,
   ],
 })

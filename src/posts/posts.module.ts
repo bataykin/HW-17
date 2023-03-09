@@ -13,16 +13,15 @@ import { jwtConstants } from "../auth/constants";
 import { AuthModule } from "../auth/auth.module";
 import { UsersModule } from "../users/users.module";
 import { PostsCheckUriBeforeBodyMiddleware } from "../middlewares/posts-check-uri-before-body-middleware.service";
-import { PostsSQLService } from "./oldServicesRepos/posts.SQL.service";
-import { PostsORMService } from "./oldServicesRepos/posts.ORM.service";
+import { PostsSQLService } from "./DAL/posts.SQL.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { BlogEntity } from "../bloggers/entities/blogEntity";
 import { PostEntity } from "./entities/post.entity";
 import { PostService } from "./post.service";
-import { IPostsRepoToken } from "./IPostsRepo";
+import { IPostsRepoToken } from "./DAL/IPostsRepo";
 import { PostsORM } from "./posts.ORM";
 import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
-import { IBlogsRepoToken } from "../bloggers/IBlogsRepo";
+import { IBlogsRepoToken } from "../bloggers/DAL/IBlogsRepo";
 import { BlogsORM } from "../bloggers/blogs.ORM";
 import { CqrsModule } from "@nestjs/cqrs";
 import { GetAllPostsHandler } from "./useCase/getAllPostsHandler";
@@ -36,17 +35,19 @@ import { ICommentsRepoToken } from "../comments/ICommentsRepo";
 import { CommentsORM } from "../comments/comments.ORM";
 import { CommentEntity } from "../comments/entities/comment.entity";
 import { AuthService } from "../auth/authService";
-import { IUsersRepoToken } from "../users/IUsersRepo";
-import { UsersORM } from "../users/users.ORM";
+import { IUsersRepoToken } from "../users/DAL/IUsersRepo";
 import { UserEntity } from "../users/entity/user.entity";
 import { ILikesRepoToken } from "../likes/ILikesRepo";
 import { LikesORM } from "../likes/likesORM";
 import { LikeEntity } from "../likes/entities/like.entity";
 import { SetLikeToPostHandler } from "./useCase/setLikeToPostHandler";
 import { IsBlogExistConstraint } from "../bloggers/decorators/isBloggerExistsDecorator";
-import { IBannedUsersRepoToken } from "../bloggers/IBannedUsersRepo";
+import { IBannedUsersRepoToken } from "../bloggers/DAL/IBannedUsersRepo";
 import { BannedUsersORM } from "../bloggers/bannedUsers.ORM";
 import { BannedUsersEntity } from "../bloggers/entities/bannedUsersEntity";
+import { IUsersQueryRepoToken } from "../users/DAL/IUserQueryRepo";
+import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
+import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
 
 export const usePostServiceClass = () => {
   if (process.env.REPO_TYPE === "MONGO") {
@@ -54,7 +55,7 @@ export const usePostServiceClass = () => {
   } else if (process.env.REPO_TYPE === "SQL") {
     return PostsSQLService;
   } else if (process.env.REPO_TYPE === "ORM") {
-    return PostsORMService;
+    return PostsSQLService;
   } else return PostsSQLService; // by DEFAULT if not in enum
 };
 
@@ -118,7 +119,11 @@ const PostRouteHandlers = [
     },
     {
       provide: IUsersRepoToken,
-      useClass: useRepositoryClassGeneric(UsersORM, UsersORM, UsersORM),
+      useClass: UsersSQLRepo,
+    },
+    {
+      provide: IUsersQueryRepoToken,
+      useClass: UsersSQLQueryRepo,
     },
     {
       provide: ILikesRepoToken,

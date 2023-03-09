@@ -8,7 +8,7 @@ import { CommentsSQLRepo } from "./comments.SQL.repo";
 import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
 import { LikesSQLService } from "../../likes/oldServiceRepos/likes.SQL.service";
 import { ACommentService } from "./ICommentService";
-import { UsersSQLRepo } from "../../users/oldServiceRepos/users.SQL.repo";
+import { UsersSQLRepo } from "../../users/DAL/users.SQL.repo";
 
 @Injectable()
 export class CommentsSQLService implements ACommentService {

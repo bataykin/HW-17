@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
-import { IPostsRepo, IPostsRepoToken } from "./IPostsRepo";
+import { IPostsRepo, IPostsRepoToken } from "./DAL/IPostsRepo";
 import { PostEntity } from "./entities/post.entity";
 import { CreatePostDto } from "./dto/create-post.dto";
 import { BlogService } from "../bloggers/blog.service";

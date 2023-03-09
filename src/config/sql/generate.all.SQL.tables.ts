@@ -8,7 +8,7 @@ export class GenerateAllSQLTables {
   ) {}
 
   static async startUpDB() {
-    console.log('in config/db script...');
+    console.log("in config/db script...");
 
     // await this.dataSource.query(`
     //

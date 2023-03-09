@@ -1,14 +1,14 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject } from '@nestjs/common';
-import { jwtConstants } from '../constants';
-import { UserEntity } from '../../users/entity/user.entity';
-import { JwtService } from '@nestjs/jwt';
-import { IDevicesRepo, IDevicesRepoToken } from '../../device/IDevicesRepo';
-import { DeviceEntity } from '../../device/entities/device.entity';
-import { v4 as uuidv4 } from 'uuid';
-import { JWTPayloadDto } from '../dto/JWTPayloadDto';
-import { IUsersRepo, IUsersRepoToken } from '../../users/IUsersRepo';
-import { AuthUtilsClass } from '../auth.utils';
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
+import { Inject } from "@nestjs/common";
+import { jwtConstants } from "../constants";
+import { UserEntity } from "../../users/entity/user.entity";
+import { JwtService } from "@nestjs/jwt";
+import { IDevicesRepo, IDevicesRepoToken } from "../../device/IDevicesRepo";
+import { DeviceEntity } from "../../device/entities/device.entity";
+import { v4 as uuidv4 } from "uuid";
+import { JWTPayloadDto } from "../dto/JWTPayloadDto";
+import { IUsersRepo, IUsersRepoToken } from "../../users/DAL/IUsersRepo";
+import { AuthHashClass } from "../auth.utils";
 
 export class LoginCommand {
   constructor(
@@ -26,7 +26,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     @Inject(IUsersRepoToken)
     private readonly usersRepo: IUsersRepo<UserEntity>,
     private readonly jwtService: JwtService,
-    private readonly authUtils: AuthUtilsClass,
+    private readonly authUtils: AuthHashClass,
   ) {}
 
   async execute(command: LoginCommand): Promise<any> {

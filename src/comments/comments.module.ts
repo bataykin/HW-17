@@ -8,7 +8,6 @@ import { LikesModule } from "../likes/likes.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserEntity } from "../users/entity/user.entity";
 import { CommentEntity } from "./entities/comment.entity";
-import { CommentsORMService } from "./oldServiceRepos/comments.ORM.service";
 import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
 import { ICommentsRepoToken } from "./ICommentsRepo";
 import { CommentsORM } from "./comments.ORM";
@@ -20,8 +19,8 @@ import { SetLikeStatusHandler } from "./useCase/setLikeStatusHandler";
 import { ILikesRepoToken } from "../likes/ILikesRepo";
 import { LikesORM } from "../likes/likesORM";
 import { LikeEntity } from "../likes/entities/like.entity";
-import { IUsersRepoToken } from "../users/IUsersRepo";
-import { UsersORM } from "../users/users.ORM";
+import { IUsersRepoToken } from "../users/DAL/IUsersRepo";
+import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
 
 export const useCommentServiceClass = () => {
   if (process.env.REPO_TYPE === "MONGO") {
@@ -29,7 +28,7 @@ export const useCommentServiceClass = () => {
   } else if (process.env.REPO_TYPE === "SQL") {
     return CommentsSQLService;
   } else if (process.env.REPO_TYPE === "ORM") {
-    return CommentsORMService;
+    return CommentsSQLService;
   } else return CommentsSQLService; // by DEFAULT if not in enum
 };
 
@@ -66,17 +65,9 @@ const commentsRouteHandlers = [
     },
     {
       provide: IUsersRepoToken,
-      useClass: useRepositoryClassGeneric(UsersORM, UsersORM, UsersORM),
+      useClass: UsersSQLRepo,
     },
-    // CommentsORMService,
-    // CommentsORMRepo,
-    //
-    // CommentsSQLService,
-    // CommentsSQLRepo,
-    //
-    //
-    // CommentsMongoService,
-    // CommentsMongoRepo,
+
     CommentsCheckUriBeforeBodyMiddleware,
   ],
   exports: [
@@ -88,14 +79,6 @@ const commentsRouteHandlers = [
         CommentsORM,
       ),
     },
-    // CommentsMongoService,
-    // CommentsMongoRepo,
-    //
-    // CommentsSQLService,
-    // CommentsSQLRepo,
-    //
-    // CommentsORMService,
-    // CommentsORMRepo
   ],
 })
 export class CommentsModule implements NestModule {

@@ -2,7 +2,7 @@ import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { Inject } from "@nestjs/common";
 import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { AuthService } from "../../auth/authService";
-import { IPostsRepo, IPostsRepoToken } from "../../posts/IPostsRepo";
+import { IPostsRepo, IPostsRepoToken } from "../../posts/DAL/IPostsRepo";
 import { PostEntity } from "../../posts/entities/post.entity";
 import { ILikesRepo, ILikesRepoToken } from "../../likes/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
@@ -28,11 +28,11 @@ export class GetPostsByBlogHandler
 
   async execute(query: GetPostsByBlogQuery): Promise<any> {
     const {
-      searchNameTerm = '',
+      searchNameTerm = "",
       pageNumber = 1,
       pageSize = 10,
-      sortBy = 'createdAt',
-      sortDirection = 'desc',
+      sortBy = "createdAt",
+      sortDirection = "desc",
       skipSize = +pageNumber > 1 ? +pageSize * (+pageNumber - 1) : 0,
     } = query.dto;
     const postsPaginationBLLdto = {

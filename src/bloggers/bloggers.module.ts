@@ -3,12 +3,12 @@ import { BloggersController } from "./bloggers.controller";
 import { PostsModule } from "../posts/posts.module";
 import { AuthModule } from "../auth/auth.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { BloggersSQLService } from "./oldServicesRepos/bloggers.SQL.service";
+import { BloggersSQLService } from "./DAL/bloggers.SQL.service";
 import { BlogEntity } from "./entities/blogEntity";
 import { LikesModule } from "../likes/likes.module";
 import { UsersModule } from "../users/users.module";
 import { BlogService } from "./blog.service";
-import { IBlogsRepoToken } from "./IBlogsRepo";
+import { IBlogsRepoToken } from "./DAL/IBlogsRepo";
 import { BlogsORM } from "./blogs.ORM";
 import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
 import { PostEntity } from "../posts/entities/post.entity";
@@ -19,10 +19,9 @@ import { RemoveBlogHandler } from "./useCase/removeBlogHandler";
 import { UpdateBlogHandler } from "./useCase/updateBlogHandler";
 import { FindBlogHandler } from "./useCase/findBlogHandler";
 import { GetPostsByBlogHandler } from "./useCase/getPostsByBlogHandler";
-import { IPostsRepoToken } from "../posts/IPostsRepo";
+import { IPostsRepoToken } from "../posts/DAL/IPostsRepo";
 import { PostsORM } from "../posts/posts.ORM";
-import { IUsersRepoToken } from "../users/IUsersRepo";
-import { UsersORM } from "../users/users.ORM";
+import { IUsersRepoToken } from "../users/DAL/IUsersRepo";
 import { UserEntity } from "../users/entity/user.entity";
 import { CreatePostByBlogHandler } from "./useCase/createPostByBlogHandler";
 import { ILikesRepoToken } from "../likes/ILikesRepo";
@@ -38,9 +37,12 @@ import { CommentsORM } from "../comments/comments.ORM";
 import { CommentEntity } from "../comments/entities/comment.entity";
 import { BanUnbanUserByBlogHandler } from "./useCase/BanUnbanUserByBlogHandler";
 import { GetAllBlogsHandler } from "./useCase/getAllBlogsPublic";
-import { IBannedUsersRepoToken } from "./IBannedUsersRepo";
+import { IBannedUsersRepoToken } from "./DAL/IBannedUsersRepo";
 import { BannedUsersORM } from "./bannedUsers.ORM";
 import { GetBannedUsersForBlogHandler } from "./useCase/getBannedUsersForBlogHandler";
+import { IUsersQueryRepoToken } from "../users/DAL/IUserQueryRepo";
+import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
+import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
 //import {BlogPostModule} from "../BlogPostModule/blogPost.module";
 
 const useBloggerServiceClass = () => {
@@ -86,8 +88,6 @@ const blogsRouteHandlers = [
     ]),
 
     forwardRef(() => PostsModule),
-    // PostsModule,
-    //BlogPostModule,
     AuthModule,
     UsersModule,
     LikesModule,
@@ -108,8 +108,13 @@ const blogsRouteHandlers = [
     },
     {
       provide: IUsersRepoToken,
-      useClass: useRepositoryClassGeneric(UsersORM, UsersORM, UsersORM),
+      useClass: UsersSQLRepo,
     },
+    {
+      provide: IUsersQueryRepoToken,
+      useClass: UsersSQLQueryRepo,
+    },
+
     {
       provide: IBannedUsersRepoToken,
       useClass: useRepositoryClassGeneric(

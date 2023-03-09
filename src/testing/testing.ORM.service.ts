@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { Injectable } from "@nestjs/common";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
 
 @Injectable()
 export class TestingORMService {
@@ -31,6 +31,6 @@ export class TestingORMService {
   }
 
   async removeQuiz() {
-    return 'not implemented';
+    return "not implemented";
   }
 }

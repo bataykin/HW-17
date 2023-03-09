@@ -1,7 +1,12 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { BlogEntity } from "./entities/blogEntity";
 import { BlogsPaginationDto } from "./dto/blogsPaginationDto";
-import { IBlogsRepo, IBlogsRepoToken } from "./IBlogsRepo";
+import { IBlogsRepo, IBlogsRepoToken } from "./DAL/IBlogsRepo";
 import { CreateBloggerDto } from "./dto/create.blogger.dto";
 import { UpdateBlogDto } from "./dto/update-blog.dto";
 
@@ -18,8 +23,8 @@ export class BlogService {
       searchNameTerm = null,
       pageNumber = 1,
       pageSize = 10,
-      sortBy = 'createdAt',
-      sortDirection = 'desc',
+      sortBy = "createdAt",
+      sortDirection = "desc",
       skipSize = +pageNumber > 1 ? +pageSize * (+pageNumber - 1) : 0,
     } = dto;
     const blogsPaginationBLLdto = {
@@ -45,7 +50,7 @@ export class BlogService {
   async createBlog(dto: CreateBloggerDto) {
     const isExists = await this.blogsRepo.isBlogExistsByName(dto);
     if (isExists) {
-      throw new BadRequestException('Takoi blog name exists');
+      throw new BadRequestException("Takoi blog name exists");
     }
     // return await this.blogsRepo.createBlog(dto, userIdFromToken)
   }
@@ -54,7 +59,7 @@ export class BlogService {
     try {
       const blog = await this.blogsRepo.findBlogById(id);
       if (!blog) {
-        throw new NotFoundException('net takogo blog id');
+        throw new NotFoundException("net takogo blog id");
       }
       return blog;
     } finally {

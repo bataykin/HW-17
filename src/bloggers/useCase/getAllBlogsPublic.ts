@@ -1,10 +1,10 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { Inject } from "@nestjs/common";
-import { IBlogsRepo, IBlogsRepoToken } from "../IBlogsRepo";
+import { IBlogsRepo, IBlogsRepoToken } from "../DAL/IBlogsRepo";
 import { BlogEntity } from "../entities/blogEntity";
 import { AuthService } from "../../auth/authService";
-import { IUsersRepo, IUsersRepoToken } from "../../users/IUsersRepo";
+import { IUsersRepo, IUsersRepoToken } from "../../users/DAL/IUsersRepo";
 import { UserEntity } from "../../users/entity/user.entity";
 
 export class GetAllBlogsQuery {
@@ -24,11 +24,11 @@ export class GetAllBlogsHandler implements IQueryHandler<GetAllBlogsQuery> {
   async execute(query: GetAllBlogsQuery): Promise<any> {
     const { dto } = query;
     const {
-      searchNameTerm = '',
+      searchNameTerm = "",
       pageNumber = 1,
       pageSize = 10,
-      sortBy = 'createdAt',
-      sortDirection = 'desc',
+      sortBy = "createdAt",
+      sortDirection = "desc",
       skipSize = +pageNumber > 1 ? +pageSize * (+pageNumber - 1) : 0,
     } = dto;
     const blogsPaginationBLLdto = {
@@ -45,12 +45,12 @@ export class GetAllBlogsHandler implements IQueryHandler<GetAllBlogsQuery> {
     // const mappedBlogs = await this.blogsRepo.mapBlogsWithOwnersToResponse(blogs)
     const mappedBlogs = await this.blogsRepo.mapBlogsToResponse(
       blogs,
-      'id',
-      'name',
-      'description',
-      'websiteUrl',
-      'isMembership',
-      'createdAt',
+      "id",
+      "name",
+      "description",
+      "websiteUrl",
+      "isMembership",
+      "createdAt",
     );
     const docCount = await this.blogsRepo.countUsersBlogsBySearchname(
       searchNameTerm,

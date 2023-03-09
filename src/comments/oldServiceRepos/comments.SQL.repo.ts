@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
-import { FilterQuery, UpdateQuery } from "mongoose";
 import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
 
 @Injectable()
@@ -65,7 +64,7 @@ export class CommentsSQLRepo {
     return result;
   }
 
-  async countDocuments(filter: FilterQuery<any>) {
+  async countDocuments(filter: any) {
     // return this.commentModel.countDocuments(filter);
 
     const result = await this.dataSource.query(
@@ -108,7 +107,7 @@ export class CommentsSQLRepo {
     return result;
   }
 
-  async setLikeStatus(commentId: string, updateQuery: UpdateQuery<any>) {
+  async setLikeStatus(commentId: string, updateQuery: any) {
     // return this.commentModel.findByIdAndUpdate(commentId, updateQuery, {new: true})
   }
 

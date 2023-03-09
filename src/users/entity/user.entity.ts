@@ -5,12 +5,12 @@ import {
   JoinColumn,
   OneToMany,
   PrimaryGeneratedColumn,
-} from 'typeorm';
-import { DeviceEntity } from '../../device/entities/device.entity';
-import { CommentEntity } from '../../comments/entities/comment.entity';
-import { LikeEntity } from '../../likes/entities/like.entity';
-import { BlogEntity } from '../../bloggers/entities/blogEntity';
-import { BannedUsersEntity } from '../../bloggers/entities/bannedUsersEntity';
+} from "typeorm";
+import { DeviceEntity } from "../../device/entities/device.entity";
+import { CommentEntity } from "../../comments/entities/comment.entity";
+import { LikeEntity } from "../../likes/entities/like.entity";
+import { BlogEntity } from "../../bloggers/entities/blogEntity";
+import { BannedUsersEntity } from "../../bloggers/entities/bannedUsersEntity";
 
 //
 // @Entity()
@@ -98,9 +98,9 @@ import { BannedUsersEntity } from '../../bloggers/entities/bannedUsersEntity';
 
 ////////////////////////////////////////////////////
 
-@Entity('users')
+@Entity("users")
 export class UserEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ unique: true })
@@ -109,22 +109,22 @@ export class UserEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: "uuid" })
   confirmationCode: string;
 
   @Column({})
   passwordHash: string;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   codeExpDate: Date;
 
-  @Column({ type: 'boolean' })
+  @Column({ type: "boolean" })
   isConfirmed: boolean;
 
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ type: "uuid", nullable: true })
   passwordRecoveryCode: string;
 
   @Column({ default: false })
@@ -133,25 +133,25 @@ export class UserEntity {
   @Column({ nullable: true })
   banReason: string;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   banDate: Date;
 
   // relations:
 
   @OneToMany(() => DeviceEntity, (devices) => devices.user)
-  @JoinColumn({ referencedColumnName: 'id' })
+  @JoinColumn({ referencedColumnName: "id" })
   devices: DeviceEntity[];
 
   @OneToMany(() => CommentEntity, (comments) => comments.user)
-  @JoinColumn([{ /*name: 'commentId',*/ referencedColumnName: 'id' }])
+  @JoinColumn([{ /*name: 'commentId',*/ referencedColumnName: "id" }])
   comments: CommentEntity[];
 
   @OneToMany(() => LikeEntity, (l) => l.user)
-  @JoinColumn({ referencedColumnName: 'userId' })
+  @JoinColumn({ referencedColumnName: "userId" })
   likes: LikeEntity[];
 
   @OneToMany(() => BlogEntity, (blog) => blog.user)
-  @JoinColumn({ referencedColumnName: 'userId' })
+  @JoinColumn({ referencedColumnName: "userId" })
   blogs: BlogEntity[];
 
   @OneToMany(() => BannedUsersEntity, (bannedUser) => bannedUser.user)

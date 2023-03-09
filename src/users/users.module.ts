@@ -1,25 +1,27 @@
 import { Module } from "@nestjs/common";
 import { UsersController } from "./users.controller";
-import { AuthUtilsClass } from "../auth/auth.utils";
+import { AuthHashClass } from "../auth/auth.utils";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserEntity } from "./entity/user.entity";
 import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
-import { IUsersRepoToken } from "./IUsersRepo";
-import { UsersORM } from "./users.ORM";
+import { IUsersRepoToken } from "./DAL/IUsersRepo";
 import { CqrsModule } from "@nestjs/cqrs";
-import { CreateUserHandler } from "./useCase/createUserHandler";
-import { GetUsersHandler } from "./useCase/getUsersHandler";
-import { DeleteUserHandler } from "./useCase/deleteUserHandler";
-import { BanUnbanUserHandler } from "./useCase/banUnbanUserHandler";
+import { SA_CreateUserHandler } from "../superadmin/useCase/SA_CreateUserHandler";
+import { SA_GetUsersHandler } from "../superadmin/useCase/SA_GetUsersHandler";
+import { SA_DeleteUserHandler } from "../superadmin/useCase/SA_DeleteUserHandler";
+import { SA_BanUnbanUserHandler } from "../superadmin/useCase/SA_BanUnbanUserHandler";
 import { IDevicesRepoToken } from "../device/IDevicesRepo";
 import { DevicesORM } from "../device/devices.ORM";
 import { DeviceEntity } from "../device/entities/device.entity";
+import { IUsersQueryRepoToken } from "./DAL/IUserQueryRepo";
+import { UsersSQLRepo } from "./DAL/users.SQL.repo";
+import { UsersSQLQueryRepo } from "./DAL/users.SQL.QueryRepo";
 
 const usersRouteHandlers = [
-  CreateUserHandler,
-  GetUsersHandler,
-  DeleteUserHandler,
-  BanUnbanUserHandler,
+  SA_CreateUserHandler,
+  SA_GetUsersHandler,
+  SA_DeleteUserHandler,
+  SA_BanUnbanUserHandler,
 ];
 
 @Module({
@@ -34,48 +36,21 @@ const usersRouteHandlers = [
 
   providers: [
     ...usersRouteHandlers,
-    AuthUtilsClass,
+    AuthHashClass,
 
     {
       provide: IUsersRepoToken,
-      useClass: useRepositoryClassGeneric(UsersORM, UsersORM, UsersORM),
+      useClass: UsersSQLRepo,
+    },
+    {
+      provide: IUsersQueryRepoToken,
+      useClass: UsersSQLQueryRepo,
     },
     {
       provide: IDevicesRepoToken,
       useClass: useRepositoryClassGeneric(DevicesORM, DevicesORM, DevicesORM),
     },
-
-    // {
-    //     provide: AUserService,
-    //     useClass: useUserServiceClass()
-    // },
-    //
-    // UsersORMService,
-    // UsersORMRepo,
-    //
-    // UsersSQLService,
-    // UsersSQLRepo,
-    //
-    //
-    // UsersMongoService,
-    // {
-    //     provide: UsersMongoRepo,
-    //     useClass: UsersMongoRepo
-    // },
-    // UsersMongoRepo,
-    // {
-    //     provide: getModelToken(User.name),
-    //     useValue: userModel,
-    // },
   ],
-  exports: [
-    // UsersMongoRepo,
-    // UsersSQLService,
-    // UsersSQLRepo,
-    //
-    // UsersORMService,
-    // UsersORMRepo,
-    // TypeOrmModule
-  ],
+  exports: [],
 })
 export class UsersModule {}

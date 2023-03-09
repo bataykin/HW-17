@@ -1,16 +1,30 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { ForbiddenException, Inject, UnauthorizedException } from "@nestjs/common";
-import { ICommentsRepo, ICommentsRepoToken } from "../../comments/ICommentsRepo";
+import {
+  ForbiddenException,
+  Inject,
+  UnauthorizedException,
+} from "@nestjs/common";
+import {
+  ICommentsRepo,
+  ICommentsRepoToken,
+} from "../../comments/ICommentsRepo";
 import { CommentEntity } from "../../comments/entities/comment.entity";
 import { AuthService } from "../../auth/authService";
-import { IUsersRepo, IUsersRepoToken } from "../../users/IUsersRepo";
+import { IUsersRepo, IUsersRepoToken } from "../../users/DAL/IUsersRepo";
 import { UserEntity } from "../../users/entity/user.entity";
-import { IBlogsRepo, IBlogsRepoToken } from "../../bloggers/IBlogsRepo";
+import { IBlogsRepo, IBlogsRepoToken } from "../../bloggers/DAL/IBlogsRepo";
 import { BlogEntity } from "../../bloggers/entities/blogEntity";
-import { IBannedUsersRepo, IBannedUsersRepoToken } from "../../bloggers/IBannedUsersRepo";
+import {
+  IBannedUsersRepo,
+  IBannedUsersRepoToken,
+} from "../../bloggers/DAL/IBannedUsersRepo";
 import { BannedUsersEntity } from "../../bloggers/entities/bannedUsersEntity";
-import { IPostsRepo, IPostsRepoToken } from "../IPostsRepo";
+import { IPostsRepo, IPostsRepoToken } from "../DAL/IPostsRepo";
 import { PostEntity } from "../entities/post.entity";
+import {
+  IUsersQueryRepo,
+  IUsersQueryRepoToken,
+} from "../../users/DAL/IUserQueryRepo";
 
 export class CreateCommentByPostCommand {
   constructor(
@@ -30,6 +44,8 @@ export class CreateCommentByPostHandler
     private readonly commentsRepo: ICommentsRepo<CommentEntity>,
     @Inject(IUsersRepoToken)
     private readonly usersRepo: IUsersRepo<UserEntity>,
+    @Inject(IUsersQueryRepoToken)
+    private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
     @Inject(IBlogsRepoToken)
     private readonly blogsRepo: IBlogsRepo<BlogEntity>,
     @Inject(IPostsRepoToken)
@@ -43,12 +59,12 @@ export class CreateCommentByPostHandler
       accessToken,
     );
     const userIdFromToken = retrievedUserFromToken.userId;
-    const isUserExist = await this.usersRepo.findById(userIdFromToken);
+    const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
     if (!isUserExist) {
-      throw new UnauthorizedException('unexpected user');
+      throw new UnauthorizedException("unexpected user");
     }
-    const isBanned = await this.usersRepo.getBanStatus(userIdFromToken);
-    if (isBanned) throw new UnauthorizedException('user is banned, sorry))');
+    const isBanned = await this.usersQueryRepo.getBanStatus(userIdFromToken);
+    if (isBanned) throw new UnauthorizedException("user is banned, sorry))");
 
     const post = await this.postsRepo.findPostById(postId);
     const blog = await this.blogsRepo.findBlogById(post.blogId);
@@ -58,7 +74,7 @@ export class CreateCommentByPostHandler
     );
     if (bannedAtBlog) {
       throw new ForbiddenException(
-        'banned user by blogger cant comment posts of current blog',
+        "banned user by blogger cant comment posts of current blog",
       );
     }
     // const login = retrievedUserFromToken.username
@@ -86,7 +102,7 @@ export class CreateCommentByPostHandler
       likesInfo: {
         likesCount: 0,
         dislikesCount: 0,
-        myStatus: 'None',
+        myStatus: "None",
       },
     };
 

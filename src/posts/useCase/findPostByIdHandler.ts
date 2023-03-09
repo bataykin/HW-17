@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { Inject, NotFoundException } from "@nestjs/common";
-import { IPostsRepo, IPostsRepoToken } from "../IPostsRepo";
+import { IPostsRepo, IPostsRepoToken } from "../DAL/IPostsRepo";
 import { PostEntity } from "../entities/post.entity";
 import { ILikesRepo, ILikesRepoToken } from "../../likes/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
@@ -24,7 +24,7 @@ export class FindPostByIdHandler implements IQueryHandler<FindPostByIdCommand> {
     const { postId } = query;
     const post = await this.postsRepo.findPostById(postId);
     if (!post) {
-      throw new NotFoundException('net takogo posta');
+      throw new NotFoundException("net takogo posta");
     }
     const mappedPostWithLikes =
       await this.likesRepo.mapLikesToPostEntityToResponse(post);

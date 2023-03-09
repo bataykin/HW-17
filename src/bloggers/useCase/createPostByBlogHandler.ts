@@ -8,14 +8,17 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { PostDalDto } from "../../posts/dto/post.dal.dto";
-import { IPostsRepo, IPostsRepoToken } from "../../posts/IPostsRepo";
+import { IPostsRepo, IPostsRepoToken } from "../../posts/DAL/IPostsRepo";
 import { PostEntity } from "../../posts/entities/post.entity";
-import { IBlogsRepo, IBlogsRepoToken } from "../IBlogsRepo";
+import { IBlogsRepo, IBlogsRepoToken } from "../DAL/IBlogsRepo";
 import { BlogEntity } from "../entities/blogEntity";
 import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
 import { AuthService } from "../../auth/authService";
-import { IUsersRepo, IUsersRepoToken } from "../../users/IUsersRepo";
 import { UserEntity } from "../../users/entity/user.entity";
+import {
+  IUsersQueryRepo,
+  IUsersQueryRepoToken,
+} from "../../users/DAL/IUserQueryRepo";
 
 export class CreatePostByBlogCommand {
   constructor(
@@ -35,8 +38,8 @@ export class CreatePostByBlogHandler
     @Inject(IBlogsRepoToken)
     private readonly blogsRepo: IBlogsRepo<BlogEntity>,
     private readonly authService: AuthService,
-    @Inject(IUsersRepoToken)
-    private readonly usersRepo: IUsersRepo<UserEntity>,
+    @Inject(IUsersQueryRepoToken)
+    private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
   ) {}
 
   async execute(command: CreatePostByBlogCommand): Promise<any> {
@@ -47,7 +50,7 @@ export class CreatePostByBlogHandler
     const userIdFromToken = retrievedUserFromToken
       ? retrievedUserFromToken.userId
       : undefined;
-    const isBanned = await this.usersRepo.getBanStatus(userIdFromToken);
+    const isBanned = await this.usersQueryRepo.getBanStatus(userIdFromToken);
     if (isBanned) throw new UnauthorizedException("user is banned, sorry))");
     const mixDto = { ...dto, blogId };
     const isPostAlreadyExists = await this.postsRepo.isPostExists(mixDto);

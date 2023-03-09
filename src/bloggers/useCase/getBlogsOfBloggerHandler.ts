@@ -1,11 +1,14 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { Inject, UnauthorizedException } from "@nestjs/common";
-import { IBlogsRepo, IBlogsRepoToken } from "../IBlogsRepo";
+import { IBlogsRepo, IBlogsRepoToken } from "../DAL/IBlogsRepo";
 import { BlogEntity } from "../entities/blogEntity";
 import { AuthService } from "../../auth/authService";
-import { IUsersRepo, IUsersRepoToken } from "../../users/IUsersRepo";
 import { UserEntity } from "../../users/entity/user.entity";
+import {
+  IUsersQueryRepo,
+  IUsersQueryRepoToken,
+} from "../../users/DAL/IUserQueryRepo";
 
 export class GetBlogsOfBloggerQuery {
   constructor(
@@ -22,8 +25,8 @@ export class GetBlogsOfBloggerHandler
     @Inject(IBlogsRepoToken)
     private readonly blogsRepo: IBlogsRepo<BlogEntity>,
     private readonly authService: AuthService,
-    @Inject(IUsersRepoToken)
-    private readonly usersRepo: IUsersRepo<UserEntity>,
+    @Inject(IUsersQueryRepoToken)
+    private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
   ) {}
 
   async execute(query: GetBlogsOfBloggerQuery): Promise<any> {
@@ -32,16 +35,16 @@ export class GetBlogsOfBloggerHandler
       accessToken,
     );
     const userIdFromToken = retrievedUserFromToken.userId;
-    const isUserExist = await this.usersRepo.findById(userIdFromToken);
+    const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
     if (!isUserExist) {
-      throw new UnauthorizedException('unexpected user');
+      throw new UnauthorizedException("unexpected user");
     }
     const {
-      searchNameTerm = '',
+      searchNameTerm = "",
       pageNumber = 1,
       pageSize = 10,
-      sortBy = 'createdAt',
-      sortDirection = 'desc',
+      sortBy = "createdAt",
+      sortDirection = "desc",
       skipSize = +pageNumber > 1 ? +pageSize * (+pageNumber - 1) : 0,
     } = dto;
     const blogsPaginationBLLdto = {
@@ -61,12 +64,12 @@ export class GetBlogsOfBloggerHandler
     // const mappedBlogs = await this.blogsRepo.mapBlogsWithOwnersToResponse(blogs)
     const mappedBlogs = await this.blogsRepo.mapBlogsToResponse(
       blogs,
-      'id',
-      'name',
-      'description',
-      'websiteUrl',
-      'isMembership',
-      'createdAt',
+      "id",
+      "name",
+      "description",
+      "websiteUrl",
+      "isMembership",
+      "createdAt",
     );
     const docCount = await this.blogsRepo.countUsersBlogsBySearchname(
       searchNameTerm,

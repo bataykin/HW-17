@@ -1,11 +1,14 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { CreateBloggerDto } from "../dto/create.blogger.dto";
 import { Inject, UnauthorizedException } from "@nestjs/common";
-import { IBlogsRepo, IBlogsRepoToken } from "../IBlogsRepo";
+import { IBlogsRepo, IBlogsRepoToken } from "../DAL/IBlogsRepo";
 import { BlogEntity } from "../entities/blogEntity";
 import { UserEntity } from "../../users/entity/user.entity";
 import { AuthService } from "../../auth/authService";
-import { IUsersRepo, IUsersRepoToken } from "../../users/IUsersRepo";
+import {
+  IUsersQueryRepo,
+  IUsersQueryRepoToken,
+} from "../../users/DAL/IUserQueryRepo";
 
 export class CreateBlogCommand {
   constructor(
@@ -19,8 +22,8 @@ export class CreateBlogHandler implements ICommandHandler<CreateBlogCommand> {
   constructor(
     @Inject(IBlogsRepoToken)
     private readonly blogsRepo: IBlogsRepo<BlogEntity>,
-    @Inject(IUsersRepoToken)
-    private readonly usersRepo: IUsersRepo<UserEntity>,
+    @Inject(IUsersQueryRepoToken)
+    private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
     private readonly authService: AuthService,
   ) {}
 
@@ -30,13 +33,15 @@ export class CreateBlogHandler implements ICommandHandler<CreateBlogCommand> {
       accessToken,
     );
     const userIdFromToken = retrievedUserFromToken.userId;
-    const isUserExist = await this.usersRepo.findById(userIdFromToken);
+    const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
     if (!isUserExist) {
-      throw new UnauthorizedException('unexpected user');
+      throw new UnauthorizedException("unexpected user");
     }
-    const isUserBanned = await this.usersRepo.getBanStatus(userIdFromToken);
+    const isUserBanned = await this.usersQueryRepo.getBanStatus(
+      userIdFromToken,
+    );
     if (isUserBanned)
-      throw new UnauthorizedException('user is banned, sorry))');
+      throw new UnauthorizedException("user is banned, sorry))");
 
     // const isExists = await this.blogsRepo.isBlogExistsByName(command.dto)
     // if (isExists) {

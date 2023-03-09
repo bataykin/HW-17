@@ -1,7 +1,7 @@
-import { Controller } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Controller } from "@nestjs/common";
+import { CommandBus, QueryBus } from "@nestjs/cqrs";
 
-@Controller('users')
+@Controller("users")
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,

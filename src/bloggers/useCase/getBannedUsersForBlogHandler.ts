@@ -1,13 +1,24 @@
 import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { AuthService } from "../../auth/authService";
-import { ForbiddenException, Inject, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { IUsersRepo, IUsersRepoToken } from "../../users/IUsersRepo";
+import {
+  ForbiddenException,
+  Inject,
+  NotFoundException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { UserEntity } from "../../users/entity/user.entity";
-import { IBlogsRepo, IBlogsRepoToken } from "../IBlogsRepo";
+import { IBlogsRepo, IBlogsRepoToken } from "../DAL/IBlogsRepo";
 import { BlogEntity } from "../entities/blogEntity";
-import { IBannedUsersRepo, IBannedUsersRepoToken } from "../IBannedUsersRepo";
+import {
+  IBannedUsersRepo,
+  IBannedUsersRepoToken,
+} from "../DAL/IBannedUsersRepo";
 import { BannedUsersEntity } from "../entities/bannedUsersEntity";
+import {
+  IUsersQueryRepo,
+  IUsersQueryRepoToken,
+} from "../../users/DAL/IUserQueryRepo";
 
 export class GetBannedUsersForBlogQuery {
   constructor(
@@ -23,8 +34,8 @@ export class GetBannedUsersForBlogHandler
 {
   constructor(
     private readonly authService: AuthService,
-    @Inject(IUsersRepoToken)
-    private readonly usersRepo: IUsersRepo<UserEntity>,
+    @Inject(IUsersQueryRepoToken)
+    private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
     @Inject(IBlogsRepoToken)
     private readonly blogsRepo: IBlogsRepo<BlogEntity>,
     @Inject(IBannedUsersRepoToken)
@@ -36,9 +47,9 @@ export class GetBannedUsersForBlogHandler
       accessToken,
     );
     const userIdFromToken = retrievedUserFromToken.userId;
-    const isUserExist = await this.usersRepo.findById(userIdFromToken);
+    const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
     if (!isUserExist) {
-      throw new UnauthorizedException('unexpected user');
+      throw new UnauthorizedException("unexpected user");
     }
 
     const blog = await this.blogsRepo.findBlogById(blogId);
@@ -48,15 +59,15 @@ export class GetBannedUsersForBlogHandler
     const blogOwnerId = blog.userId;
     if (userIdFromToken !== blogOwnerId) {
       throw new ForbiddenException(
-        'try to get the entity that was created by another user',
+        "try to get the entity that was created by another user",
       );
     }
     const {
-      searchNameTerm = '',
+      searchNameTerm = "",
       pageNumber = 1,
       pageSize = 10,
-      sortBy = 'createdAt',
-      sortDirection = 'desc',
+      sortBy = "createdAt",
+      sortDirection = "desc",
       skipSize = +pageNumber > 1 ? +pageSize * (+pageNumber - 1) : 0,
     } = dto;
     const usersPaginationBLLdto = {

@@ -1,4 +1,4 @@
-import { IBlogsRepo } from "./IBlogsRepo";
+import { IBlogsRepo } from "./DAL/IBlogsRepo";
 import { BlogEntity } from "./entities/blogEntity";
 import { CreateBloggerDto } from "./dto/create.blogger.dto";
 import { BlogsPaginationDto } from "./dto/blogsPaginationDto";
@@ -28,40 +28,40 @@ export class BlogsORM
     dto: BlogsPaginationDto,
     userIdFromToken: string,
   ): Promise<BlogEntity[]> {
-    dto.searchNameTerm = dto.searchNameTerm == null ? '' : dto.searchNameTerm;
-    if (dto.sortBy === 'createdAt') {
+    dto.searchNameTerm = dto.searchNameTerm == null ? "" : dto.searchNameTerm;
+    if (dto.sortBy === "createdAt") {
       const blogs = await this.blogsRepo
-        .createQueryBuilder('blogs')
-        .where('LOWER(blogs.name) like LOWER(:name)', {
+        .createQueryBuilder("blogs")
+        .where("LOWER(blogs.name) like LOWER(:name)", {
           name: `%${dto.searchNameTerm}%`,
         })
-        .andWhere('blogs.userId = :userId', { userId: userIdFromToken })
+        .andWhere("blogs.userId = :userId", { userId: userIdFromToken })
         .skip(dto.skipSize)
         .take(dto.pageSize)
         .orderBy(
-          'blogs.' + dto.sortBy,
+          "blogs." + dto.sortBy,
           // + ' COLLATE "C"'
           /*+ '::bytea'*/
-          dto.sortDirection === 'asc' ? 'ASC' : 'DESC',
-          'NULLS LAST',
+          dto.sortDirection === "asc" ? "ASC" : "DESC",
+          "NULLS LAST",
         )
         .getMany();
       return blogs;
     } else {
       const blogs = await this.blogsRepo
-        .createQueryBuilder('blogs')
-        .where('LOWER(blogs.name) like LOWER(:name)', {
+        .createQueryBuilder("blogs")
+        .where("LOWER(blogs.name) like LOWER(:name)", {
           name: `%${dto.searchNameTerm}%`,
         })
-        .andWhere('blogs.userId = :userId', { userId: userIdFromToken })
+        .andWhere("blogs.userId = :userId", { userId: userIdFromToken })
         .andWhere({ isBanned: false })
         .skip(dto.skipSize)
         .take(dto.pageSize)
         .orderBy(
-          'blogs.' + dto.sortBy + ' COLLATE "C"',
+          "blogs." + dto.sortBy + ' COLLATE "C"',
           /*+ '::bytea'*/
-          dto.sortDirection === 'asc' ? 'ASC' : 'DESC',
-          'NULLS LAST',
+          dto.sortDirection === "asc" ? "ASC" : "DESC",
+          "NULLS LAST",
         )
         .getMany();
       return blogs;
@@ -69,37 +69,37 @@ export class BlogsORM
   }
 
   async SA_getBlogsPaginated(dto: BlogsPaginationDto): Promise<BlogEntity[]> {
-    dto.searchNameTerm = dto.searchNameTerm == null ? '' : dto.searchNameTerm;
-    if (dto.sortBy === 'createdAt') {
+    dto.searchNameTerm = dto.searchNameTerm == null ? "" : dto.searchNameTerm;
+    if (dto.sortBy === "createdAt") {
       const blogs = await this.blogsRepo
-        .createQueryBuilder('blogs')
-        .where('LOWER(blogs.name) like LOWER(:name)', {
+        .createQueryBuilder("blogs")
+        .where("LOWER(blogs.name) like LOWER(:name)", {
           name: `%${dto.searchNameTerm}%`,
         })
         .skip(dto.skipSize)
         .take(dto.pageSize)
         .orderBy(
-          'blogs.' + dto.sortBy,
+          "blogs." + dto.sortBy,
           // + ' COLLATE "C"'
           /*+ '::bytea'*/
-          dto.sortDirection === 'asc' ? 'ASC' : 'DESC',
-          'NULLS LAST',
+          dto.sortDirection === "asc" ? "ASC" : "DESC",
+          "NULLS LAST",
         )
         .getMany();
       return blogs;
     } else {
       const blogs = await this.blogsRepo
-        .createQueryBuilder('blogs')
-        .where('LOWER(blogs.name) like LOWER(:name)', {
+        .createQueryBuilder("blogs")
+        .where("LOWER(blogs.name) like LOWER(:name)", {
           name: `%${dto.searchNameTerm}%`,
         })
         .skip(dto.skipSize)
         .take(dto.pageSize)
         .orderBy(
-          'blogs.' + dto.sortBy + ' COLLATE "C"',
+          "blogs." + dto.sortBy + ' COLLATE "C"',
           /*+ '::bytea'*/
-          dto.sortDirection === 'asc' ? 'ASC' : 'DESC',
-          'NULLS LAST',
+          dto.sortDirection === "asc" ? "ASC" : "DESC",
+          "NULLS LAST",
         )
         .getMany();
       return blogs;
@@ -108,39 +108,39 @@ export class BlogsORM
 
   async getBlogsPaginated(dto: BlogsPaginationDto): Promise<BlogEntity[]> {
     // according to swagger default value of searchNameTerm is null, but its not working so
-    dto.searchNameTerm = dto.searchNameTerm == null ? '' : dto.searchNameTerm;
-    if (dto.sortBy === 'createdAt') {
+    dto.searchNameTerm = dto.searchNameTerm == null ? "" : dto.searchNameTerm;
+    if (dto.sortBy === "createdAt") {
       const blogs = await this.blogsRepo
-        .createQueryBuilder('blogs')
-        .where('LOWER(blogs.name) like LOWER(:name)', {
+        .createQueryBuilder("blogs")
+        .where("LOWER(blogs.name) like LOWER(:name)", {
           name: `%${dto.searchNameTerm}%`,
         })
         .andWhere({ isBanned: false })
         .skip(dto.skipSize)
         .take(dto.pageSize)
         .orderBy(
-          'blogs.' + dto.sortBy,
+          "blogs." + dto.sortBy,
           // + ' COLLATE "C"'
           /*+ '::bytea'*/
-          dto.sortDirection === 'asc' ? 'ASC' : 'DESC',
-          'NULLS LAST',
+          dto.sortDirection === "asc" ? "ASC" : "DESC",
+          "NULLS LAST",
         )
         .getMany();
       return blogs;
     } else {
       const blogs = await this.blogsRepo
-        .createQueryBuilder('blogs')
-        .where('LOWER(blogs.name) like LOWER(:name)', {
+        .createQueryBuilder("blogs")
+        .where("LOWER(blogs.name) like LOWER(:name)", {
           name: `%${dto.searchNameTerm}%`,
         })
         .andWhere({ isBanned: false })
         .skip(dto.skipSize)
         .take(dto.pageSize)
         .orderBy(
-          'blogs.' + dto.sortBy + ' COLLATE "C"',
+          "blogs." + dto.sortBy + ' COLLATE "C"',
           /*+ '::bytea'*/
-          dto.sortDirection === 'asc' ? 'ASC' : 'DESC',
-          'NULLS LAST',
+          dto.sortDirection === "asc" ? "ASC" : "DESC",
+          "NULLS LAST",
         )
         .getMany();
       return blogs;
@@ -190,33 +190,33 @@ export class BlogsORM
 
   async countBlogsBySearchname(searchNameTerm: string) {
     return await this.blogsRepo
-      .createQueryBuilder('b')
-      .where('LOWER(b.name) like LOWER(:name)', { name: `%${searchNameTerm}%` })
+      .createQueryBuilder("b")
+      .where("LOWER(b.name) like LOWER(:name)", { name: `%${searchNameTerm}%` })
       .andWhere({ isBanned: false })
       .getCount();
   }
 
   async SA_countBlogsBySearchname(searchNameTerm: string) {
     return await this.blogsRepo
-      .createQueryBuilder('b')
-      .where('LOWER(b.name) like LOWER(:name)', { name: `%${searchNameTerm}%` })
+      .createQueryBuilder("b")
+      .where("LOWER(b.name) like LOWER(:name)", { name: `%${searchNameTerm}%` })
       .getCount();
   }
 
   async countUsersBlogsBySearchname(searchNameTerm: string, userId?: string) {
     if (userId)
       return await this.blogsRepo
-        .createQueryBuilder('b')
-        .where('LOWER(b.name) like LOWER(:name)', {
+        .createQueryBuilder("b")
+        .where("LOWER(b.name) like LOWER(:name)", {
           name: `%${searchNameTerm}%`,
         })
-        .andWhere('b.userId = :userId', { userId: userId })
+        .andWhere("b.userId = :userId", { userId: userId })
         .andWhere({ isBanned: false })
         .getCount();
     else
       return await this.blogsRepo
-        .createQueryBuilder('b')
-        .where('LOWER(b.name) like LOWER(:name)', {
+        .createQueryBuilder("b")
+        .where("LOWER(b.name) like LOWER(:name)", {
           name: `%${searchNameTerm}%`,
         })
         .andWhere({ isBanned: false })
@@ -227,7 +227,7 @@ export class BlogsORM
   async SA_bindBlogToUser(blogId: string, userId: string) {
     await this.blogsRepo.update({ id: blogId }, { user: { id: userId } });
     const blog = await this.blogsRepo.findOneBy({ id: blogId });
-    console.log(blog.name, 'NOT IMPL BIND');
+    console.log(blog.name, "NOT IMPL BIND");
   }
 
   async mapBlogsToResponse(blogs: BlogEntity[], ...rows: string[]) {
@@ -256,10 +256,10 @@ export class BlogsORM
     const mappedBlogs = [];
     for await (const blog of blogs) {
       const user = await this.blogsRepo
-        .createQueryBuilder('blogs')
-        .leftJoinAndSelect('blogs.user', 'user')
+        .createQueryBuilder("blogs")
+        .leftJoinAndSelect("blogs.user", "user")
         // .addSelect('users.login', 'login')
-        .where('blogs.id = :blogId', { blogId: blog.id })
+        .where("blogs.id = :blogId", { blogId: blog.id })
         .getRawOne();
 
       const result: any = {

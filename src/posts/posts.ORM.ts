@@ -1,11 +1,11 @@
-import { Repository } from 'typeorm';
-import { PostEntity } from './entities/post.entity';
-import { IPostsRepo } from './IPostsRepo';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CreatePostDto } from './dto/create-post.dto';
-import { PaginationPostsDto } from './dto/pagination.posts.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { PostDalDto } from './dto/post.dal.dto';
+import { Repository } from "typeorm";
+import { PostEntity } from "./entities/post.entity";
+import { IPostsRepo } from "./DAL/IPostsRepo";
+import { InjectRepository } from "@nestjs/typeorm";
+import { CreatePostDto } from "./dto/create-post.dto";
+import { PaginationPostsDto } from "./dto/pagination.posts.dto";
+import { UpdatePostDto } from "./dto/update-post.dto";
+import { PostDalDto } from "./dto/post.dal.dto";
 
 export class PostsORM
   extends Repository<PostEntity>
@@ -59,15 +59,15 @@ export class PostsORM
 
   async getPostsPaginated(dto: PaginationPostsDto): Promise<PostEntity[]> {
     const posts = await this.postsRepo
-      .createQueryBuilder('posts')
-      .leftJoinAndSelect('posts.blogger', 'blogs')
-      .where('blogs.isBanned = false')
+      .createQueryBuilder("posts")
+      .leftJoinAndSelect("posts.blogger", "blogs")
+      .where("blogs.isBanned = false")
       .skip(dto.skipSize)
       .take(dto.pageSize)
       .orderBy(
-        'posts.' + dto.sortBy,
-        dto.sortDirection === 'asc' ? 'ASC' : 'DESC',
-        'NULLS LAST',
+        "posts." + dto.sortBy,
+        dto.sortDirection === "asc" ? "ASC" : "DESC",
+        "NULLS LAST",
       )
       .getMany();
     return posts;
@@ -113,17 +113,17 @@ export class PostsORM
     // console.log(x)
 
     const posts = await this.postsRepo
-      .createQueryBuilder('posts')
-      .leftJoinAndSelect('posts.blogger', 'blogs')
+      .createQueryBuilder("posts")
+      .leftJoinAndSelect("posts.blogger", "blogs")
       // .addFrom(BlogEntity, 'blogs')
-      .where('posts.blogId = :blogId', { blogId })
-      .andWhere('blogs.isBanned = false')
+      .where("posts.blogId = :blogId", { blogId })
+      .andWhere("blogs.isBanned = false")
       .skip(dto.skipSize)
       .take(dto.pageSize)
       .orderBy(
-        'posts.' + dto.sortBy,
-        dto.sortDirection === 'asc' ? 'ASC' : 'DESC',
-        'NULLS LAST',
+        "posts." + dto.sortBy,
+        dto.sortDirection === "asc" ? "ASC" : "DESC",
+        "NULLS LAST",
       )
       .getMany();
     // console.log(posts)

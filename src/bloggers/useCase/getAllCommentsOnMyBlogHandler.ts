@@ -2,12 +2,18 @@ import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { Inject, UnauthorizedException } from "@nestjs/common";
 import { AuthService } from "../../auth/authService";
-import { IUsersRepo, IUsersRepoToken } from "../../users/IUsersRepo";
 import { UserEntity } from "../../users/entity/user.entity";
-import { ICommentsRepo, ICommentsRepoToken } from "../../comments/ICommentsRepo";
+import {
+  ICommentsRepo,
+  ICommentsRepoToken,
+} from "../../comments/ICommentsRepo";
 import { CommentEntity } from "../../comments/entities/comment.entity";
 import { ILikesRepo, ILikesRepoToken } from "../../likes/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
+import {
+  IUsersQueryRepo,
+  IUsersQueryRepoToken,
+} from "../../users/DAL/IUserQueryRepo";
 
 export class GetAllCommentsOnMyBlogCommand {
   constructor(
@@ -23,8 +29,8 @@ export class GetAllCommentsOnMyBlogHandler
     @Inject(ICommentsRepoToken)
     private readonly commentsRepo: ICommentsRepo<CommentEntity>,
     private readonly authService: AuthService,
-    @Inject(IUsersRepoToken)
-    private readonly usersRepo: IUsersRepo<UserEntity>,
+    @Inject(IUsersQueryRepoToken)
+    private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
     @Inject(ILikesRepoToken)
     private readonly likesRepo: ILikesRepo<LikeEntity>,
   ) {}
@@ -34,11 +40,11 @@ export class GetAllCommentsOnMyBlogHandler
       accessToken,
     );
     const userIdFromToken = retrievedUserFromToken.userId;
-    const isUserExist = await this.usersRepo.findById(userIdFromToken);
+    const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
     if (!isUserExist) {
       throw new UnauthorizedException("unexpected user");
     }
-    const isBanned = await this.usersRepo.getBanStatus(userIdFromToken);
+    const isBanned = await this.usersQueryRepo.getBanStatus(userIdFromToken);
     if (isBanned) throw new UnauthorizedException("user is banned, sorry))");
 
     const {

@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { CreatePostDto } from "../dto/create-post.dto";
 import { BadRequestException, Inject, NotFoundException } from "@nestjs/common";
-import { IPostsRepo, IPostsRepoToken } from "../IPostsRepo";
+import { IPostsRepo, IPostsRepoToken } from "../DAL/IPostsRepo";
 import { PostEntity } from "../entities/post.entity";
 import { PostDalDto } from "../dto/post.dal.dto";
-import { IBlogsRepo, IBlogsRepoToken } from "../../bloggers/IBlogsRepo";
+import { IBlogsRepo, IBlogsRepoToken } from "../../bloggers/DAL/IBlogsRepo";
 import { BlogEntity } from "../../bloggers/entities/blogEntity";
 import { isUUID } from "class-validator";
 import { LikeStatusEnum } from "../../likes/LikeStatusEnum";

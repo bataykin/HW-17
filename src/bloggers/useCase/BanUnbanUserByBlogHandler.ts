@@ -1,13 +1,24 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { BanUserByBlogDto } from "../dto/banUserByBlogDto";
-import { ForbiddenException, Inject, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { IUsersRepo, IUsersRepoToken } from "../../users/IUsersRepo";
+import {
+  ForbiddenException,
+  Inject,
+  NotFoundException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { UserEntity } from "../../users/entity/user.entity";
-import { IBlogsRepo, IBlogsRepoToken } from "../IBlogsRepo";
+import { IBlogsRepo, IBlogsRepoToken } from "../DAL/IBlogsRepo";
 import { BlogEntity } from "../entities/blogEntity";
 import { AuthService } from "../../auth/authService";
 import { BannedUsersEntity } from "../entities/bannedUsersEntity";
-import { IBannedUsersRepo, IBannedUsersRepoToken } from "../IBannedUsersRepo";
+import {
+  IBannedUsersRepo,
+  IBannedUsersRepoToken,
+} from "../DAL/IBannedUsersRepo";
+import {
+  IUsersQueryRepo,
+  IUsersQueryRepoToken,
+} from "../../users/DAL/IUserQueryRepo";
 
 export class BanUnbanUserByBloggerCommand {
   constructor(
@@ -23,8 +34,8 @@ export class BanUnbanUserByBlogHandler
 {
   constructor(
     private readonly authService: AuthService,
-    @Inject(IUsersRepoToken)
-    private readonly usersRepo: IUsersRepo<UserEntity>,
+    @Inject(IUsersQueryRepoToken)
+    private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
     @Inject(IBlogsRepoToken)
     private readonly blogsRepo: IBlogsRepo<BlogEntity>,
     @Inject(IBannedUsersRepoToken)
@@ -36,11 +47,11 @@ export class BanUnbanUserByBlogHandler
       accessToken,
     );
     const userIdFromToken = retrievedUserFromToken.userId;
-    const isUserExist = await this.usersRepo.findById(userIdFromToken);
+    const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
     if (!isUserExist) {
-      throw new UnauthorizedException('unexpected user');
+      throw new UnauthorizedException("unexpected user");
     }
-    const user = await this.usersRepo.findById(userId);
+    const user = await this.usersQueryRepo.findById(userId);
     if (!user) {
       throw new NotFoundException(`userId ${userId} not found`);
     }
@@ -48,7 +59,7 @@ export class BanUnbanUserByBlogHandler
     const blogOwnerId = blog.userId;
     if (userIdFromToken !== blogOwnerId) {
       throw new ForbiddenException(
-        'try to update or delete the entity that was created by another user',
+        "try to update or delete the entity that was created by another user",
       );
     }
     await this.bannedUsersRepo.setBanStatus(userId, dto);
