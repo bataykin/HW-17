@@ -21,13 +21,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const arr = exeptionResponse.message;
 
-    console.log(arr.split(" ")[0]);
+    // console.log(111, arr.split(" ")[0]);
     const errorsMessages = [];
     if (Array.isArray(arr)) {
       for (let i = 0; i < arr.length; i++) {
         errorsMessages.push({
           message: arr[i],
-          field: arr[i].split(" ")[0],
+          field: arr[i]?.split(" ")[0],
         });
       }
     } else

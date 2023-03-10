@@ -76,17 +76,9 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
       ],
     );
     return users;
-    // ORDER BY
-    // (CASE
-    // WHEN $8 = 'ASC' THEN $7 END)  ASC,
-    //   $7 DESC
-
-    // sortDirection == "desc" ? "DESC" : "ASC",
   }
 
   async countDocuments() {
-    // return this.bloggerModel.countDocuments(filter);
-
     const result = await this.dataSource.query(
       `
                 SELECT 
