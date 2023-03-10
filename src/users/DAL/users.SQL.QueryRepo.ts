@@ -62,9 +62,11 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
             end
              
             ORDER BY  
-           "${sortBy}"::text
-            ${sortDirection} 
-             
+            case $6::boolean
+            when true then "createdAt"::varchar
+            else  $7::varchar
+            end
+            ${sortDirection}
                 
              LIMIT $1 OFFSET $2;
         `,
@@ -75,6 +77,8 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
         clarifiedBanStatus,
         searchLoginTerm,
         searchEmailTerm,
+        sortBy == "createdAt",
+        sortBy,
       ],
     );
     return users;
