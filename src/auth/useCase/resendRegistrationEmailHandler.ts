@@ -42,7 +42,7 @@ export class ResendRegistrationEmailHandler
     );
     console.log(`...sending to ${command.email}, code: ${code}`);
 
-    // await this.emailService.resendRegistrationEmail(command.email, code);
+    await this.emailService.resendRegistrationEmail(command.email, code);
 
     return true;
   }

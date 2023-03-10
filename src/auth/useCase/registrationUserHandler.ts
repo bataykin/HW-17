@@ -40,7 +40,7 @@ export class RegistrationUserHandler
     const code = uuidv4();
 
     console.log(`...sending to ${email}, code: ${code}`);
-    // await this.emailService.sendConfirmationOfRegistrationMail(email, code);
+    await this.emailService.sendConfirmationOfRegistrationMail(email, code);
 
     await this.usersRepo.createUser(login, email, passwordHash, code);
     return;
