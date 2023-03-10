@@ -42,7 +42,17 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
             SELECT * 
             FROM USERS 
             WHERE
-            ("login" ~ $1 OR "email" ~ $2)
+            (
+                            case
+                when coalesce($1, '') = '' then true 
+              else ("login" ~ $1)
+                end
+             OR 
+              case
+                 when coalesce($2, '') = '' then true 
+              else ("email" ~ $2)
+                 end
+             )
         
                   AND
               case
