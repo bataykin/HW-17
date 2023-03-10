@@ -20,7 +20,9 @@ import { SA_GetUsersQuery } from "./useCase/SA_GetUsersHandler";
 import { SA_CreateUserCommand } from "./useCase/SA_CreateUserHandler";
 import { SA_DeleteUserCommand } from "./useCase/SA_DeleteUserHandler";
 import { SAGetUsersPaginationModel } from "./dto/SAGetUsersPaginationModel";
+import { SkipThrottle } from "@nestjs/throttler";
 
+@SkipThrottle()
 @Controller("sa")
 export class SuperAdminController {
   constructor(
