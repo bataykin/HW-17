@@ -58,9 +58,7 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
                  end
                  
             ORDER BY  
-             (CASE WHEN $8 = 'DESC' THEN $7 END) DESC ,
-            $7 ASC 
-            
+             "${sortBy}" ${sortDirection}
              LIMIT $5 OFFSET $6;
         `,
       //   ORDER BY
@@ -78,8 +76,6 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
         (banStatus as "banned" | "unBanned") == "banned",
         pageSize,
         skipSize,
-        sortBy,
-        sortDirection == "desc" ? "DESC" : "ASC",
       ],
     );
     return users;
