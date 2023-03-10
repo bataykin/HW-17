@@ -43,24 +43,21 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
             FROM USERS 
             WHERE
             (
-                            case
+            ( case
                 when coalesce($1, '') = '' then true 
               else ("login" ~ $1)
-                end
-             OR 
-              case
+                end) 
+             AND 
+             (case
                  when coalesce($2, '') = '' then true 
               else ("email" ~ $2)
-                 end
-             )
-        
-                  AND
-              case
+                 end)
+              AND
+              (case
                  when $3::boolean then true
               else ("isBanned" = $4::boolean)
-                 end
-                      
-                 
+                 end)
+              )   
             ORDER BY  
              "${sortBy}" ${sortDirection}
              LIMIT $5 OFFSET $6;
@@ -111,22 +108,22 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
                 END AS total
                 FROM users
                 WHERE
-              (
-                case
+             (
+            ( case
                 when coalesce($1, '') = '' then true 
               else ("login" ~ $1)
-                end
-            OR 
-              case
+                end) 
+             AND 
+             (case
                  when coalesce($2, '') = '' then true 
               else ("email" ~ $2)
-                 end
-              )
-            AND
-              case
+                 end)
+              AND
+              (case
                  when $3::boolean then true
               else ("isBanned" = $4::boolean)
-                 end
+                 end)
+              )   
                 `,
       [
         searchLoginTerm,
