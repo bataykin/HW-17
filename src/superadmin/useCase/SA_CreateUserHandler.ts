@@ -33,6 +33,7 @@ export class SA_CreateUserHandler
       dto.login,
       dto.email,
     );
+    console.log(isLoginEmailExists);
     if (isLoginEmailExists) {
       throw new BadRequestException(isLoginEmailExists);
     }

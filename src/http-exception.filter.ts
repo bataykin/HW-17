@@ -21,7 +21,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const arr = exeptionResponse.message;
 
-    console.log(arr);
+    console.log(arr.split(" ")[0]);
     const errorsMessages = [];
     if (Array.isArray(arr)) {
       for (let i = 0; i < arr.length; i++) {
@@ -33,7 +33,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     } else
       errorsMessages.push({
         message: arr,
-        field: arr.split(" ")[0],
+        field: arr?.split(" ")[0],
       });
 
     if (status === 400) {

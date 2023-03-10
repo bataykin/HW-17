@@ -194,7 +194,6 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
     );
     if (isLoginExists.length > 0) return "login already exists";
     if (isEmailExists.length > 0) return "email already exists";
-    return null;
   }
 
   async checkCodeExists(code: string) {
