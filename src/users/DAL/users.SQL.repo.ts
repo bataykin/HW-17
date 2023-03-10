@@ -81,10 +81,10 @@ export class UsersSQLRepo implements IUsersRepo<UserEntity> {
     const result = await this.dataSource.query(
       `
                 UPDATE USERS
-                SET "isBanned" = $1, "banReason" = $2
-                WHERE id = $3
+                SET "isBanned" = $1, "banReason" = $2, "banDate" = $3
+                WHERE id = $4
                     `,
-      [dto.isBanned, dto.banReason, userId],
+      [dto.isBanned, dto.banReason, new Date(), userId],
     );
     return result;
   }

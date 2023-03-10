@@ -26,9 +26,11 @@ export class ResendRegistrationEmailHandler
   ) {}
 
   async execute(command: ResendRegistrationEmailCommand): Promise<any> {
-    const userByEmailIsExisted = await this.usersQueryRepo.findByEmail(
-      command.email,
-    );
+    const userByEmailIsExisted = await this.usersQueryRepo
+      .findByEmail(command.email)
+      .then((res) => res[0]);
+
+    console.log(userByEmailIsExisted.isConfirmed);
     if (!userByEmailIsExisted) {
       throw new BadRequestException("email not exists");
     }

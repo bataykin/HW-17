@@ -135,7 +135,7 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
   async findByEmail(email: string) {
     const user = await this.dataSource.query(
       `
-            SELECT email
+            SELECT *
                 FROM users
                 WHERE email = $1
                 `,
@@ -151,7 +151,7 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
   async findByLogin(login: string) {
     const user = await this.dataSource.query(
       `
-            SELECT id, login, "passwordHash"
+            SELECT *
                 FROM users
                 WHERE login = $1
                 `,

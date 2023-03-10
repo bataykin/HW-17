@@ -50,12 +50,12 @@ export class SA_GetUsersHandler implements IQueryHandler<SA_GetUsersQuery> {
 
     const docCount = await this.usersQueryRepo
       .SA_CountUsersBySearch(searchLoginTerm, searchEmailTerm, banStatus)
-      .then((res) => res[0].total);
+      .then((res) => +res[0].total);
     return {
-      pagesCount: Math.ceil(docCount / pageSize),
-      page: pageNumber,
-      pageSize: pageSize,
-      totalCount: docCount,
+      pagesCount: Math.ceil(+docCount / +pageSize),
+      page: +pageNumber,
+      pageSize: +pageSize,
+      totalCount: +docCount,
       items: mappedUsers,
     };
   }
