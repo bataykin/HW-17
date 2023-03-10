@@ -34,9 +34,7 @@ import { passRecoveryDto } from "./dto/passRecoveryDto";
 import { PasswordRecoveryCommand } from "./useCase/passwordRecoveryHandler";
 import { RenewPasswordDto } from "./dto/renewPasswordDto";
 import { RenewPasswordCommand } from "./useCase/renewPasswordHandler";
-import { SkipThrottle } from "@nestjs/throttler";
 
-@SkipThrottle()
 @Controller("auth")
 export class AuthController {
   constructor(

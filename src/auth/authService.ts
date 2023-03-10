@@ -96,7 +96,9 @@ export class AuthService {
   }
 
   async aboutMe(userId: string): Promise<any> {
-    const detectedUser = await this.usersQueryRepo.findById(userId);
+    const detectedUser = await this.usersQueryRepo
+      .findById(userId)
+      .then((res) => res[0]);
     const result = {
       email: detectedUser.email,
       login: detectedUser.login,
