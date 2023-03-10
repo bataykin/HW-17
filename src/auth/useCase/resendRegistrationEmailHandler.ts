@@ -30,7 +30,6 @@ export class ResendRegistrationEmailHandler
       .findByEmail(command.email)
       .then((res) => res[0]);
 
-    console.log(userByEmailIsExisted.isConfirmed);
     if (!userByEmailIsExisted) {
       throw new BadRequestException("email not exists");
     }

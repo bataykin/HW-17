@@ -57,13 +57,20 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
               else ("isBanned" = $4::boolean)
                  end
                  
-            ORDER BY 
-             (CASE 
-             WHEN $8 = 'ASC' THEN $7 END) COLLATE "C" ASC,
-             $7 COLLATE "C" DESC
+            ORDER BY  
+             (CASE WHEN $8 = 'DESC' THEN $7 END) DESC ,
+            $7 ASC 
             
              LIMIT $5 OFFSET $6;
         `,
+      //   ORDER BY
+      // (CASE
+      // WHEN $8 = 'ASC' THEN $7 END) COLLATE "C" ASC,
+      //   $7 COLLATE "C" DESC
+
+      //   "banReason" = (
+      //     CASE WHEN $1 = true then $2
+      // ELSE NULL END),
       [
         searchLoginTerm,
         searchEmailTerm,
