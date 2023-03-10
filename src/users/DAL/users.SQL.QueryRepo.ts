@@ -36,44 +36,42 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
       sortBy,
       banStatus,
     } = dto;
-    //TODO repair sorting
+    let clarifiedBanStatus = banStatus == "all" ? null : banStatus == "banned";
+
     const users = await this.dataSource.query(
       `
             SELECT * 
             FROM USERS 
-            WHERE
-            (
-            ( case
-                when coalesce($1, '') = '' then true 
-              else ("login" ~ $1)
-                end) 
-             AND 
-             (case
-                 when coalesce($2, '') = '' then true 
-              else ("email" ~ $2)
-                 end)
-              AND
-              (case
-                 when $3::boolean then true
-              else ("isBanned" = $4::boolean)
-                 end)
-              )   
+            WHERE 
+            
+            case 
+            when $3::boolean is null then true
+            else "isBanned" = ${clarifiedBanStatus}
+            end
+            
+            AND
+            
+            case 
+            when ($4::text is null and $5::text is null) then true
+            when ($4::text is not  null and $5::text is not null)
+                then ("login" ~ $4 OR "email" ~ $5 )
+            when ($4::text is not  null and $5::text is null)
+                then ("login" ~ $4  )
+            when ($4::text is   null and $5::text is not null)
+                then ( "email" ~ $5 )
+            end
+             
             ORDER BY  
              "${sortBy}" ${sortDirection}
-             LIMIT $5 OFFSET $6;
+             LIMIT $1 OFFSET $2;
         `,
-      //   ORDER BY
-      // (CASE
-      // WHEN $8 = 'ASC' THEN $7 END) COLLATE "C" ASC,
-      //   $7 COLLATE "C" DESC
 
       [
-        searchLoginTerm,
-        searchEmailTerm,
-        banStatus == "all",
-        (banStatus as "banned" | "unBanned") == "banned",
         pageSize,
         skipSize,
+        clarifiedBanStatus,
+        searchLoginTerm,
+        searchEmailTerm,
       ],
     );
     return users;
@@ -99,6 +97,8 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
     searchEmailTerm: string,
     banStatus: string,
   ): Promise<number> {
+    let clarifiedBanStatus = banStatus == "all" ? null : banStatus == "banned";
+
     const user = await this.dataSource.query(
       `
               SELECT 
@@ -108,29 +108,24 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
                 END AS total
                 FROM users
                 WHERE
-             (
-            ( case
-                when coalesce($1, '') = '' then true 
-              else ("login" ~ $1)
-                end) 
-             AND 
-             (case
-                 when coalesce($2, '') = '' then true 
-              else ("email" ~ $2)
-                 end)
-              AND
-              (case
-                 when $3::boolean then true
-              else ("isBanned" = $4::boolean)
-                 end)
-              )   
+            case 
+            when $3::boolean is null then true
+            else "isBanned" = ${clarifiedBanStatus}
+            end
+            
+            AND
+            
+            case 
+            when ($1::text is null and $2::text is null) then true
+            when ($1::text is not  null and $2::text is not null)
+                then ("login" ~ $1 OR "email" ~ $2 )
+            when ($1::text is not  null and $2::text is null)
+                then ("login" ~ $1  )
+            when ($1::text is   null and $2::text is not null)
+                then ( "email" ~ $2 )
+            end
                 `,
-      [
-        searchLoginTerm,
-        searchEmailTerm,
-        banStatus == "all",
-        (banStatus as "banned" | "unBanned") == "banned",
-      ],
+      [searchLoginTerm, searchEmailTerm, clarifiedBanStatus],
     );
     return user;
   }
