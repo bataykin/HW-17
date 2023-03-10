@@ -1,11 +1,10 @@
 import { CreateUserDto } from "../../users/dto/create.user.dto";
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { Inject } from "@nestjs/common";
+import { BadRequestException, Inject } from "@nestjs/common";
 import { IUsersRepo, IUsersRepoToken } from "../../users/DAL/IUsersRepo";
 import { UserEntity } from "../../users/entity/user.entity";
 import { AuthHashClass } from "../../auth/auth.utils";
 import { v4 as uuidv4 } from "uuid";
-import { Custom400Exception } from "../../common/exceptions/custom400Exception";
 import { SA_UserViewModel } from "../dto/SA_UserViewModel";
 import {
   IUsersQueryRepo,
@@ -35,10 +34,7 @@ export class SA_CreateUserHandler
       dto.email,
     );
     if (isLoginEmailExists) {
-      throw new Custom400Exception(
-        isLoginEmailExists,
-        isLoginEmailExists.split(" ")[0],
-      );
+      throw new BadRequestException(isLoginEmailExists);
     }
     const passwordHash = await this.authUtils._generateHash(dto.password);
     const confirmationCode = uuidv4();
