@@ -81,7 +81,13 @@ export class UsersSQLRepo implements IUsersRepo<UserEntity> {
     const result = await this.dataSource.query(
       `
                 UPDATE USERS
-                SET "isBanned" = $1, "banReason" = $2, "banDate" = $3
+                SET "isBanned" = $1, 
+                "banReason" = (
+                CASE WHEN $1 = true then $2
+                ELSE NULL END), 
+                "banDate" = (
+                CASE WHEN $1 = true then $3::timestamptz
+                ELSE NULL END)
                 WHERE id = $4
                     `,
       [dto.isBanned, dto.banReason, new Date(), userId],

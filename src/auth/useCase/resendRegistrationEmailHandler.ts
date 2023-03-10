@@ -34,7 +34,7 @@ export class ResendRegistrationEmailHandler
     if (!userByEmailIsExisted) {
       throw new BadRequestException("email not exists");
     }
-    if (userByEmailIsExisted["isConfirmed"]) {
+    if (userByEmailIsExisted.isConfirmed) {
       throw new BadRequestException("email already confirmed");
     }
     const code = uuidv4();
