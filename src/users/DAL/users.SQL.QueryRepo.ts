@@ -62,7 +62,10 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
             end
              
             ORDER BY  
-             "${sortBy}" ${sortDirection}
+           "${sortBy}"::text
+            ${sortDirection} 
+             
+                
              LIMIT $1 OFFSET $2;
         `,
 
