@@ -38,8 +38,10 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
     } = dto;
     let clarifiedBanStatus = banStatus == "all" ? null : banStatus == "banned";
 
-    const users = await this.dataSource.query(
-      `
+    const users =
+      sortBy == "createdAt"
+        ? await this.dataSource.query(
+            `
             SELECT * 
             FROM USERS 
             WHERE 
@@ -61,26 +63,53 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
                 then ( upper("email") ~ $5 )
             end
              
-            ORDER BY  
-            case $6::boolean
-            when true then "createdAt"::varchar
-            else  $7::varchar
-            end
-            ${sortDirection}
-                
+            ORDER BY  "${sortBy}"     ${sortDirection}
              LIMIT $1 OFFSET $2;
         `,
 
-      [
-        pageSize,
-        skipSize,
-        clarifiedBanStatus,
-        searchLoginTerm,
-        searchEmailTerm,
-        sortBy == "createdAt",
-        sortBy,
-      ],
-    );
+            [
+              pageSize,
+              skipSize,
+              clarifiedBanStatus,
+              searchLoginTerm,
+              searchEmailTerm,
+            ],
+          )
+        : await this.dataSource.query(
+            `
+            SELECT * 
+            FROM USERS 
+            WHERE 
+            
+            case 
+            when $3::boolean is null then true
+            else "isBanned" = ${clarifiedBanStatus}
+            end
+            
+            AND
+            
+            case 
+            when ($4::text is null and $5::text is null) then true
+            when ($4::text is not  null and $5::text is not null)
+                then (upper("login") ~ $4 OR upper("email") ~ $5 )
+            when ($4::text is not  null and $5::text is null)
+                then (upper("login") ~ $4  )
+            when ($4::text is   null and $5::text is not null)
+                then ( upper("email") ~ $5 )
+            end
+             
+            ORDER BY  "${sortBy}"::bytea     ${sortDirection}
+             LIMIT $1 OFFSET $2;
+        `,
+
+            [
+              pageSize,
+              skipSize,
+              clarifiedBanStatus,
+              searchLoginTerm,
+              searchEmailTerm,
+            ],
+          );
     return users;
   }
 
