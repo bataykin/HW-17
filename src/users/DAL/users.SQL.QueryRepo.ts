@@ -118,11 +118,11 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
             case 
             when ($1::text is null and $2::text is null) then true
             when ($1::text is not  null and $2::text is not null)
-                then ("login" ~ $1 OR "email" ~ $2 )
+                then (upper("login") ~ $1 OR upper("email") ~ $2 )
             when ($1::text is not  null and $2::text is null)
-                then ("login" ~ $1  )
+                then (upper("login") ~ $1  )
             when ($1::text is   null and $2::text is not null)
-                then ( "email" ~ $2 )
+                then ( upper("email") ~ $2 )
             end
                 `,
       [searchLoginTerm, searchEmailTerm, clarifiedBanStatus],
