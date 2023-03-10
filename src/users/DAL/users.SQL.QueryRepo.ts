@@ -54,11 +54,11 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
             case 
             when ($4::text is null and $5::text is null) then true
             when ($4::text is not  null and $5::text is not null)
-                then ("login" ~ $4 OR "email" ~ $5 )
+                then (upper("login") ~ $4 OR upper("email") ~ $5 )
             when ($4::text is not  null and $5::text is null)
-                then ("login" ~ $4  )
+                then (upper("login") ~ $4  )
             when ($4::text is   null and $5::text is not null)
-                then ( "email" ~ $5 )
+                then ( upper("email") ~ $5 )
             end
              
             ORDER BY  

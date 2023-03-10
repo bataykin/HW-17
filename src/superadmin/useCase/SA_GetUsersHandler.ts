@@ -25,8 +25,8 @@ export class SA_GetUsersHandler implements IQueryHandler<SA_GetUsersQuery> {
   ): Promise<PaginatorModel<SA_UserViewModel[]>> {
     const paging = {
       banStatus: query.dto.banStatus ?? BanStatusEnum.all,
-      searchLoginTerm: query.dto.searchLoginTerm ?? null,
-      searchEmailTerm: query.dto.searchEmailTerm ?? null,
+      searchLoginTerm: query.dto.searchLoginTerm?.toUpperCase() ?? null,
+      searchEmailTerm: query.dto.searchEmailTerm?.toUpperCase() ?? null,
       sortBy: query.dto.sortBy ?? "createdAt",
       sortDirection: query.dto.sortDirection ?? "desc",
       pageNumber: query.dto.pageNumber ?? 1,
@@ -48,9 +48,11 @@ export class SA_GetUsersHandler implements IQueryHandler<SA_GetUsersQuery> {
     const mappedUsers: SA_UserViewModel[] =
       await this.usersQueryRepo.SA_mapUserEntitiesToResponse(users);
 
-    const docCount = await this.usersQueryRepo
-      .SA_CountUsersBySearch(searchLoginTerm, searchEmailTerm, banStatus)
-      .then((res) => +res[0].total);
+    // const docCount = await this.usersQueryRepo
+    //   .SA_CountUsersBySearch(searchLoginTerm, searchEmailTerm, banStatus)
+    //   .then((res) => +res[0].total);
+
+    const docCount = mappedUsers.length;
     return {
       pagesCount: Math.ceil(+docCount / +pageSize),
       page: +pageNumber,
