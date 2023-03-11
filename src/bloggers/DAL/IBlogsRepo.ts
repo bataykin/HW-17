@@ -19,9 +19,8 @@ export interface IBlogsRepo<GenericBlogType> {
 
   countBlogs(): Promise<number>;
 
-  getBlogsPaginated(
+  getBlogsPaginatedPublic(
     dto: BlogsPaginationDto,
-    userIdFromToken?: string,
   ): Promise<GenericBlogType[] | null>;
 
   getBlogsOfBloggerPaginated(
@@ -33,7 +32,7 @@ export interface IBlogsRepo<GenericBlogType> {
 
   getBlogNameById(id: string): Promise<string | null>;
 
-  countBlogsBySearchname(searchNameTerm: string);
+  countBlogsBySearchnamePublic(searchNameTerm: string): Promise<number | null>;
 
   countBloggersBlogsBySearchname(searchNameTerm: string, userId: string);
 

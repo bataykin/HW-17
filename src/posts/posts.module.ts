@@ -13,13 +13,10 @@ import { jwtConstants } from "../auth/constants";
 import { AuthModule } from "../auth/auth.module";
 import { UsersModule } from "../users/users.module";
 import { PostsCheckUriBeforeBodyMiddleware } from "../middlewares/posts-check-uri-before-body-middleware.service";
-import { PostsSQLService } from "./DAL/posts.SQL.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { BlogEntity } from "../bloggers/entities/blogEntity";
 import { PostEntity } from "./entities/post.entity";
-import { PostService } from "./post.service";
 import { IPostsRepoToken } from "./DAL/IPostsRepo";
-import { PostsORM } from "./posts.ORM";
 import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
 import { IBlogsRepoToken } from "../bloggers/DAL/IBlogsRepo";
 import { CqrsModule } from "@nestjs/cqrs";
@@ -42,22 +39,13 @@ import { LikeEntity } from "../likes/entities/like.entity";
 import { SetLikeToPostHandler } from "./useCase/setLikeToPostHandler";
 import { IsBlogExistConstraint } from "../bloggers/decorators/isBloggerExistsDecorator";
 import { IBannedUsersRepoToken } from "../bloggers/DAL/IBannedUsersRepo";
-import { BannedUsersORM } from "../bloggers/bannedUsers.ORM";
 import { BannedUsersEntity } from "../bloggers/entities/bannedUsersEntity";
 import { IUsersQueryRepoToken } from "../users/DAL/IUserQueryRepo";
 import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
 import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
 import { BloggersSQLRepo } from "../bloggers/DAL/bloggers.SQL.repo";
-
-export const usePostServiceClass = () => {
-  if (process.env.REPO_TYPE === "MONGO") {
-    return PostsSQLService;
-  } else if (process.env.REPO_TYPE === "SQL") {
-    return PostsSQLService;
-  } else if (process.env.REPO_TYPE === "ORM") {
-    return PostsSQLService;
-  } else return PostsSQLService; // by DEFAULT if not in enum
-};
+import { BannedUsersSQLRepo } from "../bloggers/DAL/BannedUsersSQLRepo";
+import { PostsSQLRepo } from "./DAL/posts.SQL.repo";
 
 const PostRouteHandlers = [
   GetAllPostsHandler,
@@ -104,10 +92,9 @@ const PostRouteHandlers = [
 
     ...PostRouteHandlers,
 
-    PostService,
     {
       provide: IPostsRepoToken,
-      useClass: useRepositoryClassGeneric(PostsORM, PostsORM, PostsORM),
+      useClass: PostsSQLRepo,
     },
     {
       provide: ICommentsRepoToken,
@@ -135,11 +122,7 @@ const PostRouteHandlers = [
     },
     {
       provide: IBannedUsersRepoToken,
-      useClass: useRepositoryClassGeneric(
-        BannedUsersORM,
-        BannedUsersORM,
-        BannedUsersORM,
-      ),
+      useClass: BannedUsersSQLRepo,
     },
     AuthService,
     // {
@@ -169,7 +152,6 @@ const PostRouteHandlers = [
 
   exports: [
     IPostsRepoToken,
-    PostService,
 
     // PostsMongoService,
     // PostsSQLService,

@@ -1,15 +1,15 @@
-import { IsString } from "class-validator";
+import { IsString, Max } from "class-validator";
 
 export class CreatePostByBloggerDto {
-    @IsString()
-    title: string
+  @IsString()
+  @Max(30)
+  title: string;
 
-    @IsString()
-    shortDescription: string
+  @IsString()
+  @Max(100)
+  shortDescription: string;
 
-    @IsString()
-    content: string
-
-
-
+  @IsString()
+  @Max(1000)
+  content: string;
 }

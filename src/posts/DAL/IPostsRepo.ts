@@ -1,12 +1,14 @@
 import { CreatePostDto } from "../dto/create-post.dto";
 import { UpdatePostDto } from "../dto/update-post.dto";
 import { PaginationPostsDto } from "../dto/pagination.posts.dto";
-import { PostDalDto } from "../dto/post.dal.dto";
+import { BlogEntity } from "../../bloggers/entities/blogEntity";
+import { PostViewModel } from "../dto/PostViewModel";
+import { PostEntity } from "../entities/post.entity";
 
 export const IPostsRepoToken = Symbol("IPostsRepoToken");
 
 export interface IPostsRepo<GenericPostType> {
-  createPost(post: PostDalDto): Promise<GenericPostType>;
+  createPost(dto: CreatePostDto, blog: BlogEntity): Promise<GenericPostType>;
 
   updatePost(id: string, dto: UpdatePostDto): Promise<any>;
 
@@ -31,4 +33,6 @@ export interface IPostsRepo<GenericPostType> {
   // setLikeStatus(postId: number, dto:UpdatePostDto): Promise<any>
 
   getPostsPaginatedByBlog(dto: PaginationPostsDto, blogId: string);
+
+  mapPostToView(post: PostEntity): Promise<PostViewModel>;
 }

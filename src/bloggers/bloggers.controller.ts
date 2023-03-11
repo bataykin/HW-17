@@ -18,7 +18,6 @@ import {
 import { CreateBlogDto } from "./dto/createBlogDto";
 import { UpdateBlogDto } from "./dto/update-blog.dto";
 import { BlogsPaginationDto } from "./dto/blogsPaginationDto";
-import { CreatPostByBlogDto } from "./dto/creatPostByBlogDto";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { GetBlogsOfBloggerQuery } from "./useCase/getBlogsOfBloggerHandler";
 import { CreateBlogCommand } from "./useCase/createBlogHandler";
@@ -37,6 +36,7 @@ import { BanUserByBlogDto } from "./dto/banUserByBlogDto";
 import { BanUnbanUserByBloggerCommand } from "./useCase/BanUnbanUserByBlogHandler";
 import { GetBannedUsersForBlogQuery } from "./useCase/getBannedUsersForBlogHandler";
 import { GetBannedUsersPaginationDTO } from "./dto/GetBannedUsersPaginationDTO";
+import { CreatePostDto } from "../posts/dto/create-post.dto";
 
 @SkipThrottle()
 @Controller("blogger")
@@ -87,7 +87,7 @@ export class BloggersController {
   @UseGuards(JwtAuthGuard)
   async createPostByBlog(
     @Param("blogId", ParseUUIDPipe) blogId: string,
-    @Body() dto: CreatPostByBlogDto,
+    @Body() dto: CreatePostDto,
     @Request() req,
   ) {
     const accessToken = req.headers.authorization?.split(" ")[1];

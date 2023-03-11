@@ -3,11 +3,10 @@ import { CreatePostDto } from "../dto/create-post.dto";
 import { BadRequestException, Inject, NotFoundException } from "@nestjs/common";
 import { IPostsRepo, IPostsRepoToken } from "../DAL/IPostsRepo";
 import { PostEntity } from "../entities/post.entity";
-import { PostDalDto } from "../dto/post.dal.dto";
 import { IBlogsRepo, IBlogsRepoToken } from "../../bloggers/DAL/IBlogsRepo";
 import { BlogEntity } from "../../bloggers/entities/blogEntity";
-import { isUUID } from "class-validator";
 import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
+import { PostViewModel } from "../dto/PostViewModel";
 
 export class CreatePostCommand {
   constructor(public readonly dto: CreatePostDto) {}
@@ -22,22 +21,19 @@ export class CreatePostHandler implements ICommandHandler<CreatePostCommand> {
     private readonly blogsRepo: IBlogsRepo<BlogEntity>,
   ) {}
 
-  async execute(command: CreatePostCommand): Promise<any> {
+  async execute(command: CreatePostCommand): Promise<PostViewModel> {
     const { dto } = command;
     const isPostAlreadyExists = await this.postsRepo.isPostExists(dto);
     if (isPostAlreadyExists) {
       throw new BadRequestException("takoi post title and blogId exists");
     }
-    if (!isUUID(dto.blogId)) {
-      throw new NotFoundException("blogId have weird uuid");
-    }
+
     const blog = await this.blogsRepo.findBlogById(dto.blogId);
     if (!blog) {
       throw new NotFoundException("net takogo blogId");
     }
     const blogName = await this.blogsRepo.getBlogNameById(dto.blogId);
-    const dalDto: PostDalDto = { ...dto, blogName };
-    const post = await this.postsRepo.createPost(dalDto);
+    const post = await this.postsRepo.createPost(dto, blog);
     const res = {
       ...post,
       extendedLikesInfo: {

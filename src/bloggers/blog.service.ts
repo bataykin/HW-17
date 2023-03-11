@@ -35,7 +35,9 @@ export class BlogService {
       sortDirection,
       skipSize,
     };
-    const blogs = await this.blogsRepo.getBlogsPaginated(blogsPaginationBLLdto);
+    const blogs = await this.blogsRepo.getBlogsPaginatedPublic(
+      blogsPaginationBLLdto,
+    );
     const docCount = await this.blogsRepo.countBlogs();
     const result = {
       pagesCount: Math.ceil(docCount / +pageSize),

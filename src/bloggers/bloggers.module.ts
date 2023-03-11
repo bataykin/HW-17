@@ -32,7 +32,7 @@ import { ICommentsRepoToken } from "../comments/ICommentsRepo";
 import { CommentsORM } from "../comments/comments.ORM";
 import { CommentEntity } from "../comments/entities/comment.entity";
 import { BanUnbanUserByBlogHandler } from "./useCase/BanUnbanUserByBlogHandler";
-import { GetAllBlogsHandler } from "./useCase/getAllBlogsPublic";
+import { GetAllBlogsPublicHandler } from "./useCase/getAllBlogsPublic";
 import { IBannedUsersRepoToken } from "./DAL/IBannedUsersRepo";
 import { GetBannedUsersForBlogHandler } from "./useCase/getBannedUsersForBlogHandler";
 import { IUsersQueryRepoToken } from "../users/DAL/IUserQueryRepo";
@@ -45,7 +45,7 @@ import { BannedUsersSQLRepo } from "./DAL/BannedUsersSQLRepo";
 
 const blogsRouteHandlers = [
   GetBlogsOfBloggerHandler,
-  GetAllBlogsHandler,
+  GetAllBlogsPublicHandler,
   CreateBlogHandler,
   RemoveBlogHandler,
   UpdateBlogHandler,

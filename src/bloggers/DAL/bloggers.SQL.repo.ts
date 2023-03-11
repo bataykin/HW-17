@@ -68,11 +68,27 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
   countBlogs(): Promise<number> {
     throw new Error("Method not implemented.");
   }
-  getBlogsPaginated(
+
+  async getBlogsPaginatedPublic(
     dto: BlogsPaginationDto,
-    userIdFromToken?: string,
-  ): Promise<BlogEntity[]> {
-    throw new Error("Method not implemented.");
+  ): Promise<BlogEntity[] | null> {
+    const result = await this.dataSource.query(
+      `
+                SELECT * 
+                FROM blogs
+                WHERE 
+                     
+                case 
+                when $3::text is null then true 
+                when $3::text is not null then (upper("name") ~ $3::text)
+                end 
+                
+                ORDER BY  "${dto.sortBy}"     ${dto.sortDirection}
+                LIMIT $1 OFFSET $2;
+                    `,
+      [dto.pageSize, dto.skipSize, dto.searchNameTerm as string | null],
+    );
+    return result ?? null;
   }
 
   async getBlogsOfBloggerPaginated(
@@ -112,12 +128,30 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                     `,
       [id],
     );
-    return result;
+    return result[0].name ?? result;
   }
 
-  countBlogsBySearchname(searchNameTerm: string) {
-    throw new Error("Method not implemented.");
+  async countBlogsBySearchnamePublic(searchNameTerm: string) {
+    const result = await this.dataSource.query(
+      `
+                SELECT 
+                CASE
+                    WHEN COUNT(*) > 0 THEN COUNT(*)
+                    ELSE 0
+                END AS total
+                FROM blogs
+                WHERE 
+                case 
+                when $1::text is null then true 
+                when $1::text is not null then (upper("name") ~ $1::text)
+                end 
+                    `,
+      [searchNameTerm],
+    );
+    console.log(result);
+    return result[0].total ?? null;
   }
+
   async countBloggersBlogsBySearchname(searchNameTerm: string, userId: string) {
     const result = await this.dataSource.query(
       `
@@ -136,7 +170,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                     `,
       [userId, searchNameTerm],
     );
-    return result.total;
+    return result[0].total ?? null;
   }
   SA_bindBlogToUser(blogId: string, userId: string) {
     throw new Error("Method not implemented.");
