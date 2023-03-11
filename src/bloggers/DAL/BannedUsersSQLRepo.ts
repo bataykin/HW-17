@@ -22,8 +22,8 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<UserEntity> {
   ): Promise<void> {
     const isExisted = await this.dataSource.query(
       `
-               SELECT FROM "banned_users"
-                WHERE "blogId" = $1 "userId" = $2
+               SELECT * FROM "banned_users"
+                WHERE "blogId" = $1 AND "userId" = $2
 
                     `,
       [dto.blogId, userId],

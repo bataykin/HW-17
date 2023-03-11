@@ -164,8 +164,8 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                 WHERE "userId" = $1
                 AND
                 case 
-                when $2 is null then true 
-                when $2 is not null then (upper("name") ~ $5)
+                when $2::text is null then true 
+                when $2::text is not null then (upper("name") ~ $2::text)
                 end 
                     `,
       [userId, searchNameTerm],
