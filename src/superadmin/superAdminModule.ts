@@ -3,7 +3,6 @@ import { SuperAdminController } from "./superAdminController";
 import { CqrsModule } from "@nestjs/cqrs";
 import { IBlogsRepoToken } from "../bloggers/DAL/IBlogsRepo";
 import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
-import { BlogsORM } from "../bloggers/blogs.ORM";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { BlogEntity } from "../bloggers/entities/blogEntity";
 import { UserEntity } from "../users/entity/user.entity";
@@ -19,6 +18,7 @@ import { DevicesORM } from "../device/devices.ORM";
 import { DeviceEntity } from "../device/entities/device.entity";
 import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
 import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
+import { BloggersSQLRepo } from "../bloggers/DAL/bloggers.SQL.repo";
 
 const saRouteHandlers = [
   SA_CreateUserHandler,
@@ -44,7 +44,7 @@ const saRouteHandlers = [
     },
     {
       provide: IBlogsRepoToken,
-      useClass: useRepositoryClassGeneric(BlogsORM, BlogsORM, BlogsORM),
+      useClass: BloggersSQLRepo,
     },
     {
       provide: IDevicesRepoToken,

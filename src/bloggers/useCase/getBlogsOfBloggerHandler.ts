@@ -9,6 +9,8 @@ import {
   IUsersQueryRepo,
   IUsersQueryRepoToken,
 } from "../../users/DAL/IUserQueryRepo";
+import { PaginatorModel } from "../../common/PaginatorModel";
+import { BlogViewModel } from "../dto/BlogViewModel";
 
 export class GetBlogsOfBloggerQuery {
   constructor(
@@ -29,56 +31,41 @@ export class GetBlogsOfBloggerHandler
     private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
   ) {}
 
-  async execute(query: GetBlogsOfBloggerQuery): Promise<any> {
+  async execute(
+    query: GetBlogsOfBloggerQuery,
+  ): Promise<PaginatorModel<BlogViewModel>> {
     const { dto, accessToken } = query;
     const retrievedUserFromToken = await this.authService.retrieveUser(
       accessToken,
     );
-    const userIdFromToken = retrievedUserFromToken.userId;
-    const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
-    if (!isUserExist) {
+    const userIdFromToken = retrievedUserFromToken?.userId;
+    const isUserExist: UserEntity = await this.usersQueryRepo
+      .findById(userIdFromToken)
+      .then((res) => res[0]);
+    if (!isUserExist || isUserExist.isBanned) {
       throw new UnauthorizedException("unexpected user");
     }
-    const {
-      searchNameTerm = "",
-      pageNumber = 1,
-      pageSize = 10,
-      sortBy = "createdAt",
-      sortDirection = "desc",
-      skipSize = +pageNumber > 1 ? +pageSize * (+pageNumber - 1) : 0,
-    } = dto;
-    const blogsPaginationBLLdto = {
-      searchNameTerm,
-      pageNumber,
-      pageSize,
-      sortBy,
-      sortDirection,
-      skipSize,
-    };
-
-    const blogs = await this.blogsRepo.getBlogsPaginated(
-      blogsPaginationBLLdto,
+    const paging = {
+      searchNameTerm: dto.searchNameTerm?.toUpperCase() ?? null,
+      sortBy: dto.sortBy ?? "createdAt",
+      sortDirection: dto.sortDirection ?? "desc",
+      pageNumber: dto.pageNumber ?? 1,
+      pageSize: dto.pageSize ?? 10,
+      skipSize: dto.pageNumber > 1 ? dto.pageSize * (dto.pageNumber - 1) : 0,
+    } as BlogsPaginationDto;
+    const blogs: BlogEntity[] = await this.blogsRepo.getBlogsOfBloggerPaginated(
+      paging,
       userIdFromToken,
     );
-    // const blogs = await this.blogsRepo.getBlogsPaginated(blogsPaginationBLLdto)
-    // const mappedBlogs = await this.blogsRepo.mapBlogsWithOwnersToResponse(blogs)
-    const mappedBlogs = await this.blogsRepo.mapBlogsToResponse(
-      blogs,
-      "id",
-      "name",
-      "description",
-      "websiteUrl",
-      "isMembership",
-      "createdAt",
-    );
-    const docCount = await this.blogsRepo.countUsersBlogsBySearchname(
-      searchNameTerm,
+    const mappedBlogs = await this.blogsRepo.mapBlogsToResponse(blogs);
+    const docCount = await this.blogsRepo.countBloggersBlogsBySearchname(
+      paging.searchNameTerm,
       userIdFromToken,
     );
-    const result = {
-      pagesCount: Math.ceil(docCount / +pageSize),
-      page: +pageNumber,
-      pageSize: +pageSize,
+    const result: PaginatorModel<BlogViewModel> = {
+      pagesCount: Math.ceil(docCount / +paging.pageSize),
+      page: +paging.pageNumber,
+      pageSize: +paging.pageSize,
       totalCount: docCount,
       items: mappedBlogs,
     };

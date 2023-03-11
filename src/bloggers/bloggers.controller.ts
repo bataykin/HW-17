@@ -13,7 +13,7 @@ import {
   Request,
   UseGuards,
   UseInterceptors,
-  ValidationPipe
+  ValidationPipe,
 } from "@nestjs/common";
 import { CreateBloggerDto } from "./dto/create.blogger.dto";
 import { UpdateBlogDto } from "./dto/update-blog.dto";
@@ -38,93 +38,93 @@ import { BanUnbanUserByBloggerCommand } from "./useCase/BanUnbanUserByBlogHandle
 import { GetBannedUsersForBlogQuery } from "./useCase/getBannedUsersForBlogHandler";
 
 @SkipThrottle()
-@Controller('blogger')
+@Controller("blogger")
 export class BloggersController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
 
-  @Get('blogs/comments')
+  @Get("blogs/comments")
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async getAllCommentsOnMyBlog(
     @Query() dto: BlogsPaginationDto,
     @Request() req,
   ) {
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.queryBus.execute(
       new GetAllCommentsOnMyBlogCommand(dto, accessToken),
     );
   }
 
-  @Delete('blogs/:id')
+  @Delete("blogs/:id")
   @UseInterceptors(ChangeBlogByOtherUserInterceptor)
   @UseGuards(JwtAuthGuard)
   @HttpCode(204)
-  async removeBlog(@Param('id', ParseUUIDPipe) id: string, @Request() req) {
-    const accessToken = req.headers.authorization?.split(' ')[1];
+  async removeBlog(@Param("id", ParseUUIDPipe) id: string, @Request() req) {
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.commandBus.execute(new RemoveBlogCommand(id, accessToken));
   }
 
-  @Put('blogs/:id')
+  @Put("blogs/:id")
   @UseInterceptors(ChangeBlogByOtherUserInterceptor)
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: UpdateBlogDto,
     @Request() req,
   ) {
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.commandBus.execute(new UpdateBlogCommand(id, dto, accessToken));
   }
 
-  @Post('blogs/:blogId/posts')
+  @Post("blogs/:blogId/posts")
   @UseGuards(JwtAuthGuard)
   async createPostByBlog(
-    @Param('blogId', ParseUUIDPipe) blogId: string,
+    @Param("blogId", ParseUUIDPipe) blogId: string,
     @Body() dto: CreatPostByBlogDto,
     @Request() req,
   ) {
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.commandBus.execute(
       new CreatePostByBlogCommand(blogId, dto, accessToken),
     );
   }
 
-  @Put('blogs/:blogId/posts/:postId')
+  @Put("blogs/:blogId/posts/:postId")
   @UseInterceptors(ChangePostByOtherUserInterceptor)
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePostByBlog(
-    @Param('blogId', ParseUUIDPipe) blogId: string,
-    @Param('postId', ParseUUIDPipe) postId: string,
+    @Param("blogId", ParseUUIDPipe) blogId: string,
+    @Param("postId", ParseUUIDPipe) postId: string,
     @Body() dto: UpdatePostByBlogDto,
     @Request() req,
   ) {
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.commandBus.execute(
       new UpdatePostByBlogCommand(blogId, postId, dto, accessToken),
     );
   }
 
-  @Delete('blogs/:blogId/posts/:postId')
+  @Delete("blogs/:blogId/posts/:postId")
   @UseInterceptors(ChangePostByOtherUserInterceptor)
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePostByBlog(
-    @Param('blogId', ParseUUIDPipe) blogId: string,
-    @Param('postId', ParseUUIDPipe) postId: string,
+    @Param("blogId", ParseUUIDPipe) blogId: string,
+    @Param("postId", ParseUUIDPipe) postId: string,
     @Request() req,
   ) {
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.commandBus.execute(
       new DeletePostByBlogCommand(blogId, postId, accessToken),
     );
   }
 
-  @Post('blogs')
+  @Post("blogs")
   @UseGuards(JwtAuthGuard)
   async createBlog(
     @Body(
@@ -138,41 +138,41 @@ export class BloggersController {
     dto: CreateBloggerDto,
     @Request() req,
   ) {
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.commandBus.execute(new CreateBlogCommand(dto, accessToken));
   }
 
-  @Get('blogs')
+  @Get("blogs")
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async getMyBlogs(@Query() dto: BlogsPaginationDto, @Request() req) {
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.queryBus.execute(new GetBlogsOfBloggerQuery(dto, accessToken));
   }
 
-  @Put('users/:id/ban')
+  @Put("users/:id/ban")
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async banUnbanUserByBlog(
-    @Param('id', ParseUUIDPipe) userId: string,
+    @Param("id", ParseUUIDPipe) userId: string,
     @Body() dto: BanUserByBlogDto,
     @Request() req,
   ) {
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.commandBus.execute(
       new BanUnbanUserByBloggerCommand(userId, dto, accessToken),
     );
   }
 
-  @Get('users/blog/:id')
+  @Get("users/blog/:id")
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async getBannedUsersForBlogId(
-    @Param('id', ParseUUIDPipe) blogId: string,
+    @Param("id", ParseUUIDPipe) blogId: string,
     @Query() dto: BlogsPaginationDto,
     @Request() req,
   ) {
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.queryBus.execute(
       new GetBannedUsersForBlogQuery(blogId, dto, accessToken),
     );

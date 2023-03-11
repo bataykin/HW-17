@@ -52,7 +52,7 @@ export class GetAllBlogsHandler implements IQueryHandler<GetAllBlogsQuery> {
       "isMembership",
       "createdAt",
     );
-    const docCount = await this.blogsRepo.countUsersBlogsBySearchname(
+    const docCount = await this.blogsRepo.countBlogsBySearchname(
       searchNameTerm,
     );
     const result = {

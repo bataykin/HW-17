@@ -34,7 +34,7 @@ export interface IBlogsRepo<GenericBlogType> {
 
   countBlogsBySearchname(searchNameTerm: string);
 
-  countUsersBlogsBySearchname(searchNameTerm: string, userId?: string);
+  countBloggersBlogsBySearchname(searchNameTerm: string, userId: string);
 
   SA_bindBlogToUser(blogId: string, userId: string);
 

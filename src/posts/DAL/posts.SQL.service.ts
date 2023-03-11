@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PostsSQLRepo } from "./posts.SQL.repo";
-import { BloggersSQLService } from "../../bloggers/DAL/bloggers.SQL.service";
 import { CreatePostByBloggerDto } from "../../bloggers/dto/create.post.by.blogger.dto";
 import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
 import { CreatePostDto } from "../dto/create-post.dto";
@@ -18,6 +17,8 @@ import {
   IUsersQueryRepoToken,
 } from "../../users/DAL/IUserQueryRepo";
 import { UserEntity } from "../../users/entity/user.entity";
+import { IBlogsRepo, IBlogsRepoToken } from "../../bloggers/DAL/IBlogsRepo";
+import { BlogEntity } from "../../bloggers/entities/blogEntity";
 
 @Injectable()
 export class PostsSQLService implements APostService {
@@ -25,7 +26,8 @@ export class PostsSQLService implements APostService {
     protected readonly postsRepo: PostsSQLRepo,
     @Inject(IUsersQueryRepoToken)
     private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
-    protected readonly bloggersService: BloggersSQLService,
+    @Inject(IBlogsRepoToken)
+    private readonly blogsRepo: IBlogsRepo<BlogEntity>,
     protected readonly likesService: LikesSQLService,
   ) {}
 
@@ -86,9 +88,9 @@ export class PostsSQLService implements APostService {
       throw new BadRequestException("takoi post exists");
     }
 
-    await this.bloggersService.findById(blogId);
+    await this.blogsRepo.findBlogById(blogId);
 
-    const bloggerName = await this.bloggersService.getBloggerNameById(blogId);
+    const bloggerName = await this.blogsRepo.getBlogNameById(blogId);
 
     const post = {
       id: undefined,
@@ -118,9 +120,9 @@ export class PostsSQLService implements APostService {
     }
     const { title, shortDescription, content, blogId } = dto;
 
-    await this.bloggersService.findById(blogId);
+    await this.blogsRepo.findBlogById(blogId);
 
-    const bloggerName = await this.bloggersService.getBloggerNameById(blogId);
+    const bloggerName = await this.blogsRepo.getBlogNameById(blogId);
 
     let post = {
       title: title,
@@ -140,7 +142,7 @@ export class PostsSQLService implements APostService {
     // const newPost = await this.postsRepo.create(post)
     // newPost[0].extendedLikesInfo = post.extendedLikesInfo
 
-    return "newPost[0]";
+    return post;
   }
 
   async findAll(

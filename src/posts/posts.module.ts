@@ -22,7 +22,6 @@ import { IPostsRepoToken } from "./DAL/IPostsRepo";
 import { PostsORM } from "./posts.ORM";
 import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
 import { IBlogsRepoToken } from "../bloggers/DAL/IBlogsRepo";
-import { BlogsORM } from "../bloggers/blogs.ORM";
 import { CqrsModule } from "@nestjs/cqrs";
 import { GetAllPostsHandler } from "./useCase/getAllPostsHandler";
 import { CreatePostHandler } from "./useCase/createPostHandler";
@@ -48,6 +47,7 @@ import { BannedUsersEntity } from "../bloggers/entities/bannedUsersEntity";
 import { IUsersQueryRepoToken } from "../users/DAL/IUserQueryRepo";
 import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
 import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
+import { BloggersSQLRepo } from "../bloggers/DAL/bloggers.SQL.repo";
 
 export const usePostServiceClass = () => {
   if (process.env.REPO_TYPE === "MONGO") {
@@ -131,7 +131,7 @@ const PostRouteHandlers = [
     },
     {
       provide: IBlogsRepoToken,
-      useClass: useRepositoryClassGeneric(BlogsORM, BlogsORM, BlogsORM),
+      useClass: BloggersSQLRepo,
     },
     {
       provide: IBannedUsersRepoToken,

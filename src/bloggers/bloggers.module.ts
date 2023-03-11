@@ -3,13 +3,11 @@ import { BloggersController } from "./bloggers.controller";
 import { PostsModule } from "../posts/posts.module";
 import { AuthModule } from "../auth/auth.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { BloggersSQLService } from "./DAL/bloggers.SQL.service";
 import { BlogEntity } from "./entities/blogEntity";
 import { LikesModule } from "../likes/likes.module";
 import { UsersModule } from "../users/users.module";
 import { BlogService } from "./blog.service";
 import { IBlogsRepoToken } from "./DAL/IBlogsRepo";
-import { BlogsORM } from "./blogs.ORM";
 import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
 import { PostEntity } from "../posts/entities/post.entity";
 import { CqrsModule } from "@nestjs/cqrs";
@@ -20,12 +18,10 @@ import { UpdateBlogHandler } from "./useCase/updateBlogHandler";
 import { FindBlogHandler } from "./useCase/findBlogHandler";
 import { GetPostsByBlogHandler } from "./useCase/getPostsByBlogHandler";
 import { IPostsRepoToken } from "../posts/DAL/IPostsRepo";
-import { PostsORM } from "../posts/posts.ORM";
 import { IUsersRepoToken } from "../users/DAL/IUsersRepo";
 import { UserEntity } from "../users/entity/user.entity";
 import { CreatePostByBlogHandler } from "./useCase/createPostByBlogHandler";
 import { ILikesRepoToken } from "../likes/ILikesRepo";
-import { LikesORM } from "../likes/likesORM";
 import { LikeEntity } from "../likes/entities/like.entity";
 import { DeletePostByBlogHandler } from "./useCase/DeletePostByBlogHandler";
 import { UpdatePostByBlogHandler } from "./useCase/UpdatePostByBlogHandler";
@@ -43,17 +39,9 @@ import { GetBannedUsersForBlogHandler } from "./useCase/getBannedUsersForBlogHan
 import { IUsersQueryRepoToken } from "../users/DAL/IUserQueryRepo";
 import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
 import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
-//import {BlogPostModule} from "../BlogPostModule/blogPost.module";
-
-const useBloggerServiceClass = () => {
-  if (process.env.REPO_TYPE === "MONGO") {
-    return BloggersSQLService;
-  } else if (process.env.REPO_TYPE === "SQL") {
-    return BloggersSQLService;
-  } else if (process.env.REPO_TYPE === "ORM") {
-    return BlogsORM;
-  } else return BloggersSQLService; // by DEFAULT if not in enum
-};
+import { BloggersSQLRepo } from "./DAL/bloggers.SQL.repo";
+import { PostsSQLRepo } from "../posts/DAL/posts.SQL.repo";
+import { LikesORMRepo } from "../likes/oldServiceRepos/likes.ORM.repo";
 
 const blogsRouteHandlers = [
   GetBlogsOfBloggerHandler,
@@ -100,11 +88,11 @@ const blogsRouteHandlers = [
     BlogService,
     {
       provide: IBlogsRepoToken,
-      useClass: useRepositoryClassGeneric(BlogsORM, BlogsORM, BlogsORM),
+      useClass: BloggersSQLRepo,
     },
     {
       provide: IPostsRepoToken,
-      useClass: useRepositoryClassGeneric(PostsORM, PostsORM, PostsORM),
+      useClass: PostsSQLRepo,
     },
     {
       provide: IUsersRepoToken,
@@ -125,7 +113,7 @@ const blogsRouteHandlers = [
     },
     {
       provide: ILikesRepoToken,
-      useClass: useRepositoryClassGeneric(LikesORM, LikesORM, LikesORM),
+      useClass: LikesORMRepo,
     },
     {
       provide: ICommentsRepoToken,

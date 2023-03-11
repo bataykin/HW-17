@@ -4,14 +4,12 @@ import { UpdatePostDto } from "../dto/update-post.dto";
 import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
-import { LikesSQLService } from "../../likes/oldServiceRepos/likes.SQL.service";
 
 @Injectable()
 export class PostsSQLRepo {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
-    private readonly likesService: LikesSQLService,
   ) {}
 
   //// ORIGINAL FUNCTIONS ////

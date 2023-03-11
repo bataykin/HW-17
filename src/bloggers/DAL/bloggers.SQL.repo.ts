@@ -3,30 +3,176 @@ import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { CreateBloggerDto } from "../dto/create.blogger.dto";
 import { UpdateBlogDto } from "../dto/update-blog.dto";
+import { IBlogsRepo } from "./IBlogsRepo";
+import { BlogEntity } from "../entities/blogEntity";
+import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
+import { BlogViewModel } from "../dto/BlogViewModel";
 
 @Injectable()
-export class BloggersSQLRepo {
+export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
 
-  //// ORIGINAL FUNCTIONS ////
-
-  async getAllBloggersPaging(skipSize: number, PageSize: number) {
-    // return await this.bloggerModel.find({}).skip(skipSize).limit(PageSize).exec();
-
+  async createBlog(dto: CreateBloggerDto, userId: string): Promise<BlogEntity> {
     const result = await this.dataSource.query(
       `
-                SELECT *
-                FROM bloggers
-                ORDER BY id
-                LIMIT $1 OFFSET $2
+                INSERT INTO blogs(name, description, "websiteUrl", "userId")
+                VALUES ($1, $2, $3, $4)
+                RETURNING *
                     `,
-      [PageSize, skipSize],
+      [dto.name, dto.description, dto.websiteUrl, userId],
+    );
+
+    return result;
+  }
+  async updateBlog(id: string, dto: UpdateBlogDto): Promise<BlogEntity> {
+    const result = await this.dataSource.query(
+      `
+            UPDATE blogs
+            SET name = $1, description = $2, "websiteUrl" = $3
+            WHERE id = $4
+            RETURNING *
+            `,
+      [dto.name, dto.description, dto.websiteUrl, id],
     );
     return result;
   }
+
+  async deleteBlog(id: string): Promise<any> {
+    const result = await this.dataSource.query(
+      `
+                DELETE FROM blogs
+                WHERE id = $1
+                    `,
+      [id],
+    );
+    return result;
+  }
+
+  async findBlogById(id: string): Promise<BlogEntity> {
+    const result = await this.dataSource.query(
+      `
+                SELECT * 
+                FROM blogs
+                WHERE id = $1
+                    `,
+      [id],
+    );
+    return result;
+  }
+  SA_findBlogById(id: string): Promise<BlogEntity> {
+    throw new Error("Method not implemented.");
+  }
+  countBlogs(): Promise<number> {
+    throw new Error("Method not implemented.");
+  }
+  getBlogsPaginated(
+    dto: BlogsPaginationDto,
+    userIdFromToken?: string,
+  ): Promise<BlogEntity[]> {
+    throw new Error("Method not implemented.");
+  }
+
+  async getBlogsOfBloggerPaginated(
+    dto: BlogsPaginationDto,
+    userIdFromToken: string,
+  ): Promise<BlogEntity[]> {
+    const result = await this.dataSource.query(
+      `
+                SELECT * 
+                FROM blogs
+                WHERE "userId" = $1
+                AND
+                
+                case 
+                when $5 is null then true 
+                when $5 is not null then (upper("name") ~ $5)
+                end 
+                
+                ORDER BY  "${dto.sortBy}"     ${dto.sortDirection}
+                LIMIT $2 OFFSET $3;
+                    `,
+      [userIdFromToken, dto.pageSize, dto.skipSize, dto.searchNameTerm],
+    );
+    return result;
+  }
+
+  isBlogExistsByName(dto: CreateBloggerDto): Promise<BlogEntity> {
+    throw new Error("Method not implemented.");
+  }
+
+  async getBlogNameById(id: string): Promise<string> {
+    const result = await this.dataSource.query(
+      `
+                SELECT name 
+                FROM blogs
+                WHERE blogs.id = $1
+                    `,
+      [id],
+    );
+    return result;
+  }
+
+  countBlogsBySearchname(searchNameTerm: string) {
+    throw new Error("Method not implemented.");
+  }
+  async countBloggersBlogsBySearchname(searchNameTerm: string, userId: string) {
+    const result = await this.dataSource.query(
+      `
+                SELECT 
+                CASE
+                    WHEN COUNT(*) > 0 THEN COUNT(*)
+                    ELSE 0
+                END AS total
+                FROM blogs
+                WHERE "userId" = $1
+                AND
+                case 
+                when $5 is null then true 
+                when $5 is not null then (upper("name") ~ $5)
+                end 
+                    `,
+      [userId],
+    );
+    return result.total;
+  }
+  SA_bindBlogToUser(blogId: string, userId: string) {
+    throw new Error("Method not implemented.");
+  }
+  async mapBlogsToResponse(blogs: BlogEntity[]): Promise<BlogViewModel[]> {
+    const mappedBlogs = [];
+    for await (const blog of blogs) {
+      mappedBlogs.push({
+        id: blog.id,
+        name: blog.name,
+        description: blog.description,
+        websiteUrl: blog.websiteUrl,
+        createdAt: blog.createdAt,
+        isMembership: blog.isMembership,
+      });
+    }
+
+    return mappedBlogs;
+  }
+  mapBlogToResponse(blogs: BlogEntity, ...rows: string[]) {
+    throw new Error("Method not implemented.");
+  }
+  mapBlogsWithOwnersToResponse(blogs: BlogEntity[]) {
+    throw new Error("Method not implemented.");
+  }
+  setBanStatus(blogId: string, isBanned: boolean): void {
+    throw new Error("Method not implemented.");
+  }
+  SA_getBlogsPaginated(dto: BlogsPaginationDto): Promise<BlogEntity[]> {
+    throw new Error("Method not implemented.");
+  }
+  SA_countBlogsBySearchname(searchNameTerm: string) {
+    throw new Error("Method not implemented.");
+  }
+
+  //// ORIGINAL FUNCTIONS ////
 
   async countDocuments() {
     // return this.bloggerModel.countDocuments(filter);
@@ -45,87 +191,16 @@ export class BloggersSQLRepo {
     return result;
   }
 
-  async createBlogger(dto: CreateBloggerDto) {
-    // return await this.bloggerModel.insertMany({name: dto.name, websiteUrl: dto.websiteUrl})
-
-    const result = await this.dataSource.query(
-      `
-                INSERT INTO bloggers(name, "websiteUrl")
-                VALUES ($1, $2)
-                RETURNING *
-                    `,
-      [dto.name, dto.websiteUrl],
-    );
-
-    return result;
-  }
-
   async isExists(dto: CreateBloggerDto) {
     // return this.bloggerModel.findOne({name: dto.name});
 
     const result = await this.dataSource.query(
       `
                 SELECT name, "websiteUrl" 
-                FROM bloggers
-                WHERE bloggers.name = $1
+                FROM blogs
+                WHERE blogs.name = $1
                     `,
       [dto.name],
-    );
-    return result;
-  }
-
-  async findById(id: string) {
-    // return this.bloggerModel.findById(id).select({_id: 0, id: '$_id', name: 1, websiteUrl: 1})
-
-    const result = await this.dataSource.query(
-      `
-                SELECT * 
-                FROM bloggers
-                WHERE bloggers.id = $1
-                    `,
-      [id],
-    );
-    return result;
-  }
-
-  async updateBlogger(id: string, { name, websiteUrl }: UpdateBlogDto) {
-    // return this.bloggerModel.findOneAndUpdate({_id: id}, {name, websiteUrl}, {new: true});
-
-    const result = await this.dataSource.query(
-      `
-            UPDATE bloggers
-            SET name = $1, "websiteUrl" = $2
-            WHERE id = $3
-            RETURNING *
-            `,
-      [name, websiteUrl, id],
-    );
-    return result;
-  }
-
-  async deleteBlogger(id: string) {
-    // return this.bloggerModel.findByIdAndDelete(id)
-
-    const result = await this.dataSource.query(
-      `
-                DELETE FROM bloggers
-                WHERE bloggers.id = $1
-                    `,
-      [id],
-    );
-    return result;
-  }
-
-  async getBloggerNameById(bloggerId: string) {
-    // return this.bloggerModel.findById(bloggerId, {_id:0, name: 1})
-
-    const result = await this.dataSource.query(
-      `
-                SELECT name 
-                FROM bloggers
-                WHERE bloggers.id = $1
-                    `,
-      [bloggerId],
     );
     return result;
   }
