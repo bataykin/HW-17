@@ -62,7 +62,13 @@ export class BanUnbanUserByBlogHandler
         "try to update or delete the entity that was created by another user",
       );
     }
-    await this.bannedUsersRepo.setBanStatus(userId, dto);
+    const fixedDto: BanUserByBlogDto & { banDate: Date } = {
+      blogId: dto.blogId,
+      isBanned: dto.isBanned,
+      banReason: dto.isBanned ? dto.banReason : null,
+      banDate: dto.isBanned ? new Date() : null,
+    };
+    await this.bannedUsersRepo.setBanStatus(userId, fixedDto);
     return Promise.resolve(undefined);
   }
 }

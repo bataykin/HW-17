@@ -6,7 +6,7 @@ import { BlogEntity } from "../entities/blogEntity";
 export const IBannedUsersRepoToken = Symbol("IBannedUsersRepoToken");
 
 export interface IBannedUsersRepo<GenericBannedUserType> {
-  setBanStatus(userId: string, dto: BanUserByBlogDto): void;
+  setBanStatus(userId: string, dto: BanUserByBlogDto & { banDate: Date }): void;
 
   getBannedUserById(
     userId: string,

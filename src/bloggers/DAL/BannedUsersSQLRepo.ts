@@ -16,15 +16,66 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<UserEntity> {
     private readonly dataSource: DataSource,
   ) {}
 
-  setBanStatus(userId: string, dto: BanUserByBlogDto): void {
-    throw new Error("Method not implemented.");
+  async setBanStatus(
+    userId: string,
+    dto: BanUserByBlogDto & { banDate: Date },
+  ): Promise<void> {
+    const isExisted = await this.dataSource.query(
+      `
+               SELECT FROM "banned_users"
+                WHERE "blogId" = $1 "userId" = $2
+
+                    `,
+      [dto.blogId, userId],
+    );
+    if (isExisted) {
+      const updBanUser = await this.dataSource.query(
+        `
+               UPDATE "banned_users"
+               SET "isBanned" = $3, "banReason" = $4, "banDate" = $5
+                WHERE "blogId" = $1 "userId" = $2
+                    `,
+        [dto.blogId, userId, dto.isBanned, dto.banReason, dto.banDate],
+      );
+    } else {
+      const bannedLogin = await this.dataSource.query(
+        `
+        SELECT login FROM users
+        WHERE id = $1
+        `,
+        [userId],
+      );
+      const insBanUser = await this.dataSource.query(
+        `
+               INSERT INTO "banned_users"
+               ("userId", "login", "blogId", "isBanned", "banReason", "banDate")
+               VALUES( $1, $2, $3, $4, $5, $6)
+                    `,
+        [
+          userId,
+          bannedLogin[0].login,
+          dto.blogId,
+          dto.isBanned,
+          dto.banReason,
+          dto.banDate,
+        ],
+      );
+    }
+    return;
   }
 
-  getBannedUserById(
+  async getBannedUserById(
     userId: string,
     blogId: string,
   ): Promise<BannedUsersEntity> {
-    throw new Error("Method not implemented.");
+    const res = await this.dataSource.query(
+      `
+      SELECT * FROM "banned_users"
+      WHERE "blogId" = $1 AND "userId" = $2 
+      `,
+      [blogId, userId],
+    );
+    return res[0] ?? res;
   }
 
   async getBannedUsersForBlogPaginated(
@@ -48,7 +99,7 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<UserEntity> {
                     `,
       [blogId, dto.pageSize, dto.skipSize, dto.searchLoginTerm],
     );
-    return result;
+    return result ?? null;
   }
 
   mapBannedUserEntity(users: BannedUsersEntity) {
