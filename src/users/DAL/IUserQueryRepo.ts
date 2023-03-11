@@ -5,7 +5,7 @@ import { SAGetUsersPaginationModel } from "../../superadmin/dto/SAGetUsersPagina
 export const IUsersQueryRepoToken = Symbol("IUsersQueryRepoToken");
 
 export interface IUsersQueryRepo<GenericUserType> {
-  findById(id: string): Promise<GenericUserType>;
+  findById(id: string): Promise<GenericUserType> | null;
 
   SA_GetUsers(dto: SAGetUsersPaginationModel): Promise<GenericUserType[]>;
 

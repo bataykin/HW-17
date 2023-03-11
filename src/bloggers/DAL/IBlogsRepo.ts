@@ -1,12 +1,13 @@
-import { CreateBloggerDto } from "../dto/create.blogger.dto";
+import { CreateBlogDto } from "../dto/createBlogDto";
 import { UpdateBlogDto } from "../dto/update-blog.dto";
 import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { BlogEntity } from "../entities/blogEntity";
+import { BlogViewModel } from "../dto/BlogViewModel";
 
 export const IBlogsRepoToken = Symbol("IBlogsRepoToken");
 
 export interface IBlogsRepo<GenericBlogType> {
-  createBlog(dto: CreateBloggerDto, userId: string): Promise<GenericBlogType>;
+  createBlog(dto: CreateBlogDto, userId: string): Promise<GenericBlogType>;
 
   updateBlog(id: string, dto: UpdateBlogDto): Promise<GenericBlogType>;
 
@@ -28,7 +29,7 @@ export interface IBlogsRepo<GenericBlogType> {
     userIdFromToken: string,
   ): Promise<BlogEntity[]>;
 
-  isBlogExistsByName(dto: CreateBloggerDto): Promise<GenericBlogType | null>;
+  isBlogExistsByName(dto: CreateBlogDto): Promise<GenericBlogType | null>;
 
   getBlogNameById(id: string): Promise<string | null>;
 
@@ -38,9 +39,9 @@ export interface IBlogsRepo<GenericBlogType> {
 
   SA_bindBlogToUser(blogId: string, userId: string);
 
-  mapBlogsToResponse(blogs: BlogEntity[], ...rows: string[]);
+  mapBlogsToResponse(blogs: BlogEntity[]): Promise<BlogViewModel[]>;
 
-  mapBlogToResponse(blogs: BlogEntity, ...rows: string[]);
+  mapBlogToResponse(blogs: BlogEntity): Promise<BlogViewModel>;
 
   mapBlogsWithOwnersToResponse(blogs: BlogEntity[]);
 

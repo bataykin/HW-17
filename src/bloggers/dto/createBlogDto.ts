@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsUrl, MaxLength } from "class-validator";
 import { Transform, TransformFnParams } from "class-transformer";
 
-export class CreateBloggerDto {
+export class CreateBlogDto {
   // @IsString()
   @MaxLength(15)
   @IsNotEmpty()

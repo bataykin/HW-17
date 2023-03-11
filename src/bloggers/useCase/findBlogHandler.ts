@@ -19,15 +19,7 @@ export class FindBlogHandler implements IQueryHandler<FindBlogQuery> {
     if (!blog) {
       throw new NotFoundException("net takogo blogId");
     }
-    const result = await this.blogsRepo.mapBlogToResponse(
-      blog,
-      "id",
-      "name",
-      "description",
-      "websiteUrl",
-      "createdAt",
-      "isMembership",
-    );
+    const result = await this.blogsRepo.mapBlogToResponse(blog);
     return Promise.resolve(result);
   }
 }

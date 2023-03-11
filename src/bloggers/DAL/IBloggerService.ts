@@ -1,10 +1,10 @@
 import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
-import { CreateBloggerDto } from "../dto/create.blogger.dto";
+import { CreateBlogDto } from "../dto/createBlogDto";
 import { UpdateBlogDto } from "../dto/update-blog.dto";
 
 export interface IBloggerService {
   findAll(dto: BlogsPaginationDto): any;
-  create(dto: CreateBloggerDto): any;
+  create(dto: CreateBlogDto): any;
   findById(id: string): any;
   update(id: string, dto: UpdateBlogDto): any;
   remove(id: string): any;
@@ -15,7 +15,7 @@ export const IBloggerServiceToken = Symbol("IBloggerService");
 
 export abstract class ABloggersService {
   abstract findAll(dto: BlogsPaginationDto): any;
-  abstract create(dto: CreateBloggerDto): any;
+  abstract create(dto: CreateBlogDto): any;
   abstract findById(id: string): any;
   abstract update(id: string, dto: UpdateBlogDto): any;
   abstract remove(id: string): any;

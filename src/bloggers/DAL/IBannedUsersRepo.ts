@@ -1,6 +1,7 @@
 import { BanUserByBlogDto } from "../dto/banUserByBlogDto";
 import { BannedUsersEntity } from "../entities/bannedUsersEntity";
 import { CreateUserPaginatedDto } from "../../users/dto/create.user.paginated.dto";
+import { BlogEntity } from "../entities/blogEntity";
 
 export const IBannedUsersRepoToken = Symbol("IBannedUsersRepoToken");
 
@@ -19,7 +20,13 @@ export interface IBannedUsersRepo<GenericBannedUserType> {
 
   mapBannedUserEntity(users: BannedUsersEntity): any;
 
-  mapArrayOfBannedUserEntity(users: BannedUsersEntity[]): Promise<any>;
+  mapArrayOfBannedUserEntity(
+    users: BannedUsersEntity[],
+    blog: BlogEntity,
+  ): Promise<any>;
 
-  countBannedUsersBySearchName(searchNameTerm: string);
+  countBannedUsersBySearchLogin(
+    searchLoginTerm: string,
+    blogId: string,
+  ): Promise<number | null>;
 }

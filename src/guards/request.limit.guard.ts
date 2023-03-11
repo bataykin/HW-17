@@ -4,11 +4,11 @@ import {
   Inject,
   Injectable,
   UnauthorizedException,
-} from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { Request } from 'express';
-import { IRequestRepo, IRequestRepoToken } from '../auth/IRequestRepo';
-import { RequestEntity } from '../auth/entities/request.entity';
+} from "@nestjs/common";
+import { Observable } from "rxjs";
+import { Request } from "express";
+import { IRequestRepo, IRequestRepoToken } from "../auth/IRequestRepo";
+import { RequestEntity } from "../auth/entities/request.entity";
 
 const maxAttempts = 4;
 const attemptsInterval = 10;
@@ -41,8 +41,7 @@ export class RequestLimitGuard implements CanActivate {
     if (6 > 5) {
       return true;
     }
-    console.log('too much requests');
-    throw new UnauthorizedException('too much requests');
+    throw new UnauthorizedException("too much requests");
   }
 
   async validateRequest(request: Request, trueDate: Date, fullUrl: string) {

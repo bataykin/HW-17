@@ -13,7 +13,7 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
     private readonly dataSource: DataSource,
   ) {}
 
-  async findById(id: string) {
+  async findById(id: string): Promise<UserEntity | null> {
     const user = await this.dataSource.query(
       `
             SELECT *
@@ -22,7 +22,7 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
                 `,
       [id],
     );
-    return user;
+    return user ?? user[0];
   }
 
   async SA_GetUsers(dto: SAGetUsersPaginationModel) {

@@ -43,15 +43,7 @@ export class GetAllBlogsHandler implements IQueryHandler<GetAllBlogsQuery> {
     const blogs = await this.blogsRepo.getBlogsPaginated(blogsPaginationBLLdto);
     // const blogs = await this.blogsRepo.getBlogsPaginated(blogsPaginationBLLdto)
     // const mappedBlogs = await this.blogsRepo.mapBlogsWithOwnersToResponse(blogs)
-    const mappedBlogs = await this.blogsRepo.mapBlogsToResponse(
-      blogs,
-      "id",
-      "name",
-      "description",
-      "websiteUrl",
-      "isMembership",
-      "createdAt",
-    );
+    const mappedBlogs = await this.blogsRepo.mapBlogsToResponse(blogs);
     const docCount = await this.blogsRepo.countBlogsBySearchname(
       searchNameTerm,
     );

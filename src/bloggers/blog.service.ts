@@ -7,7 +7,7 @@ import {
 import { BlogEntity } from "./entities/blogEntity";
 import { BlogsPaginationDto } from "./dto/blogsPaginationDto";
 import { IBlogsRepo, IBlogsRepoToken } from "./DAL/IBlogsRepo";
-import { CreateBloggerDto } from "./dto/create.blogger.dto";
+import { CreateBlogDto } from "./dto/createBlogDto";
 import { UpdateBlogDto } from "./dto/update-blog.dto";
 
 @Injectable()
@@ -47,7 +47,7 @@ export class BlogService {
     return result;
   }
 
-  async createBlog(dto: CreateBloggerDto) {
+  async createBlog(dto: CreateBlogDto) {
     const isExists = await this.blogsRepo.isBlogExistsByName(dto);
     if (isExists) {
       throw new BadRequestException("Takoi blog name exists");

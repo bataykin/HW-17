@@ -37,18 +37,23 @@ export class RemoveBlogHandler implements ICommandHandler<RemoveBlogCommand> {
 
   async execute(command: RemoveBlogCommand): Promise<any> {
     const { id, accessToken } = command;
-    const retrievedUserFromToken = accessToken
-      ? await this.authService.retrieveUser(accessToken)
-      : undefined;
-    const userIdFromToken = retrievedUserFromToken
-      ? retrievedUserFromToken.userId
-      : undefined;
-    const isBanned = await this.usersQueryRepo.getBanStatus(userIdFromToken);
-    if (isBanned) throw new UnauthorizedException("user is banned, sorry))");
+    const retrievedUserFromToken = await this.authService.retrieveUser(
+      accessToken,
+    );
+    const userIdFromToken = retrievedUserFromToken.userId;
+    const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
+    if (!isUserExist || isUserExist.isBanned) {
+      throw new UnauthorizedException("unexpected user");
+    }
     const blog = await this.blogsRepo.findBlogById(id);
-    if (!blog) throw new NotFoundException("net takogo blog id");
-    if (blog.userId !== userIdFromToken)
-      throw new ForbiddenException("changing other blog is prohibited");
+    if (!blog) {
+      throw new NotFoundException("net takogo blogId");
+    }
+    if (blog?.userId !== userIdFromToken) {
+      throw new ForbiddenException(
+        "user try to update blog that doesn't belong to current user",
+      );
+    }
     await this.blogsRepo.deleteBlog(id);
     return;
   }

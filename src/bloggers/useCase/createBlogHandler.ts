@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { CreateBloggerDto } from "../dto/create.blogger.dto";
+import { CreateBlogDto } from "../dto/createBlogDto";
 import { Inject, UnauthorizedException } from "@nestjs/common";
 import { IBlogsRepo, IBlogsRepoToken } from "../DAL/IBlogsRepo";
 import { BlogEntity } from "../entities/blogEntity";
@@ -9,10 +9,11 @@ import {
   IUsersQueryRepo,
   IUsersQueryRepoToken,
 } from "../../users/DAL/IUserQueryRepo";
+import { BlogViewModel } from "../dto/BlogViewModel";
 
 export class CreateBlogCommand {
   constructor(
-    public readonly dto: CreateBloggerDto,
+    public readonly dto: CreateBlogDto,
     public readonly accessToken: string,
   ) {}
 }
@@ -27,21 +28,16 @@ export class CreateBlogHandler implements ICommandHandler<CreateBlogCommand> {
     private readonly authService: AuthService,
   ) {}
 
-  async execute(command: CreateBlogCommand): Promise<any> {
+  async execute(command: CreateBlogCommand): Promise<BlogViewModel> {
     const { dto, accessToken } = command;
     const retrievedUserFromToken = await this.authService.retrieveUser(
       accessToken,
     );
     const userIdFromToken = retrievedUserFromToken.userId;
     const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
-    if (!isUserExist) {
+    if (!isUserExist || isUserExist.isBanned) {
       throw new UnauthorizedException("unexpected user");
     }
-    const isUserBanned = await this.usersQueryRepo.getBanStatus(
-      userIdFromToken,
-    );
-    if (isUserBanned)
-      throw new UnauthorizedException("user is banned, sorry))");
 
     // const isExists = await this.blogsRepo.isBlogExistsByName(command.dto)
     // if (isExists) {
@@ -49,7 +45,7 @@ export class CreateBlogHandler implements ICommandHandler<CreateBlogCommand> {
     // }
 
     const blog = await this.blogsRepo.createBlog(dto, userIdFromToken);
-    const { /*createdAt,*/ userId, isBanned, banDate, ...rest } = blog;
-    return rest;
+    const mappedBlog = await this.blogsRepo.mapBlogToResponse(blog);
+    return mappedBlog;
   }
 }

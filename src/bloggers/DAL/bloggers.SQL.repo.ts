@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
-import { CreateBloggerDto } from "../dto/create.blogger.dto";
+import { CreateBlogDto } from "../dto/createBlogDto";
 import { UpdateBlogDto } from "../dto/update-blog.dto";
 import { IBlogsRepo } from "./IBlogsRepo";
 import { BlogEntity } from "../entities/blogEntity";
@@ -15,7 +15,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
     private readonly dataSource: DataSource,
   ) {}
 
-  async createBlog(dto: CreateBloggerDto, userId: string): Promise<BlogEntity> {
+  async createBlog(dto: CreateBlogDto, userId: string): Promise<BlogEntity> {
     const result = await this.dataSource.query(
       `
                 INSERT INTO blogs(name, description, "websiteUrl", "userId")
@@ -25,7 +25,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
       [dto.name, dto.description, dto.websiteUrl, userId],
     );
 
-    return result;
+    return result ?? result[0];
   }
   async updateBlog(id: string, dto: UpdateBlogDto): Promise<BlogEntity> {
     const result = await this.dataSource.query(
@@ -60,7 +60,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                     `,
       [id],
     );
-    return result;
+    return result ?? result[0];
   }
   SA_findBlogById(id: string): Promise<BlogEntity> {
     throw new Error("Method not implemented.");
@@ -87,8 +87,8 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                 AND
                 
                 case 
-                when $5 is null then true 
-                when $5 is not null then (upper("name") ~ $5)
+                when $4 is null then true 
+                when $4 is not null then (upper("name") ~ $4)
                 end 
                 
                 ORDER BY  "${dto.sortBy}"     ${dto.sortDirection}
@@ -99,7 +99,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
     return result;
   }
 
-  isBlogExistsByName(dto: CreateBloggerDto): Promise<BlogEntity> {
+  isBlogExistsByName(dto: CreateBlogDto): Promise<BlogEntity> {
     throw new Error("Method not implemented.");
   }
 
@@ -130,11 +130,11 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                 WHERE "userId" = $1
                 AND
                 case 
-                when $5 is null then true 
-                when $5 is not null then (upper("name") ~ $5)
+                when $2 is null then true 
+                when $2 is not null then (upper("name") ~ $5)
                 end 
                     `,
-      [userId],
+      [userId, searchNameTerm],
     );
     return result.total;
   }
@@ -156,8 +156,15 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
 
     return mappedBlogs;
   }
-  mapBlogToResponse(blogs: BlogEntity, ...rows: string[]) {
-    throw new Error("Method not implemented.");
+  async mapBlogToResponse(blog: BlogEntity): Promise<BlogViewModel> {
+    return {
+      id: blog.id,
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt,
+      isMembership: blog.isMembership,
+    } as BlogViewModel;
   }
   mapBlogsWithOwnersToResponse(blogs: BlogEntity[]) {
     throw new Error("Method not implemented.");
@@ -191,7 +198,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
     return result;
   }
 
-  async isExists(dto: CreateBloggerDto) {
+  async isExists(dto: CreateBlogDto) {
     // return this.bloggerModel.findOne({name: dto.name});
 
     const result = await this.dataSource.query(

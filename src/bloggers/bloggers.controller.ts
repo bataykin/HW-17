@@ -15,7 +15,7 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
-import { CreateBloggerDto } from "./dto/create.blogger.dto";
+import { CreateBlogDto } from "./dto/createBlogDto";
 import { UpdateBlogDto } from "./dto/update-blog.dto";
 import { BlogsPaginationDto } from "./dto/blogsPaginationDto";
 import { CreatPostByBlogDto } from "./dto/creatPostByBlogDto";
@@ -36,6 +36,7 @@ import { GetAllCommentsOnMyBlogCommand } from "./useCase/getAllCommentsOnMyBlogH
 import { BanUserByBlogDto } from "./dto/banUserByBlogDto";
 import { BanUnbanUserByBloggerCommand } from "./useCase/BanUnbanUserByBlogHandler";
 import { GetBannedUsersForBlogQuery } from "./useCase/getBannedUsersForBlogHandler";
+import { GetBannedUsersPaginationDTO } from "./dto/GetBannedUsersPaginationDTO";
 
 @SkipThrottle()
 @Controller("blogger")
@@ -72,12 +73,14 @@ export class BloggersController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
-    @Param("id", ParseUUIDPipe) id: string,
+    @Param("id", ParseUUIDPipe) blogId: string,
     @Body() dto: UpdateBlogDto,
     @Request() req,
   ) {
     const accessToken = req.headers.authorization?.split(" ")[1];
-    return this.commandBus.execute(new UpdateBlogCommand(id, dto, accessToken));
+    return this.commandBus.execute(
+      new UpdateBlogCommand(blogId, dto, accessToken),
+    );
   }
 
   @Post("blogs/:blogId/posts")
@@ -135,7 +138,7 @@ export class BloggersController {
         always: true,
       }),
     )
-    dto: CreateBloggerDto,
+    dto: CreateBlogDto,
     @Request() req,
   ) {
     const accessToken = req.headers.authorization?.split(" ")[1];
@@ -169,7 +172,7 @@ export class BloggersController {
   @HttpCode(200)
   async getBannedUsersForBlogId(
     @Param("id", ParseUUIDPipe) blogId: string,
-    @Query() dto: BlogsPaginationDto,
+    @Query() dto: GetBannedUsersPaginationDTO,
     @Request() req,
   ) {
     const accessToken = req.headers.authorization?.split(" ")[1];

@@ -82,7 +82,6 @@ export class BannedUsersORM
     dto: any,
   ): Promise<BannedUsersEntity[] | null> {
     // return await this.bannedUsersRepo.findBy({ blogId: blogId });
-    console.log(dto);
 
     if (dto.sortBy === `createdAt`) {
       const users = await this.bannedUsersRepo
@@ -153,7 +152,7 @@ export class BannedUsersORM
     return mappedUsers;
   }
 
-  async countBannedUsersBySearchName(searchNameTerm: string) {
+  async countBannedUsersBySearchLogin(searchNameTerm: string) {
     const res = await this.bannedUsersRepo
       .createQueryBuilder("u")
       .where("LOWER(u.login) like LOWER(:login)", {

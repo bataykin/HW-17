@@ -34,7 +34,6 @@ import { CommentEntity } from "../comments/entities/comment.entity";
 import { BanUnbanUserByBlogHandler } from "./useCase/BanUnbanUserByBlogHandler";
 import { GetAllBlogsHandler } from "./useCase/getAllBlogsPublic";
 import { IBannedUsersRepoToken } from "./DAL/IBannedUsersRepo";
-import { BannedUsersORM } from "./bannedUsers.ORM";
 import { GetBannedUsersForBlogHandler } from "./useCase/getBannedUsersForBlogHandler";
 import { IUsersQueryRepoToken } from "../users/DAL/IUserQueryRepo";
 import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
@@ -42,6 +41,7 @@ import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
 import { BloggersSQLRepo } from "./DAL/bloggers.SQL.repo";
 import { PostsSQLRepo } from "../posts/DAL/posts.SQL.repo";
 import { LikesORMRepo } from "../likes/oldServiceRepos/likes.ORM.repo";
+import { BannedUsersSQLRepo } from "./DAL/BannedUsersSQLRepo";
 
 const blogsRouteHandlers = [
   GetBlogsOfBloggerHandler,
@@ -105,11 +105,7 @@ const blogsRouteHandlers = [
 
     {
       provide: IBannedUsersRepoToken,
-      useClass: useRepositoryClassGeneric(
-        BannedUsersORM,
-        BannedUsersORM,
-        BannedUsersORM,
-      ),
+      useClass: BannedUsersSQLRepo,
     },
     {
       provide: ILikesRepoToken,

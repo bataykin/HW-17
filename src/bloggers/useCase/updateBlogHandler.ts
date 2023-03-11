@@ -17,7 +17,7 @@ import {
 
 export class UpdateBlogCommand {
   constructor(
-    public readonly id: string,
+    public readonly blogId: string,
     public readonly dto: UpdateBlogDto,
     public readonly accessToken: string,
   ) {}
@@ -34,20 +34,25 @@ export class UpdateBlogHandler implements ICommandHandler<UpdateBlogCommand> {
   ) {}
 
   async execute(command: UpdateBlogCommand): Promise<any> {
-    const { id, dto, accessToken } = command;
-    const retrievedUserFromToken = accessToken
-      ? await this.authService.retrieveUser(accessToken)
-      : undefined;
-    const userIdFromToken = retrievedUserFromToken
-      ? retrievedUserFromToken.userId
-      : undefined;
-    const isBanned = await this.usersQueryRepo.getBanStatus(userIdFromToken);
-    if (isBanned) throw new UnauthorizedException("user is banned, sorry))");
-    const blog = await this.blogsRepo.findBlogById(id);
-    if (!blog) throw new NotFoundException("net takogo blog id");
-    if (blog.userId !== userIdFromToken)
-      throw new ForbiddenException("changing other blog is prohibited");
-    await this.blogsRepo.updateBlog(id, dto);
-    return blog;
+    const { blogId, dto, accessToken } = command;
+    const retrievedUserFromToken = await this.authService.retrieveUser(
+      accessToken,
+    );
+    const userIdFromToken = retrievedUserFromToken.userId;
+    const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
+    if (!isUserExist || isUserExist.isBanned) {
+      throw new UnauthorizedException("unexpected user");
+    }
+    const blog = await this.blogsRepo.findBlogById(blogId);
+    if (!blog) {
+      throw new NotFoundException("net takogo blogId");
+    }
+    if (blog?.userId !== userIdFromToken) {
+      throw new ForbiddenException(
+        "user try to update blog that doesn't belong to current user",
+      );
+    }
+    await this.blogsRepo.updateBlog(blogId, dto);
+    return;
   }
 }

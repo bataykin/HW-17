@@ -33,15 +33,13 @@ export class GetBlogsOfBloggerHandler
 
   async execute(
     query: GetBlogsOfBloggerQuery,
-  ): Promise<PaginatorModel<BlogViewModel>> {
+  ): Promise<PaginatorModel<BlogViewModel[]>> {
     const { dto, accessToken } = query;
     const retrievedUserFromToken = await this.authService.retrieveUser(
       accessToken,
     );
-    const userIdFromToken = retrievedUserFromToken?.userId;
-    const isUserExist: UserEntity = await this.usersQueryRepo
-      .findById(userIdFromToken)
-      .then((res) => res[0]);
+    const userIdFromToken = retrievedUserFromToken.userId;
+    const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
     if (!isUserExist || isUserExist.isBanned) {
       throw new UnauthorizedException("unexpected user");
     }
@@ -62,7 +60,7 @@ export class GetBlogsOfBloggerHandler
       paging.searchNameTerm,
       userIdFromToken,
     );
-    const result: PaginatorModel<BlogViewModel> = {
+    const result: PaginatorModel<BlogViewModel[]> = {
       pagesCount: Math.ceil(docCount / +paging.pageSize),
       page: +paging.pageNumber,
       pageSize: +paging.pageSize,
