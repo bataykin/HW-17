@@ -61,10 +61,10 @@ export class GetBlogsOfBloggerHandler
       userIdFromToken,
     );
     const result: PaginatorModel<BlogViewModel[]> = {
-      pagesCount: Math.ceil(docCount / +paging.pageSize),
+      pagesCount: Math.ceil(+docCount / +paging.pageSize),
       page: +paging.pageNumber,
       pageSize: +paging.pageSize,
-      totalCount: docCount,
+      totalCount: +docCount,
       items: mappedBlogs,
     };
     return result;

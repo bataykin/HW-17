@@ -33,7 +33,7 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<UserEntity> {
         `
                UPDATE "banned_users"
                SET "isBanned" = $3, "banReason" = $4, "banDate" = $5
-                WHERE "blogId" = $1 "userId" = $2
+                WHERE "blogId" = $1 AND "userId" = $2
                     `,
         [dto.blogId, userId, dto.isBanned, dto.banReason, dto.banDate],
       );

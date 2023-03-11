@@ -1,11 +1,4 @@
-import {
-  IsNotEmpty,
-  IsString,
-  IsUUID,
-  MaxLength,
-  Validate,
-} from "class-validator";
-import { IsBlogExistConstraint } from "../../bloggers/decorators/isBloggerExistsDecorator";
+import { IsNotEmpty, IsString, MaxLength } from "class-validator";
 import { Transform, TransformFnParams } from "class-transformer";
 
 export class CreatePostDto {
@@ -26,10 +19,10 @@ export class CreatePostDto {
   @MaxLength(1000)
   content: string;
 
-  @IsUUID()
+  // @IsUUID()
   // @IsBlogExist('blogId')
-  @Validate(IsBlogExistConstraint)
-  blogId: string;
+  // @Validate(IsBlogExistConstraint)
+  blogId?: string;
 
   blogName?: string;
 }
