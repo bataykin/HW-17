@@ -44,8 +44,13 @@ export class CreateBlogHandler implements ICommandHandler<CreateBlogCommand> {
     //     throw new BadRequestException('Takoi blog name exists')
     // }
 
-    const blog = await this.blogsRepo.createBlog(dto, userIdFromToken);
-    const mappedBlog = await this.blogsRepo.mapBlogToResponse(blog);
+    const blog: BlogEntity = await this.blogsRepo.createBlog(
+      dto,
+      userIdFromToken,
+    );
+    const mappedBlog: BlogViewModel = await this.blogsRepo.mapBlogToResponse(
+      blog,
+    );
     return mappedBlog;
   }
 }

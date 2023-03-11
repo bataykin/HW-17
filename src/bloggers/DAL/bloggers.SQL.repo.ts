@@ -25,7 +25,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
       [dto.name, dto.description, dto.websiteUrl, userId],
     );
 
-    return result ?? result[0];
+    return result[0] ?? result;
   }
   async updateBlog(id: string, dto: UpdateBlogDto): Promise<BlogEntity> {
     const result = await this.dataSource.query(

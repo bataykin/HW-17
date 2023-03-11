@@ -26,11 +26,11 @@ export class UsersSQLRepo implements IUsersRepo<UserEntity> {
       `
                 INSERT INTO users (login, email,  "passwordHash", "confirmationCode", "codeExpDate")
                 VALUES ($1, $2, $3, $4, $5)
-                RETURNING id
+                RETURNING *
                     `,
       [login, email, passwordHash, code, addDays(new Date(), 1)],
     );
-    return result;
+    return result[0] ?? result;
   }
 
   async confirmEmail(code: string) {

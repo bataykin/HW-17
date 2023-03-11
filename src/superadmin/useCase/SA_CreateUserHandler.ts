@@ -38,15 +38,15 @@ export class SA_CreateUserHandler
     }
     const passwordHash = await this.authUtils._generateHash(dto.password);
     const confirmationCode = uuidv4();
-    const userId: string = await this.usersRepo
-      .createUser(dto.login, dto.email, passwordHash, confirmationCode)
-      .then((res) => res[0].id);
-    const newUser = await this.usersQueryRepo
-      .findById(userId)
-      .then((res) => res[0]);
-    const result = await this.usersQueryRepo.SA_mapUserEntityToResponse(
-      newUser,
+    const user: UserEntity = await this.usersRepo.createUser(
+      dto.login,
+      dto.email,
+      passwordHash,
+      confirmationCode,
     );
+    const newUser = await this.usersQueryRepo.findById(user.id);
+    const result: SA_UserViewModel =
+      await this.usersQueryRepo.SA_mapUserEntityToResponse(newUser);
     return result;
   }
 }

@@ -22,7 +22,8 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
                 `,
       [id],
     );
-    return user ?? user[0];
+
+    return user[0] ?? null;
   }
 
   async SA_GetUsers(dto: SAGetUsersPaginationModel) {
@@ -220,6 +221,7 @@ export class UsersSQLQueryRepo implements IUsersQueryRepo<UserEntity> {
     );
     if (isLoginExists.length > 0) return "login already exists";
     if (isEmailExists.length > 0) return "email already exists";
+    return null;
   }
 
   async checkCodeExists(code: string) {
