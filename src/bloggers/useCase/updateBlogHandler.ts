@@ -47,6 +47,7 @@ export class UpdateBlogHandler implements ICommandHandler<UpdateBlogCommand> {
     if (!blog) {
       throw new NotFoundException("net takogo blogId");
     }
+    console.log(blog?.userId, userIdFromToken);
     if (blog?.userId !== userIdFromToken) {
       throw new ForbiddenException(
         "user try to update blog that doesn't belong to current user",

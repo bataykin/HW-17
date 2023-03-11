@@ -15,7 +15,7 @@ import { GetBlogsOfBloggerHandler } from "./useCase/getBlogsOfBloggerHandler";
 import { CreateBlogHandler } from "./useCase/createBlogHandler";
 import { RemoveBlogHandler } from "./useCase/removeBlogHandler";
 import { UpdateBlogHandler } from "./useCase/updateBlogHandler";
-import { FindBlogHandler } from "./useCase/findBlogHandler";
+import { FindBlogPublicHandler } from "./useCase/findBlogPublicHandler";
 import { GetPostsByBlogHandler } from "./useCase/getPostsByBlogHandler";
 import { IPostsRepoToken } from "../posts/DAL/IPostsRepo";
 import { IUsersRepoToken } from "../users/DAL/IUsersRepo";
@@ -49,7 +49,7 @@ const blogsRouteHandlers = [
   CreateBlogHandler,
   RemoveBlogHandler,
   UpdateBlogHandler,
-  FindBlogHandler,
+  FindBlogPublicHandler,
   GetPostsByBlogHandler,
 
   CreatePostByBlogHandler,

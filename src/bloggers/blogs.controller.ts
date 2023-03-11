@@ -1,11 +1,19 @@
-import { Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Query } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Query,
+} from "@nestjs/common";
 import { GetPostsByBlogQuery } from "./useCase/getPostsByBlogHandler";
 import { BlogsPaginationDto } from "./dto/blogsPaginationDto";
-import { FindBlogQuery } from "./useCase/findBlogHandler";
+import { FindBlogPublicQuery } from "./useCase/findBlogPublicHandler";
 import { QueryBus } from "@nestjs/cqrs";
 import { GetAllBlogsQuery } from "./useCase/getAllBlogsPublic";
 
-@Controller('blogs')
+@Controller("blogs")
 export class BlogsController {
   constructor(private readonly queryBus: QueryBus) {}
 
@@ -18,17 +26,17 @@ export class BlogsController {
     return this.queryBus.execute(new GetAllBlogsQuery(dto));
   }
 
-  @Get(':blogId/posts')
+  @Get(":blogId/posts")
   async getPostsByBlogger(
-    @Param('blogId', ParseUUIDPipe) bloggerId: string,
+    @Param("blogId", ParseUUIDPipe) bloggerId: string,
     @Query() dto: BlogsPaginationDto,
   ) {
     return this.queryBus.execute(new GetPostsByBlogQuery(bloggerId, dto));
   }
 
-  @Get(':id')
+  @Get(":id")
   @HttpCode(HttpStatus.OK)
-  async findBlog(@Param('id', ParseUUIDPipe) id: string) {
-    return this.queryBus.execute(new FindBlogQuery(id));
+  async findBlog(@Param("id", ParseUUIDPipe) id: string) {
+    return this.queryBus.execute(new FindBlogPublicQuery(id));
   }
 }

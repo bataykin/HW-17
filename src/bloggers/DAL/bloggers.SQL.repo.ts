@@ -51,7 +51,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
     return result;
   }
 
-  async findBlogById(id: string): Promise<BlogEntity> {
+  async findBlogById(id: string): Promise<BlogEntity | null> {
     const result = await this.dataSource.query(
       `
                 SELECT * 
@@ -60,7 +60,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                     `,
       [id],
     );
-    return result ?? result[0];
+    return result[0] ?? null;
   }
   SA_findBlogById(id: string): Promise<BlogEntity> {
     throw new Error("Method not implemented.");
