@@ -3,14 +3,13 @@ import { BlogEntity } from "../entities/blogEntity";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { IBannedUsersRepo } from "./IBannedUsersRepo";
-import { UserEntity } from "../../users/entity/user.entity";
 import { BanUserByBlogDto } from "../dto/banUserByBlogDto";
 import { BannedUsersEntity } from "../entities/bannedUsersEntity";
 import { GetBannedUsersPaginationDTO } from "../dto/GetBannedUsersPaginationDTO";
 import { BannedUserViewModel } from "../dto/BannedUserViewModel";
 
 @Injectable()
-export class BannedUsersSQLRepo implements IBannedUsersRepo<UserEntity> {
+export class BannedUsersSQLRepo implements IBannedUsersRepo<BannedUsersEntity> {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
@@ -28,7 +27,7 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<UserEntity> {
                     `,
       [dto.blogId, userId],
     );
-    if (isExisted) {
+    if (isExisted[0]) {
       const updBanUser = await this.dataSource.query(
         `
                UPDATE "banned_users"
@@ -110,7 +109,7 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<UserEntity> {
     users: BannedUsersEntity[],
     blog: BlogEntity,
   ): Promise<BannedUserViewModel[]> {
-    const mappedBannedUsers = [];
+    const mappedBannedUsers: BannedUserViewModel[] = [];
     for await (const user of users) {
       mappedBannedUsers.push({
         id: user.id,

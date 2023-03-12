@@ -56,7 +56,7 @@ export class BanUnbanUserByBlogHandler
       throw new NotFoundException(`userId ${userId} not found`);
     }
     const blog = await this.blogsRepo.findBlogById(dto.blogId);
-    const blogOwnerId = blog.userId;
+    const blogOwnerId = blog?.userId;
     if (userIdFromToken !== blogOwnerId) {
       throw new ForbiddenException(
         "try to update or delete the entity that was created by another user",
