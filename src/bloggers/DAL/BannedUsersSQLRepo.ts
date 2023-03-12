@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { BlogEntity } from "../entities/blogEntity";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { IBannedUsersRepo } from "./IBannedUsersRepo";
@@ -93,7 +92,7 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<BannedUsersEntity> {
                 when $4::text is not null then (upper("login") ~ $4::text)
                 end 
                 
-                ORDER BY  "${dto.sortBy}"     ${dto.sortDirection}
+                ORDER BY  "${dto.sortBy}"::text     ${dto.sortDirection}
                 LIMIT $2 OFFSET $3;
                     `,
       [blogId, dto.pageSize, dto.skipSize, dto.searchLoginTerm],
@@ -107,12 +106,11 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<BannedUsersEntity> {
 
   async mapArrayOfBannedUserEntity(
     users: BannedUsersEntity[],
-    blog: BlogEntity,
   ): Promise<BannedUserViewModel[]> {
     const mappedBannedUsers: BannedUserViewModel[] = [];
-    for await (const user of users) {
+    for await (let user of users) {
       mappedBannedUsers.push({
-        id: user.id,
+        id: user.userId,
         login: user.login,
         banInfo: {
           isBanned: user.isBanned,
@@ -120,8 +118,9 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<BannedUsersEntity> {
           banReason: user.banReason,
         },
       } as BannedUserViewModel);
-      return mappedBannedUsers;
+      // console.log(mappedBannedUsers);
     }
+    return mappedBannedUsers;
   }
 
   async countBannedUsersBySearchLogin(searchLoginTerm: string, blogId: string) {
@@ -142,6 +141,6 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<BannedUsersEntity> {
                     `,
       [blogId, searchLoginTerm],
     );
-    return result.total ?? 0;
+    return result[0].total ?? 0;
   }
 }

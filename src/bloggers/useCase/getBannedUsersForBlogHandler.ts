@@ -52,7 +52,7 @@ export class GetBannedUsersForBlogHandler
     );
     const userIdFromToken = retrievedUserFromToken.userId;
     const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
-    if (!isUserExist || isUserExist.isBanned) {
+    if (!isUserExist || isUserExist?.isBanned) {
       throw new UnauthorizedException("unexpected user");
     }
     const blog = await this.blogsRepo.findBlogById(blogId);
@@ -76,19 +76,19 @@ export class GetBannedUsersForBlogHandler
 
     const bannedUsers: BannedUsersEntity[] =
       await this.bannedUsersRepo.getBannedUsersForBlogPaginated(blogId, paging);
-
     const mappedUsers: BannedUserViewModel[] =
-      await this.bannedUsersRepo.mapArrayOfBannedUserEntity(bannedUsers, blog);
+      await this.bannedUsersRepo.mapArrayOfBannedUserEntity(bannedUsers);
 
     const docCount = await this.bannedUsersRepo.countBannedUsersBySearchLogin(
       paging.searchLoginTerm,
       blogId,
     );
+    // console.log(docCount, paging, mappedUsers);
     return {
       pagesCount: Math.ceil(docCount / +paging.pageSize),
       page: +paging.pageNumber,
       pageSize: +paging.pageSize,
-      totalCount: docCount,
+      totalCount: +docCount,
       items: mappedUsers,
     };
   }
