@@ -1,5 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import {
+  ForbiddenException,
   Inject,
   NotFoundException,
   UnauthorizedException,
@@ -15,16 +16,16 @@ import {
   IUsersQueryRepoToken,
 } from "../../users/DAL/IUserQueryRepo";
 
-export class DeletePostByBlogCommand {
+export class BloggerDeletePostByBlogCommand {
   constructor(
     public readonly blogId: string,
     public readonly postId: string,
     public readonly accessToken: string,
   ) {}
 }
-@CommandHandler(DeletePostByBlogCommand)
+@CommandHandler(BloggerDeletePostByBlogCommand)
 export class DeletePostByBlogHandler
-  implements ICommandHandler<DeletePostByBlogCommand>
+  implements ICommandHandler<BloggerDeletePostByBlogCommand>
 {
   constructor(
     @Inject(IPostsRepoToken)
@@ -35,20 +36,26 @@ export class DeletePostByBlogHandler
     private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
     private readonly authService: AuthService,
   ) {}
-  async execute(command: DeletePostByBlogCommand): Promise<any> {
+  async execute(command: BloggerDeletePostByBlogCommand): Promise<void> {
     const { postId, blogId, accessToken } = command;
-    const retrievedUserFromToken = accessToken
-      ? await this.authService.retrieveUser(accessToken)
-      : undefined;
-    const userIdFromToken = retrievedUserFromToken
-      ? retrievedUserFromToken.userId
-      : undefined;
-    const isBanned = await this.usersQueryRepo.getBanStatus(userIdFromToken);
-    if (isBanned) throw new UnauthorizedException("user is banned, sorry))");
-    const post = await this.postsRepo.findPostById(postId);
+    const retrievedUserFromToken = await this.authService.retrieveUser(
+      accessToken,
+    );
+    const userIdFromToken = retrievedUserFromToken.userId;
+    const isUserExist = await this.usersQueryRepo.findById(userIdFromToken);
+    if (!isUserExist || isUserExist.isBanned) {
+      throw new UnauthorizedException("unexpected user");
+    }
     const blog = await this.blogsRepo.findBlogById(blogId);
-    if (!post || !blog)
-      throw new NotFoundException("net takogo blog or post ids");
-    const result = await this.postsRepo.deletePost(postId);
+    const post = await this.postsRepo.findPostById(postId);
+    if (!blog || !post) {
+      throw new NotFoundException("net takogo bloga ili posta");
+    }
+    if (blog?.userId !== userIdFromToken || post.blogId !== blogId) {
+      throw new ForbiddenException(
+        "user try to delete blog that doesn't belong to current user",
+      );
+    }
+    await this.postsRepo.deletePost(postId);
   }
 }

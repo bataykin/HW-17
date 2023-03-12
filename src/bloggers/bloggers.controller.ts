@@ -26,7 +26,7 @@ import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { UpdatePostByBlogDto } from "./dto/UpdatePostByBlogDto";
 import { SkipThrottle } from "@nestjs/throttler";
 import { UpdatePostByBlogCommand } from "./useCase/UpdatePostByBlogHandler";
-import { DeletePostByBlogCommand } from "./useCase/DeletePostByBlogHandler";
+import { BloggerDeletePostByBlogCommand } from "./useCase/DeletePostByBlogHandler";
 import { ChangeBlogByOtherUserInterceptor } from "./interceptors/blogMutationInterceptor";
 import { ChangePostByOtherUserInterceptor } from "./interceptors/postMutationInterceptor";
 import { GetAllCommentsOnMyBlogCommand } from "./useCase/getAllCommentsOnMyBlogHandler";
@@ -121,7 +121,7 @@ export class BloggersController {
   ) {
     const accessToken = req.headers.authorization?.split(" ")[1];
     return this.commandBus.execute(
-      new DeletePostByBlogCommand(blogId, postId, accessToken),
+      new BloggerDeletePostByBlogCommand(blogId, postId, accessToken),
     );
   }
 

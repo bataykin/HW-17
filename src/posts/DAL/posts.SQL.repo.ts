@@ -183,11 +183,11 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     const result = await this.dataSource.query(
       `
                 DELETE FROM posts
-                WHERE posts.id = $1
+                WHERE id = $1
                     `,
       [id],
     );
-    return result;
+    return result[0] ?? result;
   }
 
   async getPostByBloggerId(

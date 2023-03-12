@@ -1,5 +1,3 @@
-import { IsUUID } from "class-validator";
-
 export class GetBannedUsersPaginationDTO {
   // @IsString()
   searchLoginTerm?: string | null;
@@ -16,8 +14,8 @@ export class GetBannedUsersPaginationDTO {
   // @IsPositive()
   pageSize?: number | 10;
 
-  @IsUUID()
-  id: string;
+  // @IsUUID()
+  // id: string;
 
   skipSize?: number | 0;
 }

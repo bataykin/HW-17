@@ -71,7 +71,7 @@ export class GetBannedUsersForBlogHandler
       pageNumber: dto.pageNumber ?? 1,
       pageSize: dto.pageSize ?? 10,
       skipSize: dto.pageNumber > 1 ? dto.pageSize * (dto.pageNumber - 1) : 0,
-      id: dto.id ?? blogId,
+      id: blogId,
     } as GetBannedUsersPaginationDTO;
 
     const bannedUsers: BannedUsersEntity[] =
