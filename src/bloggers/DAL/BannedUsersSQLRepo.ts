@@ -137,12 +137,12 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<UserEntity> {
                 WHERE "blogId" = $1
                 AND
                 case 
-                when $2 is null then true 
-                when $2 is not null then (upper("name") ~ $5)
+                when $2::text is null then true 
+                when $2::text is not null then (upper("login") ~ $2::text)
                 end 
                     `,
       [blogId, searchLoginTerm],
     );
-    return result.total ?? null;
+    return result.total ?? 0;
   }
 }
