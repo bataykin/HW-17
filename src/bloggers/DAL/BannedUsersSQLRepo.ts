@@ -90,8 +90,8 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<UserEntity> {
                 AND
                 
                 case 
-                when $4 is null then true 
-                when $4 is not null then (upper("login") ~ $4)
+                when $4::text is null then true 
+                when $4::text is not null then (upper("login") ~ $4::text)
                 end 
                 
                 ORDER BY  "${dto.sortBy}"     ${dto.sortDirection}

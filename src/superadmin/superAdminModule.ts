@@ -20,6 +20,7 @@ import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
 import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
 import { BloggersSQLRepo } from "../bloggers/DAL/bloggers.SQL.repo";
 import { SA_GetBlogsHandler } from "./useCase/SA_GetBlogsHandler";
+import { SA_BanUnbanBlogHandler } from "./useCase/SA_BanUnbanBlogHandler";
 
 const saRouteHandlers = [
   SA_CreateUserHandler,
@@ -28,6 +29,7 @@ const saRouteHandlers = [
   SA_GetUsersHandler,
 
   SA_GetBlogsHandler,
+  SA_BanUnbanBlogHandler,
 ];
 @Module({
   imports: [
