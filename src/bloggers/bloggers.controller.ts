@@ -13,10 +13,8 @@ import {
   Request,
   UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from "@nestjs/common";
 import { CreateBlogDto } from "./dto/createBlogDto";
-import { UpdateBlogDto } from "./dto/update-blog.dto";
 import { BlogsPaginationDto } from "./dto/blogsPaginationDto";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { GetBlogsOfBloggerQuery } from "./useCase/getBlogsOfBloggerHandler";
@@ -74,7 +72,7 @@ export class BloggersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
     @Param("id", ParseUUIDPipe) blogId: string,
-    @Body() dto: UpdateBlogDto,
+    @Body() dto: CreateBlogDto,
     @Request() req,
   ) {
     const accessToken = req.headers.authorization?.split(" ")[1];
@@ -130,14 +128,7 @@ export class BloggersController {
   @Post("blogs")
   @UseGuards(JwtAuthGuard)
   async createBlog(
-    @Body(
-      new ValidationPipe({
-        stopAtFirstError: true,
-        transform: true,
-        disableErrorMessages: false,
-        always: true,
-      }),
-    )
+    @Body()
     dto: CreateBlogDto,
     @Request() req,
   ) {

@@ -25,6 +25,11 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       stopAtFirstError: true,
+      validateCustomDecorators: true,
+      // exceptionFactory: (validationErrors: ValidationError[] = []) => {
+      //   return new BadRequestException(validationErrors);
+      // }
+      validationError: { target: false },
     }),
   );
   useContainer(app.select(PostsModule), {

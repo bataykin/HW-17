@@ -7,6 +7,7 @@ import { IBlogsRepo } from "./IBlogsRepo";
 import { BlogEntity } from "../entities/blogEntity";
 import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { BlogViewModel } from "../dto/BlogViewModel";
+import { SA_BlogViewModel } from "../../superadmin/dto/SA_BlogViewModel";
 
 @Injectable()
 export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
@@ -27,6 +28,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
 
     return result[0] ?? result;
   }
+
   async updateBlog(id: string, dto: UpdateBlogDto): Promise<BlogEntity> {
     const result = await this.dataSource.query(
       `
@@ -191,9 +193,11 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
     );
     return result[0].total ?? null;
   }
+
   SA_bindBlogToUser(blogId: string, userId: string) {
     throw new Error("Method not implemented.");
   }
+
   async mapBlogsToResponse(blogs: BlogEntity[]): Promise<BlogViewModel[]> {
     const mappedBlogs = [];
     for await (const blog of blogs) {
@@ -225,11 +229,72 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
   setBanStatus(blogId: string, isBanned: boolean): void {
     throw new Error("Method not implemented.");
   }
-  SA_getBlogsPaginated(dto: BlogsPaginationDto): Promise<BlogEntity[]> {
-    throw new Error("Method not implemented.");
+
+  async SA_GetBlogs(dto: BlogsPaginationDto): Promise<BlogEntity[]> {
+    const blogs =
+      dto.sortBy == "createdAt"
+        ? await this.dataSource.query(
+            `
+            SELECT * 
+            FROM blogs 
+            cross join users 
+        
+            ORDER BY  blogs."${dto.sortBy}"     ${dto.sortDirection}
+             LIMIT $1 OFFSET $2;
+        `,
+            [dto.pageSize, dto.skipSize],
+          )
+        : await this.dataSource.query(
+            `
+                       SELECT * 
+            FROM blogs 
+            cross join users 
+             
+            ORDER BY  blogs."${dto.sortBy}"::bytea     ${dto.sortDirection}
+             LIMIT $1 OFFSET $2;
+        `,
+            [dto.pageSize, dto.skipSize],
+          );
+    return blogs;
   }
-  SA_countBlogsBySearchname(searchNameTerm: string) {
-    throw new Error("Method not implemented.");
+
+  async SA_mapBlogsToResponse(blogs: any): Promise<SA_BlogViewModel[]> {
+    const mappedBlogs = [];
+    for await (const blog of blogs) {
+      mappedBlogs.push({
+        id: blog.id,
+        name: blog.name,
+        description: blog.description,
+        websiteUrl: blog.websiteUrl,
+        createdAt: blog.createdAt,
+        isMembership: blog.isMembership,
+        blogOwnerInfo: {
+          userId: blog.userId,
+          userLogin: blog.login,
+        },
+
+        banInfo: {
+          isBanned: blog.isBanned,
+          banDate: blog.banDate,
+        },
+      });
+    }
+    return mappedBlogs;
+  }
+
+  async SA_countBlogsBySearchname(searchNameTerm: string) {
+    const result = await this.dataSource.query(
+      `
+                SELECT 
+                CASE
+                    WHEN COUNT(*) > 0 THEN COUNT(*)
+                    ELSE 0
+                END AS total
+                FROM blogs
+                    `,
+      [],
+    );
+    return result[0].total ?? result;
   }
 
   //// ORIGINAL FUNCTIONS ////
@@ -244,7 +309,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                     WHEN COUNT(*) > 0 THEN COUNT(*)
                     ELSE 0
                 END AS total
-                FROM bloggers
+                FROM blogs
                     `,
       [],
     );
@@ -263,5 +328,9 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
       [dto.name],
     );
     return result;
+  }
+
+  SA_mapBlogToResponse(blogs: any): Promise<SA_BlogViewModel[]> {
+    return Promise.resolve([]);
   }
 }

@@ -17,8 +17,16 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     private readonly dataSource: DataSource,
   ) {}
 
-  findPostById(id: string): Promise<PostEntity> {
-    throw new Error("Method not implemented.");
+  async findPostById(id: string): Promise<PostEntity> {
+    const result = await this.dataSource.query(
+      `
+                SELECT *
+                FROM posts
+                Where id = $1
+                    `,
+      [id],
+    );
+    return result[0] ?? result;
   }
   countPosts(): Promise<number> {
     throw new Error("Method not implemented.");

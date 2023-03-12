@@ -21,6 +21,8 @@ import { SA_CreateUserCommand } from "./useCase/SA_CreateUserHandler";
 import { SA_DeleteUserCommand } from "./useCase/SA_DeleteUserHandler";
 import { SAGetUsersPaginationModel } from "./dto/SAGetUsersPaginationModel";
 import { SkipThrottle } from "@nestjs/throttler";
+import { BlogsPaginationDto } from "../bloggers/dto/blogsPaginationDto";
+import { SA_GetBlogsQuery } from "./useCase/SA_GetBlogsHandler";
 
 @SkipThrottle()
 @Controller("sa")
@@ -60,5 +62,12 @@ export class SuperAdminController {
   @HttpCode(204)
   async deleteUser(@Param("id", ParseUUIDPipe) userId: string) {
     return this.commandBus.execute(new SA_DeleteUserCommand(userId));
+  }
+
+  @Get("blogs")
+  @UseGuards(BaseAuthGuard)
+  @HttpCode(200)
+  async getAllBlogs(@Query() dto: BlogsPaginationDto) {
+    return this.queryBus.execute(new SA_GetBlogsQuery(dto));
   }
 }

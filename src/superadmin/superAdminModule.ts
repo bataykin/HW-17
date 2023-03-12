@@ -19,12 +19,15 @@ import { DeviceEntity } from "../device/entities/device.entity";
 import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
 import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
 import { BloggersSQLRepo } from "../bloggers/DAL/bloggers.SQL.repo";
+import { SA_GetBlogsHandler } from "./useCase/SA_GetBlogsHandler";
 
 const saRouteHandlers = [
   SA_CreateUserHandler,
   SA_DeleteUserHandler,
   SA_BanUnbanUserHandler,
   SA_GetUsersHandler,
+
+  SA_GetBlogsHandler,
 ];
 @Module({
   imports: [

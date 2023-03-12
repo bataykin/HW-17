@@ -3,6 +3,7 @@ import { UpdateBlogDto } from "../dto/update-blog.dto";
 import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { BlogEntity } from "../entities/blogEntity";
 import { BlogViewModel } from "../dto/BlogViewModel";
+import { SA_BlogViewModel } from "../../superadmin/dto/SA_BlogViewModel";
 
 export const IBlogsRepoToken = Symbol("IBlogsRepoToken");
 
@@ -46,9 +47,10 @@ export interface IBlogsRepo<GenericBlogType> {
 
   setBanStatus(blogId: string, isBanned: boolean): void;
 
-  SA_getBlogsPaginated(
-    dto: BlogsPaginationDto,
-  ): Promise<GenericBlogType[] | null>;
+  SA_GetBlogs(dto: BlogsPaginationDto): Promise<GenericBlogType[] | null>;
 
   SA_countBlogsBySearchname(searchNameTerm: string);
+
+  SA_mapBlogToResponse(blogs: any): Promise<SA_BlogViewModel[]>;
+  SA_mapBlogsToResponse(blogs: any): Promise<SA_BlogViewModel[]>;
 }
