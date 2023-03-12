@@ -64,6 +64,19 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
     );
     return result[0] ?? null;
   }
+
+  async findBlogByIdPublic(id: string): Promise<BlogEntity | null> {
+    const result = await this.dataSource.query(
+      `
+                SELECT * 
+                FROM blogs
+                WHERE id = $1
+                and "isBanned" = false
+                    `,
+      [id],
+    );
+    return result[0] ?? null;
+  }
   SA_findBlogById(id: string): Promise<BlogEntity> {
     throw new Error("Method not implemented.");
   }

@@ -18,7 +18,7 @@ export class FindBlogPublicHandler
   ) {}
   async execute(query: FindBlogPublicQuery): Promise<BlogViewModel> {
     const { blogId } = query;
-    const blog = await this.blogsRepo.findBlogById(blogId);
+    const blog = await this.blogsRepo.findBlogByIdPublic(blogId);
     if (!blog) {
       throw new NotFoundException("net takogo blogId");
     }

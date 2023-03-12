@@ -16,6 +16,8 @@ export interface IBlogsRepo<GenericBlogType> {
 
   findBlogById(id: string): Promise<GenericBlogType | null>;
 
+  findBlogByIdPublic(blogId: string): Promise<GenericBlogType | null>;
+
   SA_findBlogById(id: string): Promise<GenericBlogType | null>;
 
   countBlogs(): Promise<number>;
