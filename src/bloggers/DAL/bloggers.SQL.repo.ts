@@ -256,21 +256,31 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
             `
             SELECT * 
             FROM blogs 
+            WHERE
+            case 
+                when $3::text is null then true 
+                when $3::text is not null then (upper("name") ~ $3::text)
+                end 
         
             ORDER BY  blogs."${dto.sortBy}"     ${dto.sortDirection}
              LIMIT $1 OFFSET $2;
         `,
-            [dto.pageSize, dto.skipSize],
+            [dto.pageSize, dto.skipSize, dto.searchNameTerm],
           )
         : await this.dataSource.query(
             `
             SELECT * 
             FROM blogs 
+            WHERE
+            case 
+                when $3::text is null then true 
+                when $3::text is not null then (upper("name") ~ $3::text)
+                end 
              
             ORDER BY  blogs."${dto.sortBy}"::bytea     ${dto.sortDirection}
              LIMIT $1 OFFSET $2;
         `,
-            [dto.pageSize, dto.skipSize],
+            [dto.pageSize, dto.skipSize, dto.searchNameTerm],
           );
     return blogs;
   }
