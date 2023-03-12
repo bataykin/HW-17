@@ -20,7 +20,7 @@ export class SA_GetBlogsHandler implements IQueryHandler<SA_GetBlogsQuery> {
     query: SA_GetBlogsQuery,
   ): Promise<PaginatorModel<SA_BlogViewModel[]>> {
     const paging = {
-      searchNameTermTerm: query.dto.searchNameTerm?.toUpperCase() ?? null,
+      searchNameTerm: query.dto.searchNameTerm?.toUpperCase() ?? null,
       sortBy: query.dto.sortBy ?? "createdAt",
       sortDirection: query.dto.sortDirection ?? "desc",
       pageNumber: query.dto.pageNumber ?? 1,

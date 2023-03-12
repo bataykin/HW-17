@@ -339,8 +339,13 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                     ELSE 0
                 END AS total
                 FROM blogs
+                 WHERE
+            case 
+                when $1::text is null then true 
+                when $1::text is not null then (upper("name") ~ $1::text)
+                end 
                     `,
-      [],
+      [searchNameTerm],
     );
     return result[0].total ?? result;
   }
