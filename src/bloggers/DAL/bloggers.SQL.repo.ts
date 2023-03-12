@@ -85,6 +85,9 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                 when $3::text is not null then (upper("name") ~ $3::text)
                 end 
                 
+                AND "isBanned" = false
+                
+                
                 ORDER BY  "${dto.sortBy}"     ${dto.sortDirection}
                 LIMIT $1 OFFSET $2;
                     `,
@@ -166,10 +169,11 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                 when $1::text is null then true 
                 when $1::text is not null then (upper("name") ~ $1::text)
                 end 
+                
+                AND "isBanned" = false
                     `,
       [searchNameTerm],
     );
-    console.log(result);
     return result[0].total ?? null;
   }
 
@@ -252,7 +256,6 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
             `
             SELECT * 
             FROM blogs 
-            cross join users 
         
             ORDER BY  blogs."${dto.sortBy}"     ${dto.sortDirection}
              LIMIT $1 OFFSET $2;
@@ -261,9 +264,8 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
           )
         : await this.dataSource.query(
             `
-                       SELECT * 
+            SELECT * 
             FROM blogs 
-            cross join users 
              
             ORDER BY  blogs."${dto.sortBy}"::bytea     ${dto.sortDirection}
              LIMIT $1 OFFSET $2;
@@ -276,6 +278,14 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
   async SA_mapBlogsToResponse(blogs: any): Promise<SA_BlogViewModel[]> {
     const mappedBlogs = [];
     for await (const blog of blogs) {
+      const blogOwnerLogin = await this.dataSource.query(
+        `
+          select login from users
+          left join blogs on blogs."userId" = users.id  
+          where blogs."id" = $1   
+      `,
+        [blog.id],
+      );
       mappedBlogs.push({
         id: blog.id,
         name: blog.name,
@@ -285,7 +295,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
         isMembership: blog.isMembership,
         blogOwnerInfo: {
           userId: blog.userId,
-          userLogin: blog.login,
+          userLogin: blogOwnerLogin[0].login,
         },
 
         banInfo: {

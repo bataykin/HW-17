@@ -31,7 +31,7 @@ export class SA_GetBlogsHandler implements IQueryHandler<SA_GetBlogsQuery> {
           : 0,
     } as BlogsPaginationDto;
     const blogs: BlogEntity[] = await this.blogsRepo.SA_GetBlogs(paging);
-    // console.log(blogs);
+
     const mappedBlogs: SA_BlogViewModel[] =
       await this.blogsRepo.SA_mapBlogsToResponse(blogs);
     const docCount = await this.blogsRepo.SA_countBlogsBySearchname(

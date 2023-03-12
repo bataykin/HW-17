@@ -18,22 +18,13 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<BannedUsersEntity> {
     userId: string,
     dto: BanUserByBlogDto & { banDate: Date },
   ): Promise<void> {
-    const isExisted = await this.dataSource.query(
-      `
-               SELECT * FROM "banned_users"
-                WHERE "blogId" = $1 AND "userId" = $2
-
-                    `,
-      [dto.blogId, userId],
-    );
-    if (isExisted[0]) {
-      const updBanUser = await this.dataSource.query(
+    if (!dto.isBanned) {
+      await this.dataSource.query(
         `
-               UPDATE "banned_users"
-               SET "isBanned" = $3, "banReason" = $4, "banDate" = $5
+               DELETE FROM "banned_users"
                 WHERE "blogId" = $1 AND "userId" = $2
                     `,
-        [dto.blogId, userId, dto.isBanned, dto.banReason, dto.banDate],
+        [dto.blogId, userId],
       );
     } else {
       const bannedLogin = await this.dataSource.query(

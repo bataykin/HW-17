@@ -242,7 +242,7 @@ describe("HW-18 - 1 (e2e)", () => {
       .expect(200)
 
       .then((res) => {
-        console.log(res.body);
+        // console.log(res.body);
         expect(res.body.totalCount).toBe(1);
         expect(res.body.items[0].id).toBe(user2.id);
         expect(res.body.items[0].login).toBe(user2.input.login);
@@ -292,6 +292,49 @@ describe("HW-18 - 1 (e2e)", () => {
         expect(res.body.items[1].id).toBe(user2.id);
         expect(res.body.items[1].login).toBe(user2.input.login);
         expect(res.body.items.length).toBe(2);
+        expect(Array.isArray(res.body.items)).toBeTruthy();
+        expect(res.body.items[0]).toHaveProperty("banInfo");
+        expect(res.body.items[0].banInfo).toHaveProperty("isBanned");
+        expect(res.body.items[0].banInfo).toHaveProperty("banDate");
+        expect(res.body.items[0].banInfo).toHaveProperty("banReason");
+      });
+  });
+
+  it("PUT -> /blogger/users/:id/ban - UNBAN user3 from banList by user1", () => {
+    // console.log(banUserDto);
+    // console.log(user1);
+    // console.log(user2);
+    return request(app.getHttpServer())
+      .put(`/blogger/users/${user3.id}/ban`)
+      .send(JSON.stringify(unbanUserDto))
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .set("Authorization", `Bearer ${user1.accessToken}`)
+      .expect(204)
+
+      .then((r) => {
+        // console.log(r.body);
+      });
+  });
+
+  it("GET -> blogger/users/blog/:id - get ONLY user2 from banList by user1", () => {
+    // console.log(banUserDto);
+    // console.log(user1);
+    // console.log(user2);
+    return request(app.getHttpServer())
+      .get(`/blogger/users/blog/${blog1.id}`)
+      .send(JSON.stringify(banUserDto))
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .set("Authorization", `Bearer ${user1.accessToken}`)
+      .expect(200)
+
+      .then((res) => {
+        // console.log(res.body);
+        expect(res.body.totalCount).toBe(1);
+        expect(res.body.items[0].id).toBe(user2.id);
+        expect(res.body.items[0].login).toBe(user2.input.login);
+        expect(res.body.items.length).toBe(1);
         expect(Array.isArray(res.body.items)).toBeTruthy();
         expect(res.body.items[0]).toHaveProperty("banInfo");
         expect(res.body.items[0].banInfo).toHaveProperty("isBanned");
