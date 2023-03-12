@@ -28,6 +28,20 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     );
     return result[0] ?? null;
   }
+
+  async findPostByIdPublic(id: string): Promise<PostEntity> {
+    const result = await this.dataSource.query(
+      `
+                SELECT posts.*
+                FROM posts
+                left join blogs on posts."blogId" = blogs.id
+                Where posts.id = $1
+                AND blogs."isBanned" = false
+                    `,
+      [id],
+    );
+    return result[0] ?? null;
+  }
   countPosts(): Promise<number> {
     throw new Error("Method not implemented.");
   }

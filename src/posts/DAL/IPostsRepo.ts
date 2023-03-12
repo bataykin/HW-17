@@ -16,6 +16,8 @@ export interface IPostsRepo<GenericPostType> {
 
   findPostById(id: string): Promise<GenericPostType | null>;
 
+  findPostByIdPublic(postId: string): Promise<GenericPostType | null>;
+
   countPosts(): Promise<number>;
 
   countPostsByBlogId(blogId: string): Promise<number>;

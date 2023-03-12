@@ -23,7 +23,7 @@ export class FindPostByIdHandler
 
   async execute(query: PublicFindPostByIdQuery): Promise<PostViewModel> {
     const { postId } = query;
-    const post = await this.postsRepo.findPostById(postId);
+    const post = await this.postsRepo.findPostByIdPublic(postId);
     if (!post) {
       throw new NotFoundException("net takogo posta");
     }
