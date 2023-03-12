@@ -72,7 +72,7 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<BannedUsersEntity> {
     dto: GetBannedUsersPaginationDTO,
   ): Promise<BannedUsersEntity[]> {
     const result =
-      dto.sortBy == "createdAt"
+      dto.sortBy == "banDate"
         ? await this.dataSource.query(
             `
                 SELECT * 
@@ -102,7 +102,7 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<BannedUsersEntity> {
                 when $4::text is not null then (upper("login") ~ $4::text)
                 end 
                 
-                ORDER BY  "${dto.sortBy}"::bytea     ${dto.sortDirection}
+                ORDER BY  "${dto.sortBy}"::bytea    ${dto.sortDirection}
                 LIMIT $2 OFFSET $3;
                     `,
             [blogId, dto.pageSize, dto.skipSize, dto.searchLoginTerm],
