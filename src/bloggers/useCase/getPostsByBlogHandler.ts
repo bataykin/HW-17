@@ -4,7 +4,7 @@ import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { AuthService } from "../../auth/authService";
 import { IPostsRepo, IPostsRepoToken } from "../../posts/DAL/IPostsRepo";
 import { PostEntity } from "../../posts/entities/post.entity";
-import { ILikesRepo, ILikesRepoToken } from "../../likes/ILikesRepo";
+import { ILikesRepo, ILikesRepoToken } from "../../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
 
 export class GetPostsByBlogQuery {

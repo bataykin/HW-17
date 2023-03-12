@@ -17,7 +17,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { BlogEntity } from "../bloggers/entities/blogEntity";
 import { PostEntity } from "./entities/post.entity";
 import { IPostsRepoToken } from "./DAL/IPostsRepo";
-import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
 import { IBlogsRepoToken } from "../bloggers/DAL/IBlogsRepo";
 import { CqrsModule } from "@nestjs/cqrs";
 import { GetAllPostsHandler } from "./useCase/getAllPostsHandler";
@@ -27,14 +26,12 @@ import { UpdatePostHandler } from "./useCase/updatePostHandler";
 import { RemovePostHandler } from "./useCase/removePostHandler";
 import { GetCommentsByPostHandler } from "./useCase/getCommentsByPostHandler";
 import { CreateCommentByPostHandler } from "./useCase/createCommentByPostHandler";
-import { ICommentsRepoToken } from "../comments/ICommentsRepo";
-import { CommentsORM } from "../comments/comments.ORM";
+import { ICommentsRepoToken } from "../comments/DAL/ICommentsRepo";
 import { CommentEntity } from "../comments/entities/comment.entity";
 import { AuthService } from "../auth/authService";
 import { IUsersRepoToken } from "../users/DAL/IUsersRepo";
 import { UserEntity } from "../users/entity/user.entity";
-import { ILikesRepoToken } from "../likes/ILikesRepo";
-import { LikesORM } from "../likes/likesORM";
+import { ILikesRepoToken } from "../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../likes/entities/like.entity";
 import { SetLikeToPostHandler } from "./useCase/setLikeToPostHandler";
 import { IsBlogExistConstraint } from "../bloggers/decorators/isBloggerExistsDecorator";
@@ -46,6 +43,8 @@ import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
 import { BloggersSQLRepo } from "../bloggers/DAL/bloggers.SQL.repo";
 import { BannedUsersSQLRepo } from "../bloggers/DAL/BannedUsersSQLRepo";
 import { PostsSQLRepo } from "./DAL/posts.SQL.repo";
+import { LikesSQLRepo } from "../likes/DAL/likes.SQL.repo";
+import { CommentsSQLRepo } from "../comments/DAL/comments.SQL.repo";
 
 const PostRouteHandlers = [
   GetAllPostsHandler,
@@ -98,11 +97,7 @@ const PostRouteHandlers = [
     },
     {
       provide: ICommentsRepoToken,
-      useClass: useRepositoryClassGeneric(
-        CommentsORM,
-        CommentsORM,
-        CommentsORM,
-      ),
+      useClass: CommentsSQLRepo,
     },
     {
       provide: IUsersRepoToken,
@@ -114,7 +109,7 @@ const PostRouteHandlers = [
     },
     {
       provide: ILikesRepoToken,
-      useClass: useRepositoryClassGeneric(LikesORM, LikesORM, LikesORM),
+      useClass: LikesSQLRepo,
     },
     {
       provide: IBlogsRepoToken,

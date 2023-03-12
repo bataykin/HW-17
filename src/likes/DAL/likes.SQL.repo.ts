@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
-import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
+import { LikeStatusEnum } from "../LikeStatusEnum";
 
 @Injectable()
 export class LikesSQLRepo {

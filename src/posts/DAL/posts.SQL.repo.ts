@@ -26,7 +26,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
                     `,
       [id],
     );
-    return result[0] ?? result;
+    return result[0] ?? null;
   }
   countPosts(): Promise<number> {
     throw new Error("Method not implemented.");

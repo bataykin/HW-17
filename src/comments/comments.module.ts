@@ -3,34 +3,22 @@ import { CommentsController } from "./comments.controller";
 import { AuthModule } from "../auth/auth.module";
 import { UsersModule } from "../users/users.module";
 import { CommentsCheckUriBeforeBodyMiddleware } from "../middlewares/comments-check-uri-before-body-middleware.service";
-import { CommentsSQLService } from "./oldServiceRepos/comments.SQL.service";
 import { LikesModule } from "../likes/likes.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserEntity } from "../users/entity/user.entity";
 import { CommentEntity } from "./entities/comment.entity";
-import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
-import { ICommentsRepoToken } from "./ICommentsRepo";
-import { CommentsORM } from "./comments.ORM";
+import { ICommentsRepoToken } from "./DAL/ICommentsRepo";
 import { CqrsModule } from "@nestjs/cqrs";
 import { GetCommentByIdHandler } from "./useCase/getCommentByIdHandler";
 import { UpdateCommentHandler } from "./useCase/updateCommentCommand";
 import { RemoveCommentHandler } from "./useCase/removeCommentHandler";
 import { SetLikeStatusHandler } from "./useCase/setLikeStatusHandler";
-import { ILikesRepoToken } from "../likes/ILikesRepo";
-import { LikesORM } from "../likes/likesORM";
+import { ILikesRepoToken } from "../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../likes/entities/like.entity";
 import { IUsersRepoToken } from "../users/DAL/IUsersRepo";
 import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
-
-export const useCommentServiceClass = () => {
-  if (process.env.REPO_TYPE === "MONGO") {
-    return CommentsSQLService;
-  } else if (process.env.REPO_TYPE === "SQL") {
-    return CommentsSQLService;
-  } else if (process.env.REPO_TYPE === "ORM") {
-    return CommentsSQLService;
-  } else return CommentsSQLService; // by DEFAULT if not in enum
-};
+import { LikesSQLRepo } from "../likes/DAL/likes.SQL.repo";
+import { CommentsSQLRepo } from "./DAL/comments.SQL.repo";
 
 const commentsRouteHandlers = [
   GetCommentByIdHandler,
@@ -53,15 +41,11 @@ const commentsRouteHandlers = [
 
     {
       provide: ICommentsRepoToken,
-      useClass: useRepositoryClassGeneric(
-        CommentsORM,
-        CommentsORM,
-        CommentsORM,
-      ),
+      useClass: CommentsSQLRepo,
     },
     {
       provide: ILikesRepoToken,
-      useClass: useRepositoryClassGeneric(LikesORM, LikesORM, LikesORM),
+      useClass: LikesSQLRepo,
     },
     {
       provide: IUsersRepoToken,
@@ -73,11 +57,7 @@ const commentsRouteHandlers = [
   exports: [
     {
       provide: ICommentsRepoToken,
-      useClass: useRepositoryClassGeneric(
-        CommentsORM,
-        CommentsORM,
-        CommentsORM,
-      ),
+      useClass: CommentsSQLRepo,
     },
   ],
 })

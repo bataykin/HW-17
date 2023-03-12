@@ -2,32 +2,32 @@ import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { Inject, NotFoundException } from "@nestjs/common";
 import { IPostsRepo, IPostsRepoToken } from "../DAL/IPostsRepo";
 import { PostEntity } from "../entities/post.entity";
-import { ILikesRepo, ILikesRepoToken } from "../../likes/ILikesRepo";
+import { ILikesRepo, ILikesRepoToken } from "../../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
-import { AuthService } from "../../auth/authService";
+import { PostViewModel } from "../dto/PostViewModel";
 
-export class FindPostByIdCommand {
+export class PublicFindPostByIdQuery {
   constructor(public readonly postId: string) {}
 }
 
-@QueryHandler(FindPostByIdCommand)
-export class FindPostByIdHandler implements IQueryHandler<FindPostByIdCommand> {
+@QueryHandler(PublicFindPostByIdQuery)
+export class FindPostByIdHandler
+  implements IQueryHandler<PublicFindPostByIdQuery>
+{
   constructor(
     @Inject(IPostsRepoToken)
     private readonly postsRepo: IPostsRepo<PostEntity>,
     @Inject(ILikesRepoToken)
     private readonly likesRepo: ILikesRepo<LikeEntity>,
-    private readonly authService: AuthService,
   ) {}
 
-  async execute(query: FindPostByIdCommand): Promise<any> {
+  async execute(query: PublicFindPostByIdQuery): Promise<PostViewModel> {
     const { postId } = query;
     const post = await this.postsRepo.findPostById(postId);
     if (!post) {
       throw new NotFoundException("net takogo posta");
     }
-    const mappedPostWithLikes =
-      await this.likesRepo.mapLikesToPostEntityToResponse(post);
+    const mappedPostWithLikes = await this.postsRepo.mapPostToView(post);
 
     return mappedPostWithLikes;
   }

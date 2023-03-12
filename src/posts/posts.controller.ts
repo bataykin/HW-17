@@ -23,7 +23,7 @@ import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { GetAllPostsCommand } from "./useCase/getAllPostsHandler";
 import { CreatePostCommand } from "./useCase/createPostHandler";
-import { FindPostByIdCommand } from "./useCase/findPostByIdHandler";
+import { PublicFindPostByIdQuery } from "./useCase/findPostByIdHandler";
 import { UpdateBlogCommand } from "./useCase/updatePostHandler";
 import { RemovePostCommand } from "./useCase/removePostHandler";
 import { GetCommentsByPostCommand } from "./useCase/getCommentsByPostHandler";
@@ -115,18 +115,7 @@ export class PostsController {
     @Param("id", ParseUUIDPipe) postId: string,
     @Request() req,
   ) {
-    // const accessToken = req.headers.authorization?.split(' ')[1];
-    return this.queryBus.execute(new FindPostByIdCommand(postId));
-    // if (req.headers.authorization) {
-    //     const token = req.headers.authorization.split(' ')[1]
-    //     const retrievedUserFromToken = await this.authService.retrieveUser(token)
-    //
-    //     const userId = retrievedUserFromToken.sub
-    //     const login = retrievedUserFromToken.username
-    //     const post = await this.postsService.findPostById(postId, userId);
-    //     return post
-    // } else
-    //     return await this.postsService.findPostById(postId)
+    return this.queryBus.execute(new PublicFindPostByIdQuery(postId));
   }
 
   //  COMMAND  Update existing post by Id with InputModel

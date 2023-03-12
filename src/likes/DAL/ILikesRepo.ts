@@ -1,6 +1,6 @@
-import { LikeStatusEnum } from "../likes/LikeStatusEnum";
-import { PostEntity } from "../posts/entities/post.entity";
-import { CommentEntity } from "../comments/entities/comment.entity";
+import { LikeStatusEnum } from "../LikeStatusEnum";
+import { PostEntity } from "../../posts/entities/post.entity";
+import { CommentEntity } from "../../comments/entities/comment.entity";
 
 export const ILikesRepoToken = Symbol("ILikesRepoToken");
 

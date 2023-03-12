@@ -7,7 +7,7 @@ import {
 import {
   ICommentsRepo,
   ICommentsRepoToken,
-} from "../../comments/ICommentsRepo";
+} from "../../comments/DAL/ICommentsRepo";
 import { CommentEntity } from "../../comments/entities/comment.entity";
 import { AuthService } from "../../auth/authService";
 import { IUsersRepo, IUsersRepoToken } from "../../users/DAL/IUsersRepo";

@@ -8,7 +8,6 @@ import { LikesModule } from "../likes/likes.module";
 import { UsersModule } from "../users/users.module";
 import { BlogService } from "./blog.service";
 import { IBlogsRepoToken } from "./DAL/IBlogsRepo";
-import { useRepositoryClassGeneric } from "../common/useRepositoryClassGeneric";
 import { PostEntity } from "../posts/entities/post.entity";
 import { CqrsModule } from "@nestjs/cqrs";
 import { GetBlogsOfBloggerHandler } from "./useCase/getBlogsOfBloggerHandler";
@@ -21,15 +20,14 @@ import { IPostsRepoToken } from "../posts/DAL/IPostsRepo";
 import { IUsersRepoToken } from "../users/DAL/IUsersRepo";
 import { UserEntity } from "../users/entity/user.entity";
 import { CreatePostByBlogHandler } from "./useCase/createPostByBlogHandler";
-import { ILikesRepoToken } from "../likes/ILikesRepo";
+import { ILikesRepoToken } from "../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../likes/entities/like.entity";
 import { DeletePostByBlogHandler } from "./useCase/DeletePostByBlogHandler";
 import { UpdatePostByBlogHandler } from "./useCase/UpdatePostByBlogHandler";
 import { BlogsController } from "./blogs.controller";
 import { BannedUsersEntity } from "./entities/bannedUsersEntity";
 import { GetAllCommentsOnMyBlogHandler } from "./useCase/getAllCommentsOnMyBlogHandler";
-import { ICommentsRepoToken } from "../comments/ICommentsRepo";
-import { CommentsORM } from "../comments/comments.ORM";
+import { ICommentsRepoToken } from "../comments/DAL/ICommentsRepo";
 import { CommentEntity } from "../comments/entities/comment.entity";
 import { BanUnbanUserByBlogHandler } from "./useCase/BanUnbanUserByBlogHandler";
 import { GetAllBlogsPublicHandler } from "./useCase/getAllBlogsPublic";
@@ -40,8 +38,9 @@ import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
 import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
 import { BloggersSQLRepo } from "./DAL/bloggers.SQL.repo";
 import { PostsSQLRepo } from "../posts/DAL/posts.SQL.repo";
-import { LikesORMRepo } from "../likes/oldServiceRepos/likes.ORM.repo";
 import { BannedUsersSQLRepo } from "./DAL/BannedUsersSQLRepo";
+import { LikesSQLRepo } from "../likes/DAL/likes.SQL.repo";
+import { CommentsSQLRepo } from "../comments/DAL/comments.SQL.repo";
 
 const blogsRouteHandlers = [
   GetBlogsOfBloggerHandler,
@@ -109,15 +108,11 @@ const blogsRouteHandlers = [
     },
     {
       provide: ILikesRepoToken,
-      useClass: LikesORMRepo,
+      useClass: LikesSQLRepo,
     },
     {
       provide: ICommentsRepoToken,
-      useClass: useRepositoryClassGeneric(
-        CommentsORM,
-        CommentsORM,
-        CommentsORM,
-      ),
+      useClass: CommentsSQLRepo,
     },
 
     // {

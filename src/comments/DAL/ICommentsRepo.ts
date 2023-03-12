@@ -1,10 +1,10 @@
-import { CreateCommentDto } from './dto/create-comment.dto';
-import { PaginationCommentsDto } from './dto/paginationCommentsDto';
-import { CommentEntity } from './entities/comment.entity';
-import { BlogsPaginationDto } from '../bloggers/dto/blogsPaginationDto';
-import { CommentViewDtoForBlogger } from './dto/commentViewDtoForBlogger';
+import { CreateCommentDto } from "../dto/create-comment.dto";
+import { PaginationCommentsDto } from "../dto/paginationCommentsDto";
+import { CommentEntity } from "../entities/comment.entity";
+import { BlogsPaginationDto } from "../../bloggers/dto/blogsPaginationDto";
+import { CommentViewDtoForBlogger } from "../dto/commentViewDtoForBlogger";
 
-export const ICommentsRepoToken = Symbol('ICommentsRepoToken');
+export const ICommentsRepoToken = Symbol("ICommentsRepoToken");
 
 export interface ICommentsRepo<GenericCommentType> {
   createComment(comment: CreateCommentDto): Promise<CommentEntity>;

@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
 import { Inject, UnauthorizedException } from "@nestjs/common";
 import { AuthService } from "../../auth/authService";
-import { ILikesRepo, ILikesRepoToken } from "../../likes/ILikesRepo";
+import { ILikesRepo, ILikesRepoToken } from "../../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
 import { IUsersRepoToken } from "../../users/DAL/IUsersRepo";
 import { UserEntity } from "../../users/entity/user.entity";

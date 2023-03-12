@@ -6,9 +6,9 @@ import { UserEntity } from "../../users/entity/user.entity";
 import {
   ICommentsRepo,
   ICommentsRepoToken,
-} from "../../comments/ICommentsRepo";
+} from "../../comments/DAL/ICommentsRepo";
 import { CommentEntity } from "../../comments/entities/comment.entity";
-import { ILikesRepo, ILikesRepoToken } from "../../likes/ILikesRepo";
+import { ILikesRepo, ILikesRepoToken } from "../../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
 import {
   IUsersQueryRepo,

@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { Inject } from "@nestjs/common";
-import { ILikesRepo, ILikesRepoToken } from "../../likes/ILikesRepo";
+import { ILikesRepo, ILikesRepoToken } from "../../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
 import { AuthService } from "../../auth/authService";
 import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
