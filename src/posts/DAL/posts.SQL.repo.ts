@@ -116,7 +116,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
                 VALUES ($1, $2, $3, $4, $5)
                 RETURNING id
                     `,
-      [dto.title, dto.shortDescription, dto.content, dto.blogId, blog.name],
+      [dto.title, dto.shortDescription, dto.content, blog.id, blog.name],
     );
 
     const result = await this.dataSource.query(

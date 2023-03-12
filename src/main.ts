@@ -23,8 +23,8 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
-      /*whitelist: true,*/ transform: true,
-      stopAtFirstError: false,
+      transform: true,
+      stopAtFirstError: true,
     }),
   );
   useContainer(app.select(PostsModule), {

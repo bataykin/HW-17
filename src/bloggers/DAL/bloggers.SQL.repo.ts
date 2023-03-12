@@ -95,8 +95,10 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
     dto: BlogsPaginationDto,
     userIdFromToken: string,
   ): Promise<BlogEntity[]> {
-    const result = await this.dataSource.query(
-      `
+    const result =
+      dto.sortBy == "createdAt"
+        ? await this.dataSource.query(
+            `
                 SELECT * 
                 FROM blogs
                 WHERE "userId" = $1
@@ -110,8 +112,25 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                 ORDER BY  "${dto.sortBy}"     ${dto.sortDirection}
                 LIMIT $2 OFFSET $3;
                     `,
-      [userIdFromToken, dto.pageSize, dto.skipSize, dto.searchNameTerm],
-    );
+            [userIdFromToken, dto.pageSize, dto.skipSize, dto.searchNameTerm],
+          )
+        : await this.dataSource.query(
+            `
+                SELECT * 
+                FROM blogs
+                WHERE "userId" = $1
+                AND
+                
+                case 
+                when $4::text is null then true 
+                when $4::text is not null then (upper("name") ~ $4::text)
+                end 
+                
+                ORDER BY  "${dto.sortBy}"::bytea     ${dto.sortDirection}
+                LIMIT $2 OFFSET $3;
+                    `,
+            [userIdFromToken, dto.pageSize, dto.skipSize, dto.searchNameTerm],
+          );
     return result;
   }
 

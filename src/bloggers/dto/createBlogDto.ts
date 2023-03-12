@@ -11,7 +11,7 @@ export class CreateBlogDto {
   @Transform(({ value }: TransformFnParams) => value?.trim())
   description: string;
 
-  @IsUrl({ stopAtFirstError: true })
+  @IsUrl()
   @MaxLength(100)
   @Transform(({ value }: TransformFnParams) => value?.trim())
   websiteUrl: string;
