@@ -96,6 +96,8 @@ describe("HW-18 - 2 (e2e)", () => {
   const unbanBlogDto = {
     isBanned: false,
   };
+
+  const wrongUUID = "8f31bcb4-f776-4165-b98f-43d0e687a540";
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -273,6 +275,23 @@ describe("HW-18 - 2 (e2e)", () => {
       });
   });
 
+  it("GET => /blogs/:id - should return 404 if blog1Id not found", () => {
+    // console.log(banUserDto);
+    // console.log(user1);
+    // console.log(user2);
+    return request(app.getHttpServer())
+      .get(`/blogs/${wrongUUID}`)
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .expect(404)
+      .then((res) => {
+        // console.log(res.body);
+        // expect(res.body.id).toBe(blog1.id);
+        // expect(res.body.name).toBe(blog1.input.name);
+        expect(Array.isArray(res.body.items)).toBeFalsy();
+      });
+  });
+
   it("GET => /sa/blogs - return blog1", () => {
     // console.log(banUserDto);
     // console.log(user1);
@@ -302,6 +321,19 @@ describe("HW-18 - 2 (e2e)", () => {
       .set("Accept", "application/json")
       .set("Authorization", "Basic YWRtaW46cXdlcnR5")
       .expect(204)
+      .then((res) => {
+        // console.log(res.body);
+      });
+  });
+
+  it("PUT -> /sa/blogs/:id/ban - should return 404 if blog1Id is not found", () => {
+    return request(app.getHttpServer())
+      .put(`/sa/blogs/${wrongUUID}/ban`)
+      .send(JSON.stringify(banBlogDto))
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+      .expect(404)
       .then((res) => {
         // console.log(res.body);
       });
@@ -338,7 +370,7 @@ describe("HW-18 - 2 (e2e)", () => {
       .set("Accept", "application/json")
       .expect(200)
       .then((res) => {
-        console.log(res.body);
+        // console.log(res.body);
         expect(res.body.totalCount).toBe(0);
         expect(res.body.items.length).toBe(0);
         expect(Array.isArray(res.body.items)).toBeTruthy();

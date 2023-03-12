@@ -71,8 +71,10 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<BannedUsersEntity> {
     blogId: string,
     dto: GetBannedUsersPaginationDTO,
   ): Promise<BannedUsersEntity[]> {
-    const result = await this.dataSource.query(
-      `
+    const result =
+      dto.sortBy == "createdAt"
+        ? await this.dataSource.query(
+            `
                 SELECT * 
                 FROM "banned_users"
                 WHERE "blogId" = $1
@@ -86,8 +88,25 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<BannedUsersEntity> {
                 ORDER BY  "${dto.sortBy}"::text     ${dto.sortDirection}
                 LIMIT $2 OFFSET $3;
                     `,
-      [blogId, dto.pageSize, dto.skipSize, dto.searchLoginTerm],
-    );
+            [blogId, dto.pageSize, dto.skipSize, dto.searchLoginTerm],
+          )
+        : await this.dataSource.query(
+            `
+                SELECT * 
+                FROM "banned_users"
+                WHERE "blogId" = $1
+                AND
+                
+                case 
+                when $4::text is null then true 
+                when $4::text is not null then (upper("login") ~ $4::text)
+                end 
+                
+                ORDER BY  "${dto.sortBy}"::bytea     ${dto.sortDirection}
+                LIMIT $2 OFFSET $3;
+                    `,
+            [blogId, dto.pageSize, dto.skipSize, dto.searchLoginTerm],
+          );
     return result ?? null;
   }
 
