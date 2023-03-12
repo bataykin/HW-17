@@ -23,6 +23,8 @@ import { SAGetUsersPaginationModel } from "./dto/SAGetUsersPaginationModel";
 import { SkipThrottle } from "@nestjs/throttler";
 import { BlogsPaginationDto } from "../bloggers/dto/blogsPaginationDto";
 import { SA_GetBlogsQuery } from "./useCase/SA_GetBlogsHandler";
+import { BanBlogInputModel } from "./dto/BanBlogInputModel";
+import { SA_BanUnbanBlogCommand } from "./useCase/SA_BanUnbanBlogHandler";
 
 @SkipThrottle()
 @Controller("sa")
@@ -35,7 +37,7 @@ export class SuperAdminController {
   @Put("users/:id/ban")
   @UseGuards(BaseAuthGuard)
   @HttpCode(204)
-  async setBannedStatus(
+  async setBannedStatusToUser(
     @Param("id", ParseUUIDPipe) userId: string,
     @Body() dto: BanUserInputModel,
   ) {
@@ -69,5 +71,15 @@ export class SuperAdminController {
   @HttpCode(200)
   async getAllBlogs(@Query() dto: BlogsPaginationDto) {
     return this.queryBus.execute(new SA_GetBlogsQuery(dto));
+  }
+
+  @Put("blogs/:id/ban")
+  @UseGuards(BaseAuthGuard)
+  @HttpCode(204)
+  async setBannedStatusBlog(
+    @Param("id", ParseUUIDPipe) blogId: string,
+    @Body() dto: BanBlogInputModel,
+  ) {
+    return this.commandBus.execute(new SA_BanUnbanBlogCommand(dto, blogId));
   }
 }

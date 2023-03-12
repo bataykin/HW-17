@@ -66,7 +66,7 @@ export class GetBannedUsersForBlogHandler
     }
     const paging = {
       searchLoginTerm: dto.searchLoginTerm?.toUpperCase() ?? null,
-      sortBy: dto.sortBy ?? "createdAt",
+      sortBy: dto.sortBy ?? "banDate",
       sortDirection: dto.sortDirection ?? "desc",
       pageNumber: dto.pageNumber ?? 1,
       pageSize: dto.pageSize ?? 10,

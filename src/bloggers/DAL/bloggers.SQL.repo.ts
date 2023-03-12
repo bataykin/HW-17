@@ -226,8 +226,23 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
   mapBlogsWithOwnersToResponse(blogs: BlogEntity[]) {
     throw new Error("Method not implemented.");
   }
-  setBanStatus(blogId: string, isBanned: boolean): void {
-    throw new Error("Method not implemented.");
+
+  async SA_SetBlogBanStatus(
+    blogId: string,
+    isBanned: boolean,
+  ): Promise<BlogEntity> {
+    const result = await this.dataSource.query(
+      `
+                UPDATE blogs
+                SET "isBanned" = $1, 
+                "banDate" = (
+                CASE WHEN $1 = true then $2::timestamptz
+                ELSE NULL END)
+                WHERE id = $3
+                    `,
+      [isBanned, new Date(), blogId],
+    );
+    return result[0] ?? result;
   }
 
   async SA_GetBlogs(dto: BlogsPaginationDto): Promise<BlogEntity[]> {

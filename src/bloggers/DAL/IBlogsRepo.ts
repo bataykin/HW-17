@@ -45,7 +45,7 @@ export interface IBlogsRepo<GenericBlogType> {
 
   mapBlogsWithOwnersToResponse(blogs: BlogEntity[]);
 
-  setBanStatus(blogId: string, isBanned: boolean): void;
+  SA_SetBlogBanStatus(blogId: string, isBanned: boolean): void;
 
   SA_GetBlogs(dto: BlogsPaginationDto): Promise<GenericBlogType[] | null>;
 
