@@ -144,7 +144,7 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
                 SELECT *
                 FROM comments
                 WHERE "postId" = $1
-                ORDER BY id
+                ORDER BY "${dto.sortBy}" ${dto.sortDirection}
                 LIMIT $2 OFFSET $3
                     `,
       [postId, dto.pageSize, dto.skipSize],

@@ -21,7 +21,9 @@ import { UpdateCommentCommand } from "./useCase/updateCommentCommand";
 import { RemoveCommentCommand } from "./useCase/removeCommentHandler";
 import { SetLikeStatusCommand } from "./useCase/setLikeStatusHandler";
 import { ContentDto } from "./dto/contentDto";
+import { SkipThrottle } from "@nestjs/throttler";
 
+@SkipThrottle()
 @Controller("comments")
 export class CommentsController {
   constructor(

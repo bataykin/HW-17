@@ -11,7 +11,11 @@ export interface ILikesRepo<GenericRepoType> {
     likeStatus: LikeStatusEnum,
   );
 
-  addReactionToPost(userId: string, postId: string, likeStatus: LikeStatusEnum);
+  setLikeStatusToPost(
+    userId: string,
+    postId: string,
+    likeStatus: LikeStatusEnum,
+  );
 
   getCommentLikeStatus(userId: string, commentId: string);
 

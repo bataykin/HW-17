@@ -6,16 +6,16 @@ import {
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
-} from 'typeorm';
-import { PostEntity } from '../../posts/entities/post.entity';
-import { CommentEntity } from '../../comments/entities/comment.entity';
-import { UserEntity } from '../../users/entity/user.entity';
+} from "typeorm";
+import { PostEntity } from "../../posts/entities/post.entity";
+import { CommentEntity } from "../../comments/entities/comment.entity";
+import { UserEntity } from "../../users/entity/user.entity";
 
-@Entity({ name: 'likes' })
-@Unique(['userId', 'postId'])
-@Unique(['userId', 'commentId'])
+@Entity({ name: "likes" })
+@Unique("pk_likes_user_post", ["userId", "postId"])
+@Unique("pl_likes_user_comment", ["userId", "commentId"])
 export class LikeEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ nullable: true })
@@ -27,7 +27,7 @@ export class LikeEntity {
   @Column()
   userId: string;
 
-  @Column({ default: 'None' })
+  @Column({ default: "None" })
   reaction: string;
 
   @CreateDateColumn()

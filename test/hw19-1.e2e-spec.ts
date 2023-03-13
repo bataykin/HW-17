@@ -4,7 +4,7 @@ import request from "supertest";
 import { AppModule } from "./../src/app.module";
 import { LikesEnum } from "../src/posts/entities/likes.enum";
 
-describe("HW-18 - 5 (e2e)", () => {
+describe("HW-19-1 (e2e)", () => {
   let app: INestApplication;
 
   let user1 = {
