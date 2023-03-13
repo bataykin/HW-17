@@ -10,6 +10,7 @@ import { BlogEntity } from "../../bloggers/entities/blogEntity";
 import { PostViewModel } from "../dto/PostViewModel";
 import { PaginationPostsDto } from "../dto/pagination.posts.dto";
 import { LikesEnum } from "../entities/likes.enum";
+import { UserEntity } from "../../users/entity/user.entity";
 
 @Injectable()
 export class PostsSQLRepo implements IPostsRepo<PostEntity> {
@@ -251,7 +252,26 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     //     {new: true})
   }
 
-  async mapPostToView(post: PostEntity): Promise<PostViewModel> {
+  async mapPostToView(
+    post: PostEntity,
+    user: UserEntity,
+  ): Promise<PostViewModel> {
+    const myStatus: LikeStatusEnum = user
+      ? await this.dataSource
+          .query(
+            `
+    select 
+    reaction
+    from likes
+   
+    where "postId" = $1 and "userId" = $2
+    `,
+            [post.id, user.id],
+          )
+          .then((res) => res[0]?.reaction ?? LikeStatusEnum.None)
+      : LikesEnum.None;
+
+    console.log(user?.login, myStatus);
     const likes = await this.dataSource.query(
       `
     select 
@@ -286,7 +306,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
       extendedLikesInfo: {
         likesCount: +likes[0]?.likesCount ?? 0,
         dislikesCount: +likes[0]?.dislikesCount ?? 0,
-        myStatus: LikeStatusEnum.None,
+        myStatus: myStatus,
         newestLikes: newLikes,
       },
     };

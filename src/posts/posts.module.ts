@@ -21,7 +21,7 @@ import { IBlogsRepoToken } from "../bloggers/DAL/IBlogsRepo";
 import { CqrsModule } from "@nestjs/cqrs";
 import { GetAllPostsHandler } from "./useCase/getAllPostsHandler";
 import { CreatePostHandler } from "./useCase/createPostHandler";
-import { FindPostByIdHandler } from "./useCase/findPostByIdHandler";
+import { PublicFindPostByIdHandler } from "./useCase/PublicFindPostByIdHandler";
 import { UpdatePostHandler } from "./useCase/updatePostHandler";
 import { RemovePostHandler } from "./useCase/removePostHandler";
 import { GetCommentsByPostHandler } from "./useCase/getCommentsByPostHandler";
@@ -49,7 +49,7 @@ import { CommentsSQLRepo } from "../comments/DAL/comments.SQL.repo";
 const PostRouteHandlers = [
   GetAllPostsHandler,
   CreatePostHandler,
-  FindPostByIdHandler,
+  PublicFindPostByIdHandler,
   UpdatePostHandler,
   RemovePostHandler,
   SetLikeToPostHandler,

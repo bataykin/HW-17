@@ -61,7 +61,7 @@ export class CreatePostByBlogHandler
 
     const post = await this.postsRepo.createPost(dto, blog);
     // const {createdAt, ...rest } = post
-    const res = await this.postsRepo.mapPostToView(post);
+    const res = await this.postsRepo.mapPostToView(post, isUserExist);
     return res;
   }
 }

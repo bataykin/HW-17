@@ -4,6 +4,7 @@ import { PaginationPostsDto } from "../dto/pagination.posts.dto";
 import { BlogEntity } from "../../bloggers/entities/blogEntity";
 import { PostViewModel } from "../dto/PostViewModel";
 import { PostEntity } from "../entities/post.entity";
+import { UserEntity } from "../../users/entity/user.entity";
 
 export const IPostsRepoToken = Symbol("IPostsRepoToken");
 
@@ -36,5 +37,5 @@ export interface IPostsRepo<GenericPostType> {
 
   getPostsPaginatedByBlog(dto: PaginationPostsDto, blogId: string);
 
-  mapPostToView(post: PostEntity): Promise<PostViewModel>;
+  mapPostToView(post: PostEntity, user: UserEntity): Promise<PostViewModel>;
 }

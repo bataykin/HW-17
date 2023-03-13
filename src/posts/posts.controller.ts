@@ -23,7 +23,7 @@ import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { GetAllPostsCommand } from "./useCase/getAllPostsHandler";
 import { CreatePostCommand } from "./useCase/createPostHandler";
-import { PublicFindPostByIdQuery } from "./useCase/findPostByIdHandler";
+import { PublicFindPostByIdQuery } from "./useCase/PublicFindPostByIdHandler";
 import { UpdateBlogCommand } from "./useCase/updatePostHandler";
 import { RemovePostCommand } from "./useCase/removePostHandler";
 import { GetCommentsByPostCommandPublic } from "./useCase/getCommentsByPostHandler";
@@ -100,7 +100,10 @@ export class PostsController {
     @Param("id", ParseUUIDPipe) postId: string,
     @Request() req,
   ) {
-    return this.queryBus.execute(new PublicFindPostByIdQuery(postId));
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    return this.queryBus.execute(
+      new PublicFindPostByIdQuery(postId, accessToken),
+    );
   }
 
   //  COMMAND  Update existing post by Id with InputModel
