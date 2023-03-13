@@ -44,49 +44,62 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     );
     return result[0] ?? null;
   }
-  countPosts(): Promise<number> {
-    throw new Error("Method not implemented.");
-  }
-  countPostsByBlogId(blogId: string): Promise<number> {
-    throw new Error("Method not implemented.");
+
+  async countPosts(): Promise<number> {
+    const result = await this.dataSource.query(
+      `
+                SELECT count(*)
+                FROM posts
+                left join blogs on posts."blogId" = blogs.id
+                Where blogs."isBanned" = false
+                    `,
+      [],
+    );
+    return result[0].count ?? 0;
   }
 
-  async getPostsPaginated(
+  async countPostsByBlogId(blogId: string): Promise<number> {
+    const result = await this.dataSource.query(
+      `
+                SELECT count(*)
+                FROM posts
+                left join blogs on posts."blogId" = blogs.id
+                Where blogs."isBanned" = false and blogs.id = $1
+                    `,
+      [blogId],
+    );
+    return result[0].count ?? 0;
+  }
+
+  async getPostsPaginated(dto: PaginationPostsDto): Promise<PostEntity[]> {
+    const result = await this.dataSource.query(
+      `
+                SELECT *
+                FROM posts
+                left join blogs on posts."blogId" = blogs.id
+                Where blogs."isBanned" = false
+                order by posts."${dto.sortBy}" ${dto.sortDirection}
+                    `,
+      [],
+    );
+    return result ?? null;
+  }
+
+  async getPostsPaginatedByBlog(
     dto: PaginationPostsDto,
-    user: UserEntity | null,
+    blogId: string,
   ): Promise<PostEntity[]> {
     const result = await this.dataSource.query(
       `
                 SELECT *
                 FROM posts
                 left join blogs on posts."blogId" = blogs.id
-                Where posts.id = $1
-                AND blogs."isBanned" = false
-                order by "${dto.sortBy}" ${dto.sortDirection}
+                Where blogs."isBanned" = false AND blogs.id = $1
+                order by posts."${dto.sortBy}" ${dto.sortDirection}
                     `,
-      [],
+      [blogId],
     );
     return result ?? null;
-  }
-  getPostsPaginatedByBlog(dto: PaginationPostsDto, blogId: string) {
-    throw new Error("Method not implemented.");
-  }
-
-  //// ORIGINAL FUNCTIONS ////
-
-  async getAllPosts(skipSize: number, PageSize: number | 10) {
-    // const posts = await this.postModel.find({}).skip(skipSize).limit(PageSize).exec();
-
-    const result = await this.dataSource.query(
-      `
-                SELECT *
-                FROM posts
-                ORDER BY id
-                LIMIT $1 OFFSET $2
-                    `,
-      [PageSize, skipSize],
-    );
-    return result;
   }
 
   async countDocuments() {
@@ -185,50 +198,8 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     return result[0] ?? result;
   }
 
-  async getPostByBloggerId(
-    bloggerId: string,
-    userId: string,
-    dto: PaginationPostsDto,
-  ) {
-    // const posts = await this.postModel.find({bloggerId: bloggerId}).skip(skipSize).limit(PageSize).lean().exec();
-
-    const result = await this.dataSource.query(
-      `
-                SELECT * 
-                FROM posts
-                JOIN likes ON post."extendedLikesInfo" = likes.postId
-                WHERE "blogId" = $1
-                ORDER BY id
-                LIMIT $2 OFFSET $3
-                    `,
-      [bloggerId, dto.pageSize, dto.skipSize],
-    );
-    return result;
-  }
-
-  async getMyLikeInfo(userId: string, postId: string) {
-    // return this.postModel.findOne({$and: [{userId: userId}, {_id: postId}]}).select({_id: 0, extendedLikesInfo: 1})
-  }
-
   async setLikeStatus(postId: string, updateQuery: any) {
     // return this.postModel.findByIdAndUpdate(postId, updateQuery, {new: true})
-  }
-
-  async updatePostWithLike(
-    postId: string,
-    totalLikes: number,
-    totalDislikes: number,
-    last3Likes: any,
-    likeStatus: LikeStatusEnum,
-  ) {
-    // return this.postModel.findByIdAndUpdate(postId,
-    //     {
-    //         'extendedLikesInfo.likesCount': totalLikes,
-    //         'extendedLikesInfo.dislikesCount': totalDislikes,
-    //         'extendedLikesInfo.myStatus': LikeStatusEnum.None,
-    //         'extendedLikesInfo.newestLikes': last3Likes
-    //     },
-    //     {new: true})
   }
 
   async mapPostToView(

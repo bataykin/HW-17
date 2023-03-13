@@ -8,7 +8,7 @@ import {
 import { CommentEntity } from "../../comments/entities/comment.entity";
 import { ILikesRepo, ILikesRepoToken } from "../../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
-import { PaginationCommentsDto } from "../../comments/dto/paginationCommentsDto";
+import { PaginationBasicDto } from "../../comments/dto/paginationBasicDto";
 import { PaginatorModel } from "../../common/PaginatorModel";
 import { CommentViewPublicDTO } from "../../comments/dto/CommentViewPublicDTO";
 
@@ -36,7 +36,7 @@ export class GetCommentsByPostHandler
     const { postId, dto } = query;
     // console.log(accessToken)
 
-    const paging: PaginationCommentsDto = {
+    const paging: PaginationBasicDto = {
       sortBy: dto.sortBy ?? "createdAt",
       sortDirection: dto.sortDirection ?? "desc",
       pageNumber: dto.pageNumber ?? 1,

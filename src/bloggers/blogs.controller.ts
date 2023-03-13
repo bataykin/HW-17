@@ -6,12 +6,14 @@ import {
   Param,
   ParseUUIDPipe,
   Query,
+  Request,
 } from "@nestjs/common";
-import { GetPostsByBlogQuery } from "./useCase/getPostsByBlogHandler";
+import { GetPostsByBlogQueryPublic } from "./useCase/getPostsByBlogHandler";
 import { BlogsPaginationDto } from "./dto/blogsPaginationDto";
 import { FindBlogPublicQuery } from "./useCase/findBlogPublicHandler";
 import { QueryBus } from "@nestjs/cqrs";
 import { GetAllBlogsQuery } from "./useCase/getAllBlogsPublic";
+import { PaginationBasicDto } from "../comments/dto/paginationBasicDto";
 
 @Controller("blogs")
 export class BlogsController {
@@ -28,10 +30,14 @@ export class BlogsController {
 
   @Get(":blogId/posts")
   async getPostsByBlogger(
-    @Param("blogId", ParseUUIDPipe) bloggerId: string,
-    @Query() dto: BlogsPaginationDto,
+    @Param("blogId", ParseUUIDPipe) blogId: string,
+    @Query() dto: PaginationBasicDto,
+    @Request() req,
   ) {
-    return this.queryBus.execute(new GetPostsByBlogQuery(bloggerId, dto));
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    return this.queryBus.execute(
+      new GetPostsByBlogQueryPublic(blogId, dto, accessToken),
+    );
   }
 
   @Get(":id")

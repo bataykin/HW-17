@@ -1,4 +1,4 @@
-import { PaginationCommentsDto } from "../dto/paginationCommentsDto";
+import { PaginationBasicDto } from "../dto/paginationBasicDto";
 import { BlogsPaginationDto } from "../../bloggers/dto/blogsPaginationDto";
 import { CommentToRepoDTO } from "../dto/CommentToRepoDTO";
 import { CommentViewPublicDTO } from "../dto/CommentViewPublicDTO";
@@ -12,17 +12,14 @@ export interface ICommentsRepo<GenericCommentType> {
 
   getCommentsByPost(
     postId: string,
-    dto: PaginationCommentsDto,
+    dto: PaginationBasicDto,
   ): Promise<GenericCommentType[]>;
 
   updateComment(commentId: string, content: string);
 
   deleteComment(commentId: string);
 
-  countCommentsOnPost(
-    postId: string,
-    dto: PaginationCommentsDto,
-  ): Promise<number>;
+  countCommentsOnPost(postId: string, dto: PaginationBasicDto): Promise<number>;
 
   getAllCommentByBlog(
     userId: string,

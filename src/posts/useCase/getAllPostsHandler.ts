@@ -12,7 +12,7 @@ import {
   IUsersQueryRepoToken,
 } from "../../users/DAL/IUserQueryRepo";
 import { UserEntity } from "../../users/entity/user.entity";
-import { PaginationCommentsDto } from "../../comments/dto/paginationCommentsDto";
+import { PaginationBasicDto } from "../../comments/dto/paginationBasicDto";
 import { PaginatorModel } from "../../common/PaginatorModel";
 import { PostViewModel } from "../dto/PostViewModel";
 
@@ -49,17 +49,14 @@ export class GetAllPostsHandler
     const userFromToken = retrievedUserFromToken
       ? await this.usersQueryRepo.findById(retrievedUserFromToken.userId)
       : null;
-    const paging: PaginationCommentsDto = {
+    const paging: PaginationBasicDto = {
       sortBy: dto.sortBy ?? "createdAt",
       sortDirection: dto.sortDirection ?? "desc",
       pageNumber: dto.pageNumber ?? 1,
       pageSize: dto.pageSize ?? 10,
       skipSize: dto.pageNumber > 1 ? dto.pageSize * (dto.pageNumber - 1) : 0,
     };
-    const posts: PostEntity[] = await this.postsRepo.getPostsPaginated(
-      paging,
-      userFromToken,
-    );
+    const posts: PostEntity[] = await this.postsRepo.getPostsPaginated(paging);
 
     const mappedPosts = await this.postsRepo.mapPostsToView(
       posts,

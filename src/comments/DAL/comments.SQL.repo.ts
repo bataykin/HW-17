@@ -5,7 +5,7 @@ import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
 import { ICommentsRepo } from "./ICommentsRepo";
 import { CommentEntity } from "../entities/comment.entity";
 import { CommentToRepoDTO } from "../dto/CommentToRepoDTO";
-import { PaginationCommentsDto } from "../dto/paginationCommentsDto";
+import { PaginationBasicDto } from "../dto/paginationBasicDto";
 import { BlogsPaginationDto } from "src/bloggers/dto/blogsPaginationDto";
 import { CommentViewPublicDTO } from "../dto/CommentViewPublicDTO";
 
@@ -135,7 +135,7 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
 
   async getCommentsByPost(
     postId: string,
-    dto: PaginationCommentsDto,
+    dto: PaginationBasicDto,
   ): Promise<CommentEntity[]> {
     // return await this.commentModel.find({postId: postId}).skip(skipSize).limit(PageSize).exec();
 
@@ -152,7 +152,7 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
     return result ?? null;
   }
 
-  async countCommentsOnPost(postId: string, dto: PaginationCommentsDto) {
+  async countCommentsOnPost(postId: string, dto: PaginationBasicDto) {
     const result = await this.dataSource.query(
       `
                 SELECT 

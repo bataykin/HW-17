@@ -23,22 +23,14 @@ export interface IPostsRepo<GenericPostType> {
 
   countPostsByBlogId(blogId: string): Promise<number>;
 
-  getPostsPaginated(
-    dto: PaginationPostsDto,
-    user: UserEntity | null,
-  ): Promise<GenericPostType[]>;
+  getPostsPaginated(dto: PaginationPostsDto): Promise<GenericPostType[]>;
 
   isPostExists(dto: CreatePostDto): Promise<GenericPostType | null>;
 
-  getPostByBloggerId(
-    bloggerId: string,
-    userId: string,
+  getPostsPaginatedByBlog(
     dto: PaginationPostsDto,
-  ): Promise<GenericPostType | null>;
-
-  // setLikeStatus(postId: number, dto:UpdatePostDto): Promise<any>
-
-  getPostsPaginatedByBlog(dto: PaginationPostsDto, blogId: string);
+    blogId: string,
+  ): Promise<GenericPostType[]>;
 
   mapPostToView(
     post: PostEntity,
