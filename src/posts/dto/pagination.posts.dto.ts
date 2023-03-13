@@ -1,17 +1,15 @@
-import {IsInt, IsPositive} from "class-validator";
-
 export class PaginationPostsDto {
-    // @IsInt()
-    // @IsPositive()
-    pageNumber?: number | 1
+  // @IsInt()
+  // @IsPositive()
+  pageNumber?: number | 1;
 
-    // @IsInt()
-    // @IsPositive()
-    pageSize?: number | 10
+  // @IsInt()
+  // @IsPositive()
+  pageSize?: number | 10;
 
-    sortBy?: string | "createdAt"
+  sortBy?: string | "createdAt";
 
-    sortDirection?: "asc" | "desc"
+  sortDirection?: "asc" | "desc";
 
-    skipSize?: number
+  skipSize?: number;
 }

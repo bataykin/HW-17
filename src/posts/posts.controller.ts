@@ -21,7 +21,7 @@ import { PaginationPostsDto } from "./dto/pagination.posts.dto";
 import { BaseAuthGuard } from "../guards/base.auth.guard";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
-import { GetAllPostsCommand } from "./useCase/getAllPostsHandler";
+import { GetAllPostsCommandPublic } from "./useCase/getAllPostsHandler";
 import { CreatePostCommand } from "./useCase/createPostHandler";
 import { PublicFindPostByIdQuery } from "./useCase/PublicFindPostByIdHandler";
 import { UpdateBlogCommand } from "./useCase/updatePostHandler";
@@ -80,7 +80,7 @@ export class PostsController {
   async getAll(@Query() paginationDto: PaginationPostsDto, @Request() req) {
     const accessToken = req.headers.authorization?.split(" ")[1];
     return this.queryBus.execute(
-      new GetAllPostsCommand(paginationDto, accessToken),
+      new GetAllPostsCommandPublic(paginationDto, accessToken),
     );
   }
 

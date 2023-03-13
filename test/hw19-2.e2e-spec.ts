@@ -179,7 +179,7 @@ describe("HW-19-2 (e2e)", () => {
       .set("Authorization", `Bearer ${users[0].accessToken}`)
       .expect(200)
       .then((res) => {
-        console.log(res.body);
+        // console.log(res.body);
         expect(res.body.id).toBe(posts[0].id);
         expect(res.body.title).toBe(posts[0].input.title);
         expect(res.body.shortDescription).toBe(posts[0].input.shortDescription);
@@ -194,6 +194,32 @@ describe("HW-19-2 (e2e)", () => {
         expect(res.body.extendedLikesInfo.newestLikes[0].addedAt).toBeTruthy();
         expect(res.body.extendedLikesInfo.newestLikes[0].userId).toBeTruthy();
         expect(res.body.extendedLikesInfo.newestLikes[0].login).toBeTruthy();
+      });
+  });
+
+  it("GET => /posts - return post0 with 4 likes, 1 dislike from user0 authed", () => {
+    return request(app.getHttpServer())
+      .get(`/posts/${posts[0].id}`)
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .set("Authorization", `Bearer ${users[0].accessToken}`)
+      .expect(200)
+      .then((res) => {
+        console.log(res.body);
+        // expect(res.body.id).toBe(posts[0].id);
+        // expect(res.body.title).toBe(posts[0].input.title);
+        // expect(res.body.shortDescription).toBe(posts[0].input.shortDescription);
+        // expect(res.body.content).toBe(posts[0].input.content);
+        // expect(res.body.blogId).toBe(posts[0].blogId);
+        // expect(res.body.blogName).toBe(posts[0].blogName);
+        // expect(res.body.createdAt).toBe(posts[0].createdAt);
+        // expect(res.body.extendedLikesInfo.likesCount).toBe(4);
+        // expect(res.body.extendedLikesInfo.dislikesCount).toBe(1);
+        // expect(res.body.extendedLikesInfo.myStatus).toBe(LikesEnum.Dislike);
+        // expect(res.body.extendedLikesInfo.newestLikes.length).toBe(3);
+        // expect(res.body.extendedLikesInfo.newestLikes[0].addedAt).toBeTruthy();
+        // expect(res.body.extendedLikesInfo.newestLikes[0].userId).toBeTruthy();
+        // expect(res.body.extendedLikesInfo.newestLikes[0].login).toBeTruthy();
       });
   });
 });

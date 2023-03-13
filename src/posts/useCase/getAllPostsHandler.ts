@@ -5,81 +5,75 @@ import { PostEntity } from "../entities/post.entity";
 import { PaginationPostsDto } from "../dto/pagination.posts.dto";
 import { ILikesRepo, ILikesRepoToken } from "../../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
-import { AuthService } from "../../auth/authService";
+import { jwtConstants } from "../../auth/constants";
+import { JwtService } from "@nestjs/jwt";
+import {
+  IUsersQueryRepo,
+  IUsersQueryRepoToken,
+} from "../../users/DAL/IUserQueryRepo";
+import { UserEntity } from "../../users/entity/user.entity";
+import { PaginationCommentsDto } from "../../comments/dto/paginationCommentsDto";
+import { PaginatorModel } from "../../common/PaginatorModel";
+import { PostViewModel } from "../dto/PostViewModel";
 
-export class GetAllPostsCommand {
+export class GetAllPostsCommandPublic {
   constructor(
-    public readonly paginationDto: PaginationPostsDto,
+    public readonly dto: PaginationPostsDto,
     public readonly accessToken: string,
   ) {}
 }
 
-@QueryHandler(GetAllPostsCommand)
-export class GetAllPostsHandler implements IQueryHandler<GetAllPostsCommand> {
+@QueryHandler(GetAllPostsCommandPublic)
+export class GetAllPostsHandler
+  implements IQueryHandler<GetAllPostsCommandPublic>
+{
   constructor(
     @Inject(IPostsRepoToken)
     private readonly postsRepo: IPostsRepo<PostEntity>,
     @Inject(ILikesRepoToken)
     private readonly likesRepo: ILikesRepo<LikeEntity>,
-    private readonly authService: AuthService,
+    @Inject(IUsersQueryRepoToken)
+    private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async execute(query: GetAllPostsCommand): Promise<any> {
-    const { paginationDto, accessToken } = query;
-    const {
-      pageNumber = 1,
-      pageSize = 10,
-      sortBy = "createdAt",
-      sortDirection = "desc",
-      skipSize = +pageNumber > 1 ? +pageSize * (+pageNumber - 1) : 0,
-    } = paginationDto;
-    const postsPaginationBLLdto = {
-      pageNumber,
-      pageSize,
-      sortBy,
-      sortDirection,
-      skipSize,
-    };
-    const posts = await this.postsRepo.getPostsPaginated(postsPaginationBLLdto);
+  async execute(
+    query: GetAllPostsCommandPublic,
+  ): Promise<PaginatorModel<PostViewModel[]>> {
+    const { dto, accessToken } = query;
     const retrievedUserFromToken = accessToken
-      ? await this.authService.retrieveUser(accessToken)
-      : undefined;
-    const userIdFromToken = retrievedUserFromToken
-      ? retrievedUserFromToken.userId
-      : undefined;
+      ? await this.jwtService.verify(accessToken, {
+          secret: jwtConstants.secret,
+        })
+      : null;
+    const userFromToken = retrievedUserFromToken
+      ? await this.usersQueryRepo.findById(retrievedUserFromToken.userId)
+      : null;
+    const paging: PaginationCommentsDto = {
+      sortBy: dto.sortBy ?? "createdAt",
+      sortDirection: dto.sortDirection ?? "desc",
+      pageNumber: dto.pageNumber ?? 1,
+      pageSize: dto.pageSize ?? 10,
+      skipSize: dto.pageNumber > 1 ? dto.pageSize * (dto.pageNumber - 1) : 0,
+    };
+    const posts: PostEntity[] = await this.postsRepo.getPostsPaginated(
+      paging,
+      userFromToken,
+    );
 
-    // const mappedPosts = await Promise.all(posts.map(async (p: PostEntity) => {
-    //     const {likes,  ...rest} = p
-    //     const likesDislikesCount = await this.likesRepo.getPostLikeDislikeCounts(p.id)
-    //     const status = (userIdFromToken)
-    //         ? await this.likesRepo.getPostLikeStatus(userIdFromToken, p.id)
-    //         : LikeStatusEnum.None
-    //     const lastLikes = await this.likesRepo.getLastLikesOnPost(p.id)
-    //     const extendedLikesInfo = {
-    //         likesCount: +likesDislikesCount.likesCount,
-    //         dislikesCount: +likesDislikesCount.dislikesCount,
-    //         myStatus: status,
-    //         newestLikes: lastLikes
-    //
-    //     }
-    //     const res = {
-    //         ...rest, /*extendedLikesInfo*/
-    //     }
-    //     return res
-    // }))
-    const mappedPosts = await this.likesRepo.mapArrayPostEntitiesToResponse(
+    const mappedPosts = await this.postsRepo.mapPostsToView(
       posts,
-      userIdFromToken,
+      userFromToken,
     );
 
     const docCount = await this.postsRepo.countPosts();
     const result = {
-      pagesCount: Math.ceil(docCount / +pageSize),
-      page: +pageNumber,
-      pageSize: +pageSize,
-      totalCount: docCount,
+      pagesCount: Math.ceil(+docCount / +paging.pageSize),
+      page: +paging.pageNumber,
+      pageSize: +paging.pageSize,
+      totalCount: +docCount,
       items: mappedPosts,
     };
-    return Promise.resolve(result);
+    return result;
   }
 }

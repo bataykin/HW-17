@@ -23,7 +23,10 @@ export interface IPostsRepo<GenericPostType> {
 
   countPostsByBlogId(blogId: string): Promise<number>;
 
-  getPostsPaginated(dto: PaginationPostsDto): Promise<GenericPostType[]>;
+  getPostsPaginated(
+    dto: PaginationPostsDto,
+    user: UserEntity | null,
+  ): Promise<GenericPostType[]>;
 
   isPostExists(dto: CreatePostDto): Promise<GenericPostType | null>;
 
@@ -37,5 +40,12 @@ export interface IPostsRepo<GenericPostType> {
 
   getPostsPaginatedByBlog(dto: PaginationPostsDto, blogId: string);
 
-  mapPostToView(post: PostEntity, user: UserEntity): Promise<PostViewModel>;
+  mapPostToView(
+    post: PostEntity,
+    user: UserEntity | null,
+  ): Promise<PostViewModel>;
+  mapPostsToView(
+    post: PostEntity[],
+    user: UserEntity | null,
+  ): Promise<PostViewModel[]>;
 }

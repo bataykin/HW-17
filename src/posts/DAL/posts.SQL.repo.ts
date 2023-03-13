@@ -50,8 +50,23 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
   countPostsByBlogId(blogId: string): Promise<number> {
     throw new Error("Method not implemented.");
   }
-  getPostsPaginated(dto: PaginationPostsDto): Promise<PostEntity[]> {
-    throw new Error("Method not implemented.");
+
+  async getPostsPaginated(
+    dto: PaginationPostsDto,
+    user: UserEntity | null,
+  ): Promise<PostEntity[]> {
+    const result = await this.dataSource.query(
+      `
+                SELECT *
+                FROM posts
+                left join blogs on posts."blogId" = blogs.id
+                Where posts.id = $1
+                AND blogs."isBanned" = false
+                order by "${dto.sortBy}" ${dto.sortDirection}
+                    `,
+      [],
+    );
+    return result ?? null;
   }
   getPostsPaginatedByBlog(dto: PaginationPostsDto, blogId: string) {
     throw new Error("Method not implemented.");
@@ -73,42 +88,6 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     );
     return result;
   }
-
-  // async getAllPostsByAuthUser(userId: string, skipSize: number, PageSize: number | 10) {
-  //     // const posts = await this.postModel.find({}).skip(skipSize).limit(PageSize).exec();
-  //     const result = await this.dataSource.query(`
-  //             SELECT *
-  //             FROM posts
-  //             ORDER BY id
-  //             LIMIT $1 OFFSET $2
-  //                 `, [PageSize, skipSize])
-  //
-  //     // const mappedPosts = posts.map(async (p) => {
-  //     //     let userReactionStatus: LikeStatusEnum = LikeStatusEnum.None
-  //     //     userReactionStatus = await this.usersRepo.getUsersReactionOnPost(p._id, userId)
-  //     //     // console.log('userReactionStatus', userReactionStatus)
-  //     //
-  //     //     p.extendedLikesInfo.myStatus = userReactionStatus
-  //     //
-  //     //     // console.log(p.extendedLikesInfo)
-  //     //     const maPost = {
-  //     //         id: p._id,
-  //     //         title: p.title,
-  //     //         shortDescription: p.shortDescription,
-  //     //         content: p.content,
-  //     //         bloggerId: p.bloggerId,
-  //     //         bloggerName: p.bloggerName,
-  //     //         addedAt: p.addedAt,
-  //     //         extendedLikesInfo: p.extendedLikesInfo
-  //     //     }
-  //     //     // console.log(maPost)
-  //     //     return maPost
-  //     // })
-  //     // console.log(mappedPosts)
-  //     //
-  //     // return Promise.all(mappedPosts)
-  //
-  // }
 
   async countDocuments() {
     // return this.postModel.countDocuments(filter);
@@ -271,7 +250,6 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
           .then((res) => res[0]?.reaction ?? LikeStatusEnum.None)
       : LikesEnum.None;
 
-    console.log(user?.login, myStatus);
     const likes = await this.dataSource.query(
       `
     select 
@@ -310,5 +288,16 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
         newestLikes: newLikes,
       },
     };
+  }
+
+  async mapPostsToView(
+    posts: PostEntity[],
+    user: UserEntity | null,
+  ): Promise<PostViewModel[]> {
+    const mappedPosts = [];
+    for (const post of posts) {
+      mappedPosts.push(await this.mapPostToView(post, user));
+    }
+    return mappedPosts;
   }
 }
