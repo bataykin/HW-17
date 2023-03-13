@@ -42,7 +42,7 @@ export class GetAllPostsHandler
   ): Promise<PaginatorModel<PostViewModel[]>> {
     const { dto, accessToken } = query;
     const retrievedUserFromToken = accessToken
-      ? await this.jwtService.verify(accessToken, {
+      ? await this.jwtService.verifyAsync(accessToken, {
           secret: jwtConstants.secret,
         })
       : null;

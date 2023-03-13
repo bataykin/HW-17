@@ -123,11 +123,12 @@ describe("HW-19-3 (e2e)", () => {
     });
   }
 
-  it("GET => /posts/:id - return post0 with 3 likes 3 dislikes", () => {
+  it("GET => /posts/:id - return post0 with 3 likes 3 dislikes from user0 authed", () => {
     return request(app.getHttpServer())
       .get(`/posts/${posts[0].id}`)
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
+      .set("Authorization", `Bearer ${users[0].accessToken}`)
       .expect(200)
       .then((res) => {
         // console.log(res.body);
@@ -140,7 +141,7 @@ describe("HW-19-3 (e2e)", () => {
         expect(res.body.createdAt).toBe(posts[0].createdAt);
         expect(res.body.extendedLikesInfo.likesCount).toBe(3);
         expect(res.body.extendedLikesInfo.dislikesCount).toBe(3);
-        expect(res.body.extendedLikesInfo.myStatus).toBe(LikesEnum.None);
+        expect(res.body.extendedLikesInfo.myStatus).toBe(LikesEnum.Dislike);
         expect(res.body.extendedLikesInfo.newestLikes.length).toBe(3);
         expect(res.body.extendedLikesInfo.newestLikes[0].addedAt).toBeTruthy();
         expect(res.body.extendedLikesInfo.newestLikes[0].userId).toBeTruthy();
@@ -158,33 +159,46 @@ describe("HW-19-3 (e2e)", () => {
   //     .expect(204);
   // });
 
-  it("GET => /posts - return post0 with 3 likes, 3 dislike from user0 authed", () => {
+  it("GET => /posts - return post0 with 3 likes, 3 dislike public request", () => {
     return request(app.getHttpServer())
       .get(`/posts`)
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
-      .set("Authorization", `Bearer ${users[0].accessToken}`)
       .expect(200)
       .then((res) => {
         // console.dir(res.body);
-        // expect(res.body.id).toBe(posts[0].id);
-        // expect(res.body.title).toBe(posts[0].input.title);
-        // expect(res.body.shortDescription).toBe(posts[0].input.shortDescription);
-        // expect(res.body.content).toBe(posts[0].input.content);
-        // expect(res.body.blogId).toBe(posts[0].blogId);
-        // expect(res.body.blogName).toBe(posts[0].blogName);
-        // expect(res.body.createdAt).toBe(posts[0].createdAt);
-        // expect(res.body.extendedLikesInfo.likesCount).toBe(4);
-        // expect(res.body.extendedLikesInfo.dislikesCount).toBe(1);
-        // expect(res.body.extendedLikesInfo.myStatus).toBe(LikesEnum.Dislike);
-        // expect(res.body.extendedLikesInfo.newestLikes.length).toBe(3);
-        // expect(res.body.extendedLikesInfo.newestLikes[0].addedAt).toBeTruthy();
-        // expect(res.body.extendedLikesInfo.newestLikes[0].userId).toBeTruthy();
-        // expect(res.body.extendedLikesInfo.newestLikes[0].login).toBeTruthy();
+        expect(res.body.pagesCount).toBe(1);
+        expect(res.body.page).toBe(1);
+        expect(res.body.pageSize).toBe(10);
+        expect(res.body.items.length).toBe(6);
+
+        expect(res.body.items[0].title).toBe(posts[5].input.title);
+        expect(res.body.items[0].shortDescription).toBe(
+          posts[5].input.shortDescription,
+        );
+        expect(res.body.items[0].content).toBe(posts[5].input.content);
+        expect(res.body.items[0].blogId).toBe(posts[5].blogId);
+        expect(res.body.items[0].blogName).toBe(posts[5].blogName);
+        // expect(res.body.items[0].createdAt).toBe(posts[5].createdAt);
+        expect(res.body.items[5].extendedLikesInfo.likesCount).toBe(3);
+        expect(res.body.items[5].extendedLikesInfo.dislikesCount).toBe(3);
+        expect(res.body.items[5].extendedLikesInfo.myStatus).toBe(
+          LikesEnum.None,
+        );
+        expect(res.body.items[5].extendedLikesInfo.newestLikes.length).toBe(3);
+        expect(
+          res.body.items[5].extendedLikesInfo.newestLikes[0].addedAt,
+        ).toBeTruthy();
+        expect(
+          res.body.items[5].extendedLikesInfo.newestLikes[0].userId,
+        ).toBeTruthy();
+        expect(
+          res.body.items[5].extendedLikesInfo.newestLikes[0].login,
+        ).toBeTruthy();
       });
   });
 
-  it("GET -> /blogs/:blogId/posts - get 6 posts", () => {
+  it("GET -> /blogs/:blogId/posts - get 6 posts auth user0", () => {
     return request(app.getHttpServer())
       .get(`/blogs/${blogs[0].id}/posts`)
       .set("Content-Type", "application/json")
@@ -192,21 +206,35 @@ describe("HW-19-3 (e2e)", () => {
       .set("Authorization", `Bearer ${users[0].accessToken}`)
       .expect(200)
       .then((res) => {
-        console.dir(res.body);
-        // expect(res.body.id).toBe(posts[0].id);
-        // expect(res.body.title).toBe(posts[0].input.title);
-        // expect(res.body.shortDescription).toBe(posts[0].input.shortDescription);
-        // expect(res.body.content).toBe(posts[0].input.content);
-        // expect(res.body.blogId).toBe(posts[0].blogId);
-        // expect(res.body.blogName).toBe(posts[0].blogName);
-        // expect(res.body.createdAt).toBe(posts[0].createdAt);
-        // expect(res.body.extendedLikesInfo.likesCount).toBe(4);
-        // expect(res.body.extendedLikesInfo.dislikesCount).toBe(1);
-        // expect(res.body.extendedLikesInfo.myStatus).toBe(LikesEnum.Dislike);
-        // expect(res.body.extendedLikesInfo.newestLikes.length).toBe(3);
-        // expect(res.body.extendedLikesInfo.newestLikes[0].addedAt).toBeTruthy();
-        // expect(res.body.extendedLikesInfo.newestLikes[0].userId).toBeTruthy();
-        // expect(res.body.extendedLikesInfo.newestLikes[0].login).toBeTruthy();
+        // console.dir(res.body);
+        expect(res.body.pagesCount).toBe(1);
+        expect(res.body.page).toBe(1);
+        expect(res.body.pageSize).toBe(10);
+        expect(res.body.items.length).toBe(6);
+
+        expect(res.body.items[0].title).toBe(posts[5].input.title);
+        expect(res.body.items[0].shortDescription).toBe(
+          posts[5].input.shortDescription,
+        );
+        expect(res.body.items[0].content).toBe(posts[5].input.content);
+        expect(res.body.items[0].blogId).toBe(posts[5].blogId);
+        expect(res.body.items[0].blogName).toBe(posts[5].blogName);
+        // expect(res.body.items[0].createdAt).toBe(posts[5].createdAt);
+        expect(res.body.items[5].extendedLikesInfo.likesCount).toBe(3);
+        expect(res.body.items[5].extendedLikesInfo.dislikesCount).toBe(3);
+        expect(res.body.items[5].extendedLikesInfo.myStatus).toBe(
+          LikesEnum.Dislike,
+        );
+        expect(res.body.items[5].extendedLikesInfo.newestLikes.length).toBe(3);
+        expect(
+          res.body.items[5].extendedLikesInfo.newestLikes[0].addedAt,
+        ).toBeTruthy();
+        expect(
+          res.body.items[5].extendedLikesInfo.newestLikes[0].userId,
+        ).toBeTruthy();
+        expect(
+          res.body.items[5].extendedLikesInfo.newestLikes[0].login,
+        ).toBeTruthy();
       });
   });
 });

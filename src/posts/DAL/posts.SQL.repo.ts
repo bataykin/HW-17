@@ -74,7 +74,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
   async getPostsPaginated(dto: PaginationPostsDto): Promise<PostEntity[]> {
     const result = await this.dataSource.query(
       `
-                SELECT *
+                SELECT posts.*
                 FROM posts
                 left join blogs on posts."blogId" = blogs.id
                 Where blogs."isBanned" = false
@@ -91,7 +91,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
   ): Promise<PostEntity[]> {
     const result = await this.dataSource.query(
       `
-                SELECT *
+                SELECT posts.*
                 FROM posts
                 left join blogs on posts."blogId" = blogs.id
                 Where blogs."isBanned" = false AND blogs.id = $1
@@ -198,10 +198,6 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     return result[0] ?? result;
   }
 
-  async setLikeStatus(postId: string, updateQuery: any) {
-    // return this.postModel.findByIdAndUpdate(postId, updateQuery, {new: true})
-  }
-
   async mapPostToView(
     post: PostEntity,
     user: UserEntity,
@@ -243,6 +239,15 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     `,
       [post.id],
     );
+
+    console.log({
+      extendedLikesInfo: {
+        likesCount: +likes[0]?.likesCount ?? 0,
+        dislikesCount: +likes[0]?.dislikesCount ?? 0,
+        myStatus: myStatus,
+        newestLikes: newLikes,
+      },
+    });
 
     return {
       id: post.id,
