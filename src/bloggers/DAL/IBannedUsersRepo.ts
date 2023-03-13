@@ -7,7 +7,7 @@ export const IBannedUsersRepoToken = Symbol("IBannedUsersRepoToken");
 export interface IBannedUsersRepo<GenericBannedUserType> {
   setBanStatus(userId: string, dto: BanUserByBlogDto & { banDate: Date }): void;
 
-  getBannedUserById(
+  getBannedUserByIdAtBlog(
     userId: string,
     blogId: string,
   ): Promise<BannedUsersEntity | null>;

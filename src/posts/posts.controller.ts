@@ -26,7 +26,7 @@ import { CreatePostCommand } from "./useCase/createPostHandler";
 import { PublicFindPostByIdQuery } from "./useCase/findPostByIdHandler";
 import { UpdateBlogCommand } from "./useCase/updatePostHandler";
 import { RemovePostCommand } from "./useCase/removePostHandler";
-import { GetCommentsByPostCommand } from "./useCase/getCommentsByPostHandler";
+import { GetCommentsByPostCommandPublic } from "./useCase/getCommentsByPostHandler";
 import { CreateCommentByPostCommand } from "./useCase/createCommentByPostHandler";
 import { SetLikeToPostCommand } from "./useCase/setLikeToPostHandler";
 import { ContentDto } from "../comments/dto/contentDto";
@@ -51,9 +51,8 @@ export class PostsController {
     @Request() req,
   ) {
     await this.findPostById(postId, req);
-    const accessToken = req.headers.authorization?.split(" ")[1];
     return this.queryBus.execute(
-      new GetCommentsByPostCommand(postId, dto, accessToken),
+      new GetCommentsByPostCommandPublic(postId, dto),
     );
   }
 
@@ -72,12 +71,6 @@ export class PostsController {
     return this.commandBus.execute(
       new CreateCommentByPostCommand(postId, dto.content, accessToken),
     );
-    // await this.postsService.findPostById(postId)
-    // const token = req.headers.authorization.split(' ')[1]
-    // const retrievedUserFromToken = await this.authService.retrieveUser(token)
-    // const userId = retrievedUserFromToken.sub
-    // const login = retrievedUserFromToken.username
-    // return this.commentsService.createCommentByPost(login, userId, postId, content)
   }
 
   //  QUERY  Returns posts with paging
@@ -89,14 +82,6 @@ export class PostsController {
     return this.queryBus.execute(
       new GetAllPostsCommand(paginationDto, accessToken),
     );
-    // if (req.headers.authorization) {
-    //     const token = req.headers.authorization.split(' ')[1]
-    //     const retrievedUserFromToken = await this.authService.retrieveUser(token)
-    //     const userId = retrievedUserFromToken.sub
-    //     const posts = await this.postsService.findAll(paginationDto, userId);
-    //     return posts
-    // } else
-    //     return this.postsService.findAll(paginationDto);
   }
 
   //  COMMAND  Create new post

@@ -166,11 +166,25 @@ describe("HW-18 - 5 (e2e)", () => {
         })
     );
   });
+  it("GET => /sa/blogs - return blog1", () => {
+    return request(app.getHttpServer())
+      .get(`/sa/blogs`)
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+      .expect(200)
+      .then((res) => {
+        // console.log(res.body);
+        expect(res.body.totalCount).toBe(1);
+        expect(res.body.items[0].id).toBe(blog1.id);
+        expect(res.body.items[0].name).toBe(blog1.input.name);
+        expect(res.body.items[0].description).toBe(blog1.input.description);
+        expect(res.body.items.length).toBe(1);
+        expect(Array.isArray(res.body.items)).toBeTruthy();
+      });
+  });
 
   it("GET => /sa/blogs - return blog1", () => {
-    // console.log(banUserDto);
-    // console.log(user1);
-    // console.log(user2);
     return request(app.getHttpServer())
       .get(
         `/sa/blogs?pageSize=5&pageNumber=1&searchNameTerm=Tim&sortDirection=asc&sortBy=name`,
@@ -180,13 +194,9 @@ describe("HW-18 - 5 (e2e)", () => {
       .set("Authorization", "Basic YWRtaW46cXdlcnR5")
       .expect(200)
       .then((res) => {
-        console.log(res.body);
-        expect(res.body.totalCount).toBe(1);
-        expect(res.body.items[0].id).toBe(blog1.id);
-        expect(res.body.items[0].name).toBe(blog1.input.name);
-        expect(res.body.items[0].description).toBe(blog1.input.description);
-        expect(res.body.items.length).toBe(1);
-        expect(Array.isArray(res.body.items)).toBeTruthy();
+        // console.log(res.body);
+        expect(res.body.totalCount).toBe(0);
+        expect(res.body.items.length).toBe(0);
       });
   });
 });

@@ -1,11 +1,18 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { LikeEntity } from "../../likes/entities/like.entity";
 import { UserEntity } from "../../users/entity/user.entity";
 import { PostEntity } from "../../posts/entities/post.entity";
 
-@Entity('comments')
+@Entity("comments")
 export class CommentEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()

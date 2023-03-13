@@ -33,5 +33,5 @@ export interface ILikesRepo<GenericRepoType> {
 
   mapLikesToCommentEntityToResponse(comment: CommentEntity, userId: string);
 
-  mapArrayCommentEntitiesToResponse(comments: CommentEntity[], userId?: string);
+  mapCommentsToResponsePublic(comments: CommentEntity[], userId?: string);
 }

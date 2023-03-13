@@ -9,7 +9,7 @@ import { UserEntity } from "../users/entity/user.entity";
 import { CommentEntity } from "./entities/comment.entity";
 import { ICommentsRepoToken } from "./DAL/ICommentsRepo";
 import { CqrsModule } from "@nestjs/cqrs";
-import { GetCommentByIdHandler } from "./useCase/getCommentByIdHandler";
+import { GetCommentByIdHandlerPublic } from "./useCase/getCommentByIdHandlerPublic";
 import { UpdateCommentHandler } from "./useCase/updateCommentCommand";
 import { RemoveCommentHandler } from "./useCase/removeCommentHandler";
 import { SetLikeStatusHandler } from "./useCase/setLikeStatusHandler";
@@ -21,7 +21,7 @@ import { LikesSQLRepo } from "../likes/DAL/likes.SQL.repo";
 import { CommentsSQLRepo } from "./DAL/comments.SQL.repo";
 
 const commentsRouteHandlers = [
-  GetCommentByIdHandler,
+  GetCommentByIdHandlerPublic,
   UpdateCommentHandler,
   RemoveCommentHandler,
   SetLikeStatusHandler,

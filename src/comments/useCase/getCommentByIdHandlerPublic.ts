@@ -6,16 +6,13 @@ import { ILikesRepo, ILikesRepoToken } from "../../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
 import { AuthService } from "../../auth/authService";
 
-export class GetCommentByIdQuery {
-  constructor(
-    public readonly commentId: string,
-    public readonly accessToken: string,
-  ) {}
+export class GetCommentByIdPublicQuery {
+  constructor(public readonly commentId: string) {}
 }
 
-@QueryHandler(GetCommentByIdQuery)
-export class GetCommentByIdHandler
-  implements IQueryHandler<GetCommentByIdQuery>
+@QueryHandler(GetCommentByIdPublicQuery)
+export class GetCommentByIdHandlerPublic
+  implements IQueryHandler<GetCommentByIdPublicQuery>
 {
   constructor(
     @Inject(ICommentsRepoToken)
@@ -25,24 +22,23 @@ export class GetCommentByIdHandler
     private readonly authService: AuthService,
   ) {}
 
-  async execute(query: GetCommentByIdQuery): Promise<any> {
-    const { commentId, accessToken } = query;
-    const retrievedUserFromToken = accessToken
-      ? await this.authService.retrieveUser(accessToken)
-      : undefined;
-    const userIdFromToken = retrievedUserFromToken
-      ? retrievedUserFromToken.userId
-      : undefined;
+  async execute(query: GetCommentByIdPublicQuery): Promise<any> {
+    const { commentId } = query;
 
     const comment = await this.commentsRepo.findCommentById(commentId);
     if (!comment) {
       throw new NotFoundException("net takogo commentId");
     }
-    const mappedComment =
-      await this.likesRepo.mapLikesToCommentEntityToResponse(
-        comment,
-        userIdFromToken,
-      );
+    const mappedComment = await this.commentsRepo.mapCommentToResponsePublic(
+      comment,
+    );
+    // const result = {
+    //   pagesCount: Math.ceil(docCount / +paging.pageSize),
+    //   page: +paging.pageNumber,
+    //   pageSize: +paging.pageSize,
+    //   totalCount: +docCount,
+    //   items: mappedBlogs,
+    // };
     return mappedComment;
   }
 }

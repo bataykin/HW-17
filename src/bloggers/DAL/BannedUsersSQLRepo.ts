@@ -53,7 +53,7 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<BannedUsersEntity> {
     return;
   }
 
-  async getBannedUserById(
+  async getBannedUserByIdAtBlog(
     userId: string,
     blogId: string,
   ): Promise<BannedUsersEntity> {
@@ -64,7 +64,7 @@ export class BannedUsersSQLRepo implements IBannedUsersRepo<BannedUsersEntity> {
       `,
       [blogId, userId],
     );
-    return res[0] ?? res;
+    return res[0] ?? null;
   }
 
   async getBannedUsersForBlogPaginated(

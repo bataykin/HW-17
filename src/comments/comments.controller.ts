@@ -12,12 +12,11 @@ import {
   Put,
   Request,
   UseGuards,
-  ValidationPipe,
 } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { LikeStatusEnum } from "../likes/LikeStatusEnum";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
-import { GetCommentByIdQuery } from "./useCase/getCommentByIdHandler";
+import { GetCommentByIdPublicQuery } from "./useCase/getCommentByIdHandlerPublic";
 import { UpdateCommentCommand } from "./useCase/updateCommentCommand";
 import { RemoveCommentCommand } from "./useCase/removeCommentHandler";
 import { SetLikeStatusCommand } from "./useCase/setLikeStatusHandler";
@@ -34,18 +33,11 @@ export class CommentsController {
   //
   @Get(":id")
   async getCommentById(
-    @Param(
-      "id",
-      new ValidationPipe({ dismissDefaultMessages: true }),
-      ParseUUIDPipe,
-    )
+    @Param("id", ParseUUIDPipe)
     commentId: string,
     @Request() req,
   ) {
-    const accessToken = req.headers.authorization?.split(" ")[1];
-    return this.queryBus.execute(
-      new GetCommentByIdQuery(commentId, accessToken),
-    );
+    return this.queryBus.execute(new GetCommentByIdPublicQuery(commentId));
   }
 
   //  COMMAND  Update existing post by Id with InputModel

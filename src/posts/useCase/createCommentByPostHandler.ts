@@ -25,6 +25,9 @@ import {
   IUsersQueryRepo,
   IUsersQueryRepoToken,
 } from "../../users/DAL/IUserQueryRepo";
+import { CommentViewPublicDTO } from "../../comments/dto/CommentViewPublicDTO";
+import { CommentToRepoDTO } from "../../comments/dto/CommentToRepoDTO";
+import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
 
 export class CreateCommentByPostCommand {
   constructor(
@@ -53,7 +56,9 @@ export class CreateCommentByPostHandler
     @Inject(IBannedUsersRepoToken)
     private readonly bannedUsersRepo: IBannedUsersRepo<BannedUsersEntity>,
   ) {}
-  async execute(command: CreateCommentByPostCommand): Promise<any> {
+  async execute(
+    command: CreateCommentByPostCommand,
+  ): Promise<CommentViewPublicDTO> {
     const { content, accessToken, postId } = command;
     const retrievedUserFromToken = await this.authService.retrieveUser(
       accessToken,
@@ -68,7 +73,7 @@ export class CreateCommentByPostHandler
 
     const post = await this.postsRepo.findPostById(postId);
     const blog = await this.blogsRepo.findBlogById(post.blogId);
-    const bannedAtBlog = await this.bannedUsersRepo.getBannedUserById(
+    const bannedAtBlog = await this.bannedUsersRepo.getBannedUserByIdAtBlog(
       userIdFromToken,
       blog.id,
     );
@@ -77,35 +82,28 @@ export class CreateCommentByPostHandler
         "banned user by blogger cant comment posts of current blog",
       );
     }
-    // const login = retrievedUserFromToken.username
-    // return this.commentsService.createCommentByPost(login, userId, postId, content)
-
-    // console.log(retrievedUserFromToken)
-    const comment = {
+    const commentDraft: CommentToRepoDTO = {
       content: content,
       userId: retrievedUserFromToken.userId,
       userLogin: retrievedUserFromToken.username,
-      addedAt: new Date(),
-
-      postId: command.postId,
+      postId: postId,
     };
-    const createdComment = await this.commentsRepo.createComment(comment);
-    const { userId, userLogin, createdAt, id } = createdComment;
-    const res = {
-      id,
-      content,
+    const createdComment = await this.commentsRepo.createComment(commentDraft);
+    const res: CommentViewPublicDTO = {
+      id: createdComment.id,
+      content: createdComment.content,
       commentatorInfo: {
-        userId,
-        userLogin,
+        userId: commentDraft.userId,
+        userLogin: commentDraft.userLogin,
       },
-      createdAt,
+      createdAt: createdComment.createdAt,
       likesInfo: {
         likesCount: 0,
         dislikesCount: 0,
-        myStatus: "None",
+        myStatus: LikeStatusEnum.None,
       },
     };
 
-    return Promise.resolve(res);
+    return res;
   }
 }

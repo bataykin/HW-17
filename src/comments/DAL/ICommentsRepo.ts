@@ -1,32 +1,45 @@
-import { CreateCommentDto } from "../dto/create-comment.dto";
 import { PaginationCommentsDto } from "../dto/paginationCommentsDto";
-import { CommentEntity } from "../entities/comment.entity";
 import { BlogsPaginationDto } from "../../bloggers/dto/blogsPaginationDto";
-import { CommentViewDtoForBlogger } from "../dto/commentViewDtoForBlogger";
+import { CommentToRepoDTO } from "../dto/CommentToRepoDTO";
+import { CommentViewPublicDTO } from "../dto/CommentViewPublicDTO";
 
 export const ICommentsRepoToken = Symbol("ICommentsRepoToken");
 
 export interface ICommentsRepo<GenericCommentType> {
-  createComment(comment: CreateCommentDto): Promise<CommentEntity>;
+  createComment(comment: CommentToRepoDTO): Promise<GenericCommentType>;
 
-  findCommentById(commentId: string);
+  findCommentById(commentId: string): Promise<GenericCommentType | null>;
 
-  getCommentsByPost(postId: string, dto: PaginationCommentsDto);
+  getCommentsByPost(
+    postId: string,
+    dto: PaginationCommentsDto,
+  ): Promise<GenericCommentType[]>;
 
   updateComment(commentId: string, content: string);
 
   deleteComment(commentId: string);
 
-  countComments(postId: string);
+  countCommentsOnPost(
+    postId: string,
+    dto: PaginationCommentsDto,
+  ): Promise<number>;
 
   getAllCommentByBlog(
     userId: string,
     dto: BlogsPaginationDto,
-  ): Promise<CommentEntity[]>;
+  ): Promise<GenericCommentType[]>;
+
+  mapCommentsToResponsePublic(
+    allComments: GenericCommentType[],
+  ): Promise<CommentViewPublicDTO[]>;
+
+  mapCommentToResponsePublic(
+    comment: GenericCommentType,
+  ): Promise<CommentViewPublicDTO>;
+
+  countAllCommentsForAllUserBlogs(userId: string): Promise<number>;
 
   mapCommentsToResponse(
-    allComments: CommentEntity[],
-  ): Promise<CommentViewDtoForBlogger[]>;
-
-  countAllCommentsForAllUserBlogs(userId: string);
+    allComments: GenericCommentType[],
+  ): Promise<CommentViewPublicDTO[]>;
 }
