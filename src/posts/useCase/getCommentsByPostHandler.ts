@@ -51,9 +51,9 @@ export class GetCommentsByPostHandler
       paging,
     );
     const result = {
-      pagesCount: Math.ceil(docCount / paging.pageSize),
-      page: paging.pageNumber,
-      pageSize: paging.pageSize,
+      pagesCount: Math.ceil(+docCount / +paging.pageSize),
+      page: +paging.pageNumber,
+      pageSize: +paging.pageSize,
       totalCount: +docCount,
       items: mappedComments,
     };

@@ -9,6 +9,7 @@ import { PostEntity } from "../entities/post.entity";
 import { BlogEntity } from "../../bloggers/entities/blogEntity";
 import { PostViewModel } from "../dto/PostViewModel";
 import { PaginationPostsDto } from "../dto/pagination.posts.dto";
+import { LikesEnum } from "../entities/likes.enum";
 
 @Injectable()
 export class PostsSQLRepo implements IPostsRepo<PostEntity> {
@@ -251,6 +252,29 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
   }
 
   async mapPostToView(post: PostEntity): Promise<PostViewModel> {
+    const likes = await this.dataSource.query(
+      `
+    select 
+    sum( case when reaction = '${LikesEnum.Like}' then 1 else 0 end) as "likesCount",
+    sum( case when reaction = '${LikesEnum.Dislike}' then 1 else 0 end) as "dislikesCount"
+    from likes
+    where "postId" = $1
+    `,
+      [post.id],
+    );
+
+    const newLikes = await this.dataSource.query(
+      `
+    select likes."addedAt", likes."userId", users.login
+    from likes
+    left join users on users.id = likes."userId"
+    where "postId" = $1 AND "reaction" = '${LikeStatusEnum.Like}'
+    order by "updatedAt" desc
+    LIMIT 3
+    `,
+      [post.id],
+    );
+
     return {
       id: post.id,
       title: post.title,
@@ -260,10 +284,10 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
       blogName: post.blogName,
       createdAt: post.createdAt,
       extendedLikesInfo: {
-        likesCount: 0,
-        dislikesCount: 0,
+        likesCount: +likes[0]?.likesCount ?? 0,
+        dislikesCount: +likes[0]?.dislikesCount ?? 0,
         myStatus: LikeStatusEnum.None,
-        newestLikes: [],
+        newestLikes: newLikes,
       },
     };
   }

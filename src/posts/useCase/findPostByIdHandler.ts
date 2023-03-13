@@ -27,7 +27,8 @@ export class FindPostByIdHandler
     if (!post) {
       throw new NotFoundException("net takogo posta");
     }
-    const mappedPostWithLikes = await this.postsRepo.mapPostToView(post);
+    const mappedPostWithLikes: PostViewModel =
+      await this.postsRepo.mapPostToView(post);
 
     return mappedPostWithLikes;
   }
