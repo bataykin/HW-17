@@ -87,8 +87,29 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
   async getBlogsPaginatedPublic(
     dto: BlogsPaginationDto,
   ): Promise<BlogEntity[] | null> {
-    const result = await this.dataSource.query(
-      `
+    const result =
+      dto.sortBy == "createdAt"
+        ? await this.dataSource.query(
+            `
+                SELECT * 
+                FROM blogs
+                WHERE 
+                     
+                case 
+                when $3::text is null then true 
+                when $3::text is not null then (upper("name") ~ $3::text)
+                end 
+                
+                AND "isBanned" = false
+                
+                
+                ORDER BY  "${dto.sortBy}"     ${dto.sortDirection}
+                LIMIT $1 OFFSET $2;
+                    `,
+            [dto.pageSize, dto.skipSize, dto.searchNameTerm as string | null],
+          )
+        : await this.dataSource.query(
+            `
                 SELECT * 
                 FROM blogs
                 WHERE 
@@ -104,8 +125,8 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                 ORDER BY  "${dto.sortBy}" collate "C"     ${dto.sortDirection}
                 LIMIT $1 OFFSET $2;
                     `,
-      [dto.pageSize, dto.skipSize, dto.searchNameTerm as string | null],
-    );
+            [dto.pageSize, dto.skipSize, dto.searchNameTerm as string | null],
+          );
     return result ?? null;
   }
 
