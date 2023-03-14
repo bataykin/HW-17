@@ -90,6 +90,8 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
                 left join blogs on blogs.id = posts."blogId"
                 left join users on users.id = comments."userId"
                 WHERE blogs."userId" = $1 and users."isBanned" = false
+                order by "${dto.sortBy}" ${dto.sortDirection}
+                limit ${dto.pageSize} offset ${dto.skipSize}
                     `,
       [userId],
     );
