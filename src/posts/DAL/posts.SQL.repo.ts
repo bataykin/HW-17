@@ -223,7 +223,8 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     sum( case when reaction = '${LikesEnum.Like}' then 1 else 0 end) as "likesCount",
     sum( case when reaction = '${LikesEnum.Dislike}' then 1 else 0 end) as "dislikesCount"
     from likes
-    where "postId" = $1
+    left join users on users.id = likes."userId"
+    where likes."postId" = $1 and users."isBanned" = false
     `,
       [post.id],
     );

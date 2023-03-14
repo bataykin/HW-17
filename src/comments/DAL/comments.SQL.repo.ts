@@ -44,7 +44,8 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
     sum( case when reaction = '${LikesEnum.Like}' then 1 else 0 end) as "likesCount",
     sum( case when reaction = '${LikesEnum.Dislike}' then 1 else 0 end) as "dislikesCount"
     from likes
-    where "commentId" = $1
+    left join users on users.id = likes."userId"
+    where likes."commentId" = $1 and users."isBanned" = false
     `,
       [comment.id],
     );
@@ -94,9 +95,10 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
     // return this.commentModel.findById(id)
     const result = await this.dataSource.query(
       `
-                SELECT *
+                SELECT comments.*
+                left join users on users.id = comments."userId"
                 FROM comments 
-                WHERE id = $1
+                WHERE comments.id = $1 and user."isBanned" = false
                     `,
       [commentId],
     );
