@@ -34,9 +34,8 @@ import { passRecoveryDto } from "./dto/passRecoveryDto";
 import { PasswordRecoveryCommand } from "./useCase/passwordRecoveryHandler";
 import { RenewPasswordDto } from "./dto/renewPasswordDto";
 import { RenewPasswordCommand } from "./useCase/renewPasswordHandler";
-import { SkipThrottle } from "@nestjs/throttler";
 
-@SkipThrottle()
+// @SkipThrottle()
 @Controller("auth")
 export class AuthController {
   constructor(
@@ -131,7 +130,7 @@ export class AuthController {
   @HttpCode(200)
   @Post("refresh-token")
   async refreshTokens(@Request() req, @Response({ passthrough: true }) res) {
-    const refToken = req.cookies.refreshToken;
+    const refToken = req.cookies?.refreshToken;
     const tokens = await this.commandBus.execute(
       new RefreshTokensCommand(
         refToken,
@@ -153,14 +152,6 @@ export class AuthController {
   async logout(@Request() req, @Response({ passthrough: true }) res) {
     const refToken = req.cookies.refreshToken;
     return await this.commandBus.execute(new LogoutCommand(refToken));
-    // const checkedToken = await this.authService.getTokenFromDB(refToken)
-    // console.log(checkedToken.isValid)
-    // const retrievedUserFromToken = await this.authService.retrieveUser(refToken)
-    // if (!retrievedUserFromToken || !checkedToken.isValid ) {
-    //     throw new UnauthorizedException('token vsyo')
-    // }
-    // await this.authService.logoutUser(refToken)
-    // return true
   }
 
   @HttpCode(200)
@@ -169,8 +160,5 @@ export class AuthController {
   async aboutMe(@Request() req) {
     const token = req.headers.authorization.split(" ")[1];
     return this.queryBus.execute(new AboutMeCommand(token));
-    // // const userId = await this.jwtService.getUserIdByToken(token)
-    // const retrievedUserFromToken = await this.authService.retrieveUser(token)
-    // return this.authService.aboutMe(retrievedUserFromToken.sub)
   }
 }

@@ -8,7 +8,7 @@ import { DeviceEntity } from "../../device/entities/device.entity";
 
 export class RefreshTokensCommand {
   constructor(
-    public readonly reftoken: any,
+    public readonly reftoken: string,
     public readonly title: string,
     public readonly ip: string,
   ) {}
