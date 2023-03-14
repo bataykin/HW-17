@@ -8,6 +8,9 @@ import { CommentToRepoDTO } from "../dto/CommentToRepoDTO";
 import { PaginationBasicDto } from "../dto/paginationBasicDto";
 import { BlogsPaginationDto } from "src/bloggers/dto/blogsPaginationDto";
 import { CommentViewPublicDTO } from "../dto/CommentViewPublicDTO";
+import { UserEntity } from "../../users/entity/user.entity";
+import { LikesEnum } from "../../posts/entities/likes.enum";
+import { CommentViewForBloggerDTO } from "../../bloggers/dto/CommentViewForBloggerDTO";
 
 @Injectable()
 export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
@@ -18,17 +21,34 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
 
   async mapCommentToResponsePublic(
     comment: CommentEntity,
+    user: UserEntity | null,
   ): Promise<CommentViewPublicDTO> {
+    const myStatus: LikeStatusEnum = user
+      ? await this.dataSource
+          .query(
+            `
+          select 
+          reaction
+          from likes
+         
+          where "commentId" = $1 and "userId" = $2
+    `,
+            [comment.id, user.id],
+          )
+          .then((res) => res[0]?.reaction ?? LikeStatusEnum.None)
+      : LikesEnum.None;
+
     const likes = await this.dataSource.query(
       `
-        select * from likes
-        left join posts on posts.id = likes."postId"
-        left join blogs on blogs.id = posts."blogId"
-        where "commentId" = $1 
-        AND blogs."isBanned" = false
-   `,
+    select 
+    sum( case when reaction = '${LikesEnum.Like}' then 1 else 0 end) as "likesCount",
+    sum( case when reaction = '${LikesEnum.Dislike}' then 1 else 0 end) as "dislikesCount"
+    from likes
+    where "commentId" = $1
+    `,
       [comment.id],
     );
+
     // console.log(likes);
     const result: CommentViewPublicDTO = {
       id: comment.id,
@@ -39,33 +59,21 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
       },
       createdAt: comment.createdAt,
       likesInfo: {
-        likesCount: 0,
-        dislikesCount: 0,
-        myStatus: LikeStatusEnum.None,
+        likesCount: +likes[0]?.likesCount ?? 0,
+        dislikesCount: +likes[0]?.dislikesCount ?? 0,
+        myStatus: myStatus,
       },
     };
     return result;
   }
 
-  async mapCommentsToResponse(
+  async mapCommentsToResponsePublic(
     allComments: CommentEntity[],
+    user: UserEntity | null,
   ): Promise<CommentViewPublicDTO[]> {
-    const mappedComments = [];
+    const mappedComments: CommentViewPublicDTO[] = [];
     for await (const comment of allComments) {
-      mappedComments.push({
-        id: comment.id,
-        content: comment.content,
-        commentatorInfo: {
-          userId: comment.userId,
-          userLogin: comment.userLogin,
-        },
-        createdAt: comment.createdAt,
-        likesInfo: {
-          likesCount: 0,
-          dislikesCount: 0,
-          myStatus: LikeStatusEnum.None,
-        },
-      });
+      mappedComments.push(await this.mapCommentToResponsePublic(comment, user));
     }
     return mappedComments;
   }
@@ -76,35 +84,13 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
   ): Promise<CommentEntity[]> {
     throw new Error("Method not implemented.");
   }
-  async mapCommentsToResponsePublic(
-    allComments: CommentEntity[],
-  ): Promise<CommentViewPublicDTO[]> {
-    const mappedComments = [];
-    for await (const comment of allComments) {
-      mappedComments.push({
-        id: comment.id,
-        content: comment.content,
-        commentatorInfo: {
-          userId: comment.userId,
-          userLogin: comment.userLogin,
-        },
-        createdAt: comment.createdAt,
-        likesInfo: {
-          likesCount: 0,
-          dislikesCount: 0,
-          myStatus: LikeStatusEnum.None,
-        },
-      });
-    }
-    return mappedComments;
-  }
   async countAllCommentsForAllUserBlogs(userId: string): Promise<number> {
     throw new Error("Method not implemented.");
   }
 
   //// ORIGINAL FUNCTIONS ////
 
-  async findCommentById(id: string) {
+  async findCommentById(commentId: string) {
     // return this.commentModel.findById(id)
     const result = await this.dataSource.query(
       `
@@ -112,7 +98,7 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
                 FROM comments 
                 WHERE id = $1
                     `,
-      [id],
+      [commentId],
     );
     return result[0] ?? null;
   }
@@ -191,5 +177,30 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
       [commentId],
     );
     return result;
+  }
+
+  async mapCommentsToResponseForBlogger(
+    allComments: CommentEntity[],
+  ): Promise<CommentViewForBloggerDTO[]> {
+    const mappedComments: CommentViewForBloggerDTO[] = [];
+    for await (const comment of allComments) {
+      mappedComments.push({
+        id: comment.id,
+        content: comment.content,
+        commentatorInfo: {
+          userId: comment.userId,
+          userLogin: comment.userLogin,
+        },
+        createdAt: comment.createdAt,
+        postInfo: {
+          id: comment.postId,
+          title: comment.post.title,
+          blogId: comment.post.blogId,
+          blogName: comment.post.blogName,
+        },
+      });
+    }
+
+    return mappedComments;
   }
 }

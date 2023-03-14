@@ -240,15 +240,6 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
       [post.id],
     );
 
-    console.log({
-      extendedLikesInfo: {
-        likesCount: +likes[0]?.likesCount ?? 0,
-        dislikesCount: +likes[0]?.dislikesCount ?? 0,
-        myStatus: myStatus,
-        newestLikes: newLikes,
-      },
-    });
-
     return {
       id: post.id,
       title: post.title,

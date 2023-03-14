@@ -51,8 +51,10 @@ export class PostsController {
     @Request() req,
   ) {
     await this.findPostById(postId, req);
+    const accessToken = req.headers.authorization?.split(" ")[1];
+
     return this.queryBus.execute(
-      new GetCommentsByPostCommandPublic(postId, dto),
+      new GetCommentsByPostCommandPublic(postId, dto, accessToken),
     );
   }
 

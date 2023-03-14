@@ -2,6 +2,8 @@ import { PaginationBasicDto } from "../dto/paginationBasicDto";
 import { BlogsPaginationDto } from "../../bloggers/dto/blogsPaginationDto";
 import { CommentToRepoDTO } from "../dto/CommentToRepoDTO";
 import { CommentViewPublicDTO } from "../dto/CommentViewPublicDTO";
+import { UserEntity } from "../../users/entity/user.entity";
+import { CommentViewForBloggerDTO } from "../../bloggers/dto/CommentViewForBloggerDTO";
 
 export const ICommentsRepoToken = Symbol("ICommentsRepoToken");
 
@@ -28,15 +30,17 @@ export interface ICommentsRepo<GenericCommentType> {
 
   mapCommentsToResponsePublic(
     allComments: GenericCommentType[],
+    user: UserEntity | null,
   ): Promise<CommentViewPublicDTO[]>;
 
   mapCommentToResponsePublic(
     comment: GenericCommentType,
+    user: UserEntity | null,
   ): Promise<CommentViewPublicDTO>;
 
   countAllCommentsForAllUserBlogs(userId: string): Promise<number>;
 
-  mapCommentsToResponse(
+  mapCommentsToResponseForBlogger(
     allComments: GenericCommentType[],
-  ): Promise<CommentViewPublicDTO[]>;
+  ): Promise<CommentViewForBloggerDTO[]>;
 }

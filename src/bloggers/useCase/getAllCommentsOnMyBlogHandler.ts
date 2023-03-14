@@ -14,6 +14,9 @@ import {
   IUsersQueryRepo,
   IUsersQueryRepoToken,
 } from "../../users/DAL/IUserQueryRepo";
+import { PaginatorModel } from "../../common/PaginatorModel";
+import { CommentViewForBloggerDTO } from "../dto/CommentViewForBloggerDTO";
+import { PaginationBasicDto } from "../../comments/dto/paginationBasicDto";
 
 export class GetAllCommentsOnMyBlogCommand {
   constructor(
@@ -34,7 +37,9 @@ export class GetAllCommentsOnMyBlogHandler
     @Inject(ILikesRepoToken)
     private readonly likesRepo: ILikesRepo<LikeEntity>,
   ) {}
-  async execute(query: GetAllCommentsOnMyBlogCommand): Promise<any> {
+  async execute(
+    query: GetAllCommentsOnMyBlogCommand,
+  ): Promise<PaginatorModel<CommentViewForBloggerDTO[]>> {
     const { dto, accessToken } = query;
     const retrievedUserFromToken = await this.authService.retrieveUser(
       accessToken,
@@ -47,33 +52,21 @@ export class GetAllCommentsOnMyBlogHandler
     const isBanned = await this.usersQueryRepo.getBanStatus(userIdFromToken);
     if (isBanned) throw new UnauthorizedException("user is banned, sorry))");
 
-    const {
-      pageNumber = 1,
-      pageSize = 10,
-      sortBy = "createdAt",
-      sortDirection = "desc",
-      skipSize = +pageNumber > 1 ? +pageSize * (+pageNumber - 1) : 0,
-    } = query.dto;
-    const commentsPaginationBLLdto = {
-      pageNumber,
-      pageSize,
-      sortBy,
-      sortDirection,
-      skipSize,
+    const paging: PaginationBasicDto = {
+      sortBy: dto.sortBy ?? "createdAt",
+      sortDirection: dto.sortDirection ?? "desc",
+      pageNumber: dto.pageNumber ?? 1,
+      pageSize: dto.pageSize ?? 10,
+      skipSize: dto.pageNumber > 1 ? dto.pageSize * (dto.pageNumber - 1) : 0,
     };
 
     const allComments = await this.commentsRepo.getAllCommentByBlog(
       userIdFromToken,
-      commentsPaginationBLLdto,
+      paging,
     );
-    // console.log('getAllCommentByBlog');
-    // console.log(allComments);
 
-    // const mappedComments =
-    //   await this.likesRepo.mapArrayCommentEntitiesToResponse(allComments);
-    const mappedComments = await this.commentsRepo.mapCommentsToResponse(
-      allComments,
-    );
+    const mappedComments =
+      await this.commentsRepo.mapCommentsToResponseForBlogger(allComments);
     // console.log(mappedComments);
 
     const docCount = await this.commentsRepo.countAllCommentsForAllUserBlogs(
@@ -81,10 +74,10 @@ export class GetAllCommentsOnMyBlogHandler
     );
 
     const result = {
-      pagesCount: Math.ceil(docCount / +pageSize),
-      page: +pageNumber,
-      pageSize: +pageSize,
-      totalCount: docCount,
+      pagesCount: Math.ceil(docCount / +paging.pageSize),
+      page: +paging.pageNumber,
+      pageSize: +paging.pageSize,
+      totalCount: +docCount,
       items: mappedComments,
     };
     // console.log(result);

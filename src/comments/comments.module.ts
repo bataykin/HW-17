@@ -19,6 +19,8 @@ import { IUsersRepoToken } from "../users/DAL/IUsersRepo";
 import { UsersSQLRepo } from "../users/DAL/users.SQL.repo";
 import { LikesSQLRepo } from "../likes/DAL/likes.SQL.repo";
 import { CommentsSQLRepo } from "./DAL/comments.SQL.repo";
+import { IUsersQueryRepoToken } from "../users/DAL/IUserQueryRepo";
+import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
 
 const commentsRouteHandlers = [
   GetCommentByIdHandlerPublic,
@@ -50,6 +52,10 @@ const commentsRouteHandlers = [
     {
       provide: IUsersRepoToken,
       useClass: UsersSQLRepo,
+    },
+    {
+      provide: IUsersQueryRepoToken,
+      useClass: UsersSQLQueryRepo,
     },
 
     CommentsCheckUriBeforeBodyMiddleware,

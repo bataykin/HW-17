@@ -13,7 +13,7 @@ import { UserEntity } from "../../users/entity/user.entity";
 
 @Entity({ name: "likes" })
 @Unique("pk_likes_user_post", ["userId", "postId"])
-@Unique("pl_likes_user_comment", ["userId", "commentId"])
+@Unique("pk_likes_user_comment", ["userId", "commentId"])
 export class LikeEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string;

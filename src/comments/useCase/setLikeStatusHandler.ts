@@ -1,14 +1,17 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
 import { Inject, UnauthorizedException } from "@nestjs/common";
-import { AuthService } from "../../auth/authService";
 import { ILikesRepo, ILikesRepoToken } from "../../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
-import { IUsersRepoToken } from "../../users/DAL/IUsersRepo";
 import { UserEntity } from "../../users/entity/user.entity";
-import { IUsersQueryRepo } from "../../users/DAL/IUserQueryRepo";
+import {
+  IUsersQueryRepo,
+  IUsersQueryRepoToken,
+} from "../../users/DAL/IUserQueryRepo";
+import { JwtService } from "@nestjs/jwt";
+import { jwtConstants } from "../../auth/constants";
 
-export class SetLikeStatusCommand {
+export class SetLikeStatusCommentCommand {
   constructor(
     public readonly commentId: string,
     public readonly likeStatus: LikeStatusEnum,
@@ -16,38 +19,38 @@ export class SetLikeStatusCommand {
   ) {}
 }
 
-@CommandHandler(SetLikeStatusCommand)
+@CommandHandler(SetLikeStatusCommentCommand)
 export class SetLikeStatusHandler
-  implements ICommandHandler<SetLikeStatusCommand>
+  implements ICommandHandler<SetLikeStatusCommentCommand>
 {
   constructor(
     /*@Inject(ICommentsRepoToken)
                 private readonly commentsRepo: ICommentsRepo<CommentEntity>,*/
     @Inject(ILikesRepoToken)
     private readonly likesRepo: ILikesRepo<LikeEntity>,
-    private readonly authService: AuthService,
-    @Inject(IUsersRepoToken)
+    @Inject(IUsersQueryRepoToken)
     private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async execute(command: SetLikeStatusCommand): Promise<any> {
+  async execute(command: SetLikeStatusCommentCommand): Promise<void> {
     const { likeStatus, commentId, accessToken } = command;
     const retrievedUserFromToken = accessToken
-      ? await this.authService.retrieveUser(accessToken)
-      : undefined;
+      ? await this.jwtService.verify(accessToken, {
+          secret: jwtConstants.secret,
+        })
+      : null;
     const userIdFromToken = retrievedUserFromToken
-      ? retrievedUserFromToken.userId
-      : undefined;
-    const isBanned = await this.usersQueryRepo.getBanStatus(userIdFromToken);
-    if (isBanned) throw new UnauthorizedException("user is banned, sorry))");
-    const res = userIdFromToken
-      ? await this.likesRepo.addReactionToComment(
-          userIdFromToken,
-          commentId,
-          likeStatus,
-        )
-      : undefined;
-
-    return res;
+      ? await this.usersQueryRepo.findById(retrievedUserFromToken.userId)
+      : null;
+    if (!userIdFromToken || userIdFromToken.isBanned) {
+      throw new UnauthorizedException("user unexpected");
+    }
+    await this.likesRepo.setLikeStatusToComment(
+      userIdFromToken.id,
+      commentId,
+      likeStatus,
+    );
+    return;
   }
 }

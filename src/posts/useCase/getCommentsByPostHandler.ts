@@ -11,11 +11,19 @@ import { LikeEntity } from "../../likes/entities/like.entity";
 import { PaginationBasicDto } from "../../comments/dto/paginationBasicDto";
 import { PaginatorModel } from "../../common/PaginatorModel";
 import { CommentViewPublicDTO } from "../../comments/dto/CommentViewPublicDTO";
+import { jwtConstants } from "../../auth/constants";
+import {
+  IUsersQueryRepo,
+  IUsersQueryRepoToken,
+} from "../../users/DAL/IUserQueryRepo";
+import { UserEntity } from "../../users/entity/user.entity";
+import { JwtService } from "@nestjs/jwt";
 
 export class GetCommentsByPostCommandPublic {
   constructor(
     public readonly postId: string,
     public readonly dto: PaginationPostsDto,
+    public readonly accessToken: string,
   ) {}
 }
 
@@ -28,13 +36,23 @@ export class GetCommentsByPostHandler
     private readonly commentsRepo: ICommentsRepo<CommentEntity>,
     @Inject(ILikesRepoToken)
     private readonly likesRepo: ILikesRepo<LikeEntity>,
+    @Inject(IUsersQueryRepoToken)
+    private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async execute(
     query: GetCommentsByPostCommandPublic,
   ): Promise<PaginatorModel<CommentViewPublicDTO[]>> {
-    const { postId, dto } = query;
-    // console.log(accessToken)
+    const { postId, dto, accessToken } = query;
+    const retrievedUserFromToken = accessToken
+      ? await this.jwtService.verify(accessToken, {
+          secret: jwtConstants.secret,
+        })
+      : null;
+    const userIdFromToken = retrievedUserFromToken
+      ? await this.usersQueryRepo.findById(retrievedUserFromToken.userId)
+      : null;
 
     const paging: PaginationBasicDto = {
       sortBy: dto.sortBy ?? "createdAt",
@@ -45,7 +63,10 @@ export class GetCommentsByPostHandler
     };
     const comments = await this.commentsRepo.getCommentsByPost(postId, paging);
     const mappedComments: CommentViewPublicDTO[] =
-      await this.commentsRepo.mapCommentsToResponsePublic(comments);
+      await this.commentsRepo.mapCommentsToResponsePublic(
+        comments,
+        userIdFromToken,
+      );
     const docCount = await this.commentsRepo.countCommentsOnPost(
       postId,
       paging,

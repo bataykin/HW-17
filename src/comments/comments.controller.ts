@@ -19,7 +19,7 @@ import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { GetCommentByIdPublicQuery } from "./useCase/getCommentByIdHandlerPublic";
 import { UpdateCommentCommand } from "./useCase/updateCommentCommand";
 import { RemoveCommentCommand } from "./useCase/removeCommentHandler";
-import { SetLikeStatusCommand } from "./useCase/setLikeStatusHandler";
+import { SetLikeStatusCommentCommand } from "./useCase/setLikeStatusHandler";
 import { ContentDto } from "./dto/contentDto";
 import { SkipThrottle } from "@nestjs/throttler";
 
@@ -39,7 +39,10 @@ export class CommentsController {
     commentId: string,
     @Request() req,
   ) {
-    return this.queryBus.execute(new GetCommentByIdPublicQuery(commentId));
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    return this.queryBus.execute(
+      new GetCommentByIdPublicQuery(commentId, accessToken),
+    );
   }
 
   //  COMMAND  Update existing post by Id with InputModel
@@ -57,13 +60,6 @@ export class CommentsController {
     return this.commandBus.execute(
       new UpdateCommentCommand(commentId, content.content, req.user),
     );
-    // await this.commentsService.getCommentById(commentId)
-    // if (req.headers.authorization) {
-    //     const token = req.headers.authorization.split(' ')[1]
-    //     const retrievedUserFromToken = await this.authService.retrieveUser(token)
-    //     const userId = retrievedUserFromToken.sub
-    //     return this.commentsService.updateCommentById(userId, commentId, content);
-    // } else return this.commentsService.updateCommentById( commentId, content);
   }
 
   //  COMMAND  Delete comment specified by Id
@@ -80,13 +76,6 @@ export class CommentsController {
     return this.commandBus.execute(
       new RemoveCommentCommand(commentId, req.user),
     );
-    // await this.commentsService.getCommentById(commentId)
-    // if (req.headers.authorization) {
-    //     const token = req.headers.authorization.split(' ')[1]
-    //     const retrievedUserFromToken = await this.authService.retrieveUser(token)
-    //     const userId = retrievedUserFromToken.sub
-    //     return this.commentsService.removeCommentById( commentId, userId);
-    // } else return this.commentsService.removeCommentById( commentId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -112,12 +101,7 @@ export class CommentsController {
     await this.getCommentById(commentId, req);
     const accessToken = req.headers.authorization?.split(" ")[1];
     return await this.commandBus.execute(
-      new SetLikeStatusCommand(commentId, likeStatus, accessToken),
+      new SetLikeStatusCommentCommand(commentId, likeStatus, accessToken),
     );
-    // await this.commentsService.getCommentById(commentId)
-    // const token = req.headers.authorization.split(' ')[1]
-    // const retrievedUserFromToken = await this.authService.retrieveUser(token)
-    // const userId = retrievedUserFromToken.sub
-    // return this.commentsService.setLikeStatus(userId, commentId, likeStatus)
   }
 }

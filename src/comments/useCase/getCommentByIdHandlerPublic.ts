@@ -4,10 +4,20 @@ import { ICommentsRepo, ICommentsRepoToken } from "../DAL/ICommentsRepo";
 import { CommentEntity } from "../entities/comment.entity";
 import { ILikesRepo, ILikesRepoToken } from "../../likes/DAL/ILikesRepo";
 import { LikeEntity } from "../../likes/entities/like.entity";
-import { AuthService } from "../../auth/authService";
+import {
+  IUsersQueryRepo,
+  IUsersQueryRepoToken,
+} from "../../users/DAL/IUserQueryRepo";
+import { UserEntity } from "../../users/entity/user.entity";
+import { JwtService } from "@nestjs/jwt";
+import { jwtConstants } from "../../auth/constants";
+import { CommentViewPublicDTO } from "../dto/CommentViewPublicDTO";
 
 export class GetCommentByIdPublicQuery {
-  constructor(public readonly commentId: string) {}
+  constructor(
+    public readonly commentId: string,
+    public readonly accessToken: string,
+  ) {}
 }
 
 @QueryHandler(GetCommentByIdPublicQuery)
@@ -19,11 +29,23 @@ export class GetCommentByIdHandlerPublic
     private readonly commentsRepo: ICommentsRepo<CommentEntity>,
     @Inject(ILikesRepoToken)
     private readonly likesRepo: ILikesRepo<LikeEntity>,
-    private readonly authService: AuthService,
+    @Inject(IUsersQueryRepoToken)
+    private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async execute(query: GetCommentByIdPublicQuery): Promise<any> {
-    const { commentId } = query;
+  async execute(
+    query: GetCommentByIdPublicQuery,
+  ): Promise<CommentViewPublicDTO> {
+    const { commentId, accessToken } = query;
+    const retrievedUserFromToken = accessToken
+      ? await this.jwtService.verify(accessToken, {
+          secret: jwtConstants.secret,
+        })
+      : null;
+    const userIdFromToken = retrievedUserFromToken
+      ? await this.usersQueryRepo.findById(retrievedUserFromToken.userId)
+      : null;
 
     const comment = await this.commentsRepo.findCommentById(commentId);
     if (!comment) {
@@ -31,6 +53,7 @@ export class GetCommentByIdHandlerPublic
     }
     const mappedComment = await this.commentsRepo.mapCommentToResponsePublic(
       comment,
+      userIdFromToken,
     );
     // const result = {
     //   pagesCount: Math.ceil(docCount / +paging.pageSize),
