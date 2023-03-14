@@ -7,6 +7,7 @@ import { AuthService } from "../../auth/authService";
 import { IUsersRepo, IUsersRepoToken } from "../../users/DAL/IUsersRepo";
 import { UserEntity } from "../../users/entity/user.entity";
 import { BlogViewModel } from "../dto/BlogViewModel";
+import { PaginatorModel } from "../../common/PaginatorModel";
 
 export class GetAllBlogsQuery {
   constructor(public readonly dto: BlogsPaginationDto) {}
@@ -24,7 +25,9 @@ export class GetAllBlogsPublicHandler
     private readonly usersRepo: IUsersRepo<UserEntity>,
   ) {}
 
-  async execute(query: GetAllBlogsQuery): Promise<any> {
+  async execute(
+    query: GetAllBlogsQuery,
+  ): Promise<PaginatorModel<BlogViewModel[]>> {
     const { dto } = query;
     const paging = {
       searchNameTerm: dto.searchNameTerm?.toUpperCase() ?? null,
@@ -36,8 +39,7 @@ export class GetAllBlogsPublicHandler
     } as BlogsPaginationDto;
 
     const blogs = await this.blogsRepo.getBlogsPaginatedPublic(paging);
-    // const blogs = await this.blogsRepo.getBlogsPaginated(blogsPaginationBLLdto)
-    // const mappedBlogs = await this.blogsRepo.mapBlogsWithOwnersToResponse(blogs)
+
     const mappedBlogs: BlogViewModel[] =
       await this.blogsRepo.mapBlogsToResponse(blogs);
     const docCount = await this.blogsRepo.countBlogsBySearchnamePublic(

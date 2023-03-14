@@ -89,16 +89,28 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     dto: PaginationPostsDto,
     blogId: string,
   ): Promise<PostEntity[]> {
-    const result = await this.dataSource.query(
-      `
+    const result =
+      dto.sortBy == "createdAt"
+        ? await this.dataSource.query(
+            `
                 SELECT posts.*
                 FROM posts
                 left join blogs on posts."blogId" = blogs.id
                 Where blogs."isBanned" = false AND blogs.id = $1
                 order by posts."${dto.sortBy}" ${dto.sortDirection}
                     `,
-      [blogId],
-    );
+            [blogId],
+          )
+        : await this.dataSource.query(
+            `
+                SELECT posts.*
+                FROM posts
+                left join blogs on posts."blogId" = blogs.id
+                Where blogs."isBanned" = false AND blogs.id = $1
+                order by posts."${dto.sortBy}"::bytea ${dto.sortDirection}
+                    `,
+            [blogId],
+          );
     return result ?? null;
   }
 
