@@ -1,6 +1,5 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { Inject } from "@nestjs/common";
-import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { IPostsRepo, IPostsRepoToken } from "../../posts/DAL/IPostsRepo";
 import { PostEntity } from "../../posts/entities/post.entity";
 import { ILikesRepo, ILikesRepoToken } from "../../likes/DAL/ILikesRepo";
@@ -15,11 +14,12 @@ import { JwtService } from "@nestjs/jwt";
 import { PaginationBasicDto } from "../../comments/dto/paginationBasicDto";
 import { PaginatorModel } from "../../common/PaginatorModel";
 import { PostViewModel } from "../../posts/dto/PostViewModel";
+import { PaginationPostsDto } from "../../posts/dto/pagination.posts.dto";
 
 export class GetPostsByBlogQueryPublic {
   constructor(
     public readonly blogId: string,
-    public readonly dto: BlogsPaginationDto,
+    public readonly dto: PaginationPostsDto,
     public readonly accessToken: string,
   ) {}
 }
