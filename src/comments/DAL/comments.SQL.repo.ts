@@ -96,9 +96,9 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
     const result = await this.dataSource.query(
       `
                 SELECT comments.*
-                left join users on users.id = comments."userId"
                 FROM comments 
-                WHERE comments.id = $1 and user."isBanned" = false
+                left join users on users.id = comments."userId"
+                WHERE comments.id = $1 and users."isBanned" = false
                     `,
       [commentId],
     );
