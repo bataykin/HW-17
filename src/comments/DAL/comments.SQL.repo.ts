@@ -233,7 +233,7 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
       [comment.id],
     );
     console.log(post[0]);
-    const result: CommentViewForBloggerDTO = {
+    const result = {
       id: comment.id,
       content: comment.content,
       commentatorInfo: {
@@ -246,6 +246,11 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
         title: post[0].title,
         blogName: post[0].blogName,
         blogId: post[0].blogId,
+      },
+      likesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: "None",
       },
     };
     return result;
