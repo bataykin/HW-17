@@ -234,7 +234,8 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     select likes."addedAt", likes."userId", users.login
     from likes
     left join users on users.id = likes."userId"
-    where "postId" = $1 AND "reaction" = '${LikeStatusEnum.Like}'
+    where likes."postId" = $1 AND likes."reaction" = '${LikeStatusEnum.Like}'
+    and users."isBanned" = false
     order by "updatedAt" desc
     LIMIT 3
     `,
