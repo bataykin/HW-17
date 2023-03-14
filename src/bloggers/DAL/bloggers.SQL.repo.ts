@@ -218,14 +218,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
   async mapBlogsToResponse(blogs: BlogEntity[]): Promise<BlogViewModel[]> {
     const mappedBlogs = [];
     for await (const blog of blogs) {
-      mappedBlogs.push({
-        id: blog.id,
-        name: blog.name,
-        description: blog.description,
-        websiteUrl: blog.websiteUrl,
-        createdAt: blog.createdAt,
-        isMembership: blog.isMembership,
-      });
+      mappedBlogs.push(await this.mapBlogToResponse(blog));
     }
 
     return mappedBlogs;
