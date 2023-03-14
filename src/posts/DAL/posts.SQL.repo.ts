@@ -100,7 +100,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
                 left join blogs on posts."blogId" = blogs.id
                 Where blogs."isBanned" = false AND blogs.id = $1
                 and posts.title ~ upper($2)
-                order by posts."${dto.sortBy}" collate 'C' ${dto.sortDirection}
+                order by posts."${dto.sortBy}" collate "C" ${dto.sortDirection}
                 LIMIT $3 offset $4
                     `,
             [blogId, dto.searchNameTerm, dto.pageSize, dto.skipSize],

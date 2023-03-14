@@ -101,7 +101,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
                 AND "isBanned" = false
                 
                 
-                ORDER BY  "${dto.sortBy}" collate 'C'     ${dto.sortDirection}
+                ORDER BY  "${dto.sortBy}" collate "C"     ${dto.sortDirection}
                 LIMIT $1 OFFSET $2;
                     `,
       [dto.pageSize, dto.skipSize, dto.searchNameTerm as string | null],
