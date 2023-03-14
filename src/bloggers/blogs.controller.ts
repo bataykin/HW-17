@@ -14,7 +14,9 @@ import { FindBlogPublicQuery } from "./useCase/findBlogPublicHandler";
 import { QueryBus } from "@nestjs/cqrs";
 import { GetAllBlogsQuery } from "./useCase/getAllBlogsPublic";
 import { PaginationBasicDto } from "../comments/dto/paginationBasicDto";
+import { SkipThrottle } from "@nestjs/throttler";
 
+@SkipThrottle()
 @Controller("blogs")
 export class BlogsController {
   constructor(private readonly queryBus: QueryBus) {}
@@ -34,6 +36,7 @@ export class BlogsController {
     @Query() dto: PaginationBasicDto,
     @Request() req,
   ) {
+    await this.findBlog(blogId);
     const accessToken = req.headers.authorization?.split(" ")[1];
     return this.queryBus.execute(
       new GetPostsByBlogQueryPublic(blogId, dto, accessToken),

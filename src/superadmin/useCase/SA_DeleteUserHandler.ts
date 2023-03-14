@@ -22,9 +22,8 @@ export class SA_DeleteUserHandler
   ) {}
   async execute(command: SA_DeleteUserCommand): Promise<any> {
     try {
-      const user = await this.usersQueryRepo
-        .findById(command.id)
-        .then((res) => res[0]);
+      const user = await this.usersQueryRepo.findById(command.id);
+
       if (!user) {
         throw new NotFoundException("net takogo uzerka");
       }
