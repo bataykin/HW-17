@@ -98,7 +98,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
                 FROM posts
                 left join blogs on posts."blogId" = blogs.id
                 Where blogs."isBanned" = false AND blogs.id = $1
-                and posts.title ~ $2
+                and posts.title ~ upper($2)
                 order by posts."${dto.sortBy}" ${dto.sortDirection}
                     `,
             [blogId, dto.searchNameTerm],
@@ -109,7 +109,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
                 FROM posts
                 left join blogs on posts."blogId" = blogs.id
                 Where blogs."isBanned" = false AND blogs.id = $1
-                and posts.title ~ $2
+                and posts.title ~ upper($2)
                 order by posts."${dto.sortBy}"::bytea ${dto.sortDirection}
                     `,
             [blogId, dto.searchNameTerm],
