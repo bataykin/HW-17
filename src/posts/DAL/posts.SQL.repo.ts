@@ -80,8 +80,9 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
                 left join blogs on posts."blogId" = blogs.id
                 Where blogs."isBanned" = false
                 order by posts."${dto.sortBy}" ${dto.sortDirection}
+                limit $1 offset $2
                     `,
-      [],
+      [dto.pageSize, dto.skipSize],
     );
     return result ?? null;
   }
@@ -100,8 +101,9 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
                 Where blogs."isBanned" = false AND blogs.id = $1
                 and posts.title ~ upper($2)
                 order by posts."${dto.sortBy}" ${dto.sortDirection}
+                LIMIT $3 offset $4
                     `,
-            [blogId, dto.searchNameTerm],
+            [blogId, dto.searchNameTerm, dto.pageSize, dto.skipSize],
           )
         : await this.dataSource.query(
             `
@@ -111,8 +113,9 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
                 Where blogs."isBanned" = false AND blogs.id = $1
                 and posts.title ~ upper($2)
                 order by posts."${dto.sortBy}"::bytea ${dto.sortDirection}
+                LIMIT $3 offset $4
                     `,
-            [blogId, dto.searchNameTerm],
+            [blogId, dto.searchNameTerm, dto.pageSize, dto.skipSize],
           );
     return result ?? null;
   }
