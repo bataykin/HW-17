@@ -11,6 +11,7 @@ import { PostViewModel } from "../dto/PostViewModel";
 import { PaginationPostsDto } from "../dto/pagination.posts.dto";
 import { LikesEnum } from "../entities/likes.enum";
 import { UserEntity } from "../../users/entity/user.entity";
+import { BlogsPaginationDto } from "../../bloggers/dto/blogsPaginationDto";
 
 @Injectable()
 export class PostsSQLRepo implements IPostsRepo<PostEntity> {
@@ -86,7 +87,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
   }
 
   async getPostsPaginatedByBlog(
-    dto: PaginationPostsDto,
+    dto: BlogsPaginationDto,
     blogId: string,
   ): Promise<PostEntity[]> {
     const result =
@@ -97,9 +98,10 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
                 FROM posts
                 left join blogs on posts."blogId" = blogs.id
                 Where blogs."isBanned" = false AND blogs.id = $1
+                and posts.title ~ $2
                 order by posts."${dto.sortBy}" ${dto.sortDirection}
                     `,
-            [blogId],
+            [blogId, dto.searchNameTerm],
           )
         : await this.dataSource.query(
             `
@@ -107,9 +109,10 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
                 FROM posts
                 left join blogs on posts."blogId" = blogs.id
                 Where blogs."isBanned" = false AND blogs.id = $1
+                and posts.title ~ $2
                 order by posts."${dto.sortBy}"::bytea ${dto.sortDirection}
                     `,
-            [blogId],
+            [blogId, dto.searchNameTerm],
           );
     return result ?? null;
   }
