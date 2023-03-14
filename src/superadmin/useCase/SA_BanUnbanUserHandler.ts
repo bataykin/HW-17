@@ -32,9 +32,7 @@ export class SA_BanUnbanUserHandler
 
   async execute(command: SA_BanUnbanUserCommand): Promise<any> {
     const { userId, dto } = command;
-    const isUserIdExists = await this.usersQueryRepo
-      .findById(userId)
-      .then((res) => res[0]);
+    const isUserIdExists = await this.usersQueryRepo.findById(userId);
     if (!isUserIdExists) {
       throw new NotFoundException("net takogo uzer id");
     }
