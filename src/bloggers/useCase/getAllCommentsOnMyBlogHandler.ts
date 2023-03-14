@@ -60,7 +60,7 @@ export class GetAllCommentsOnMyBlogHandler
       skipSize: dto.pageNumber > 1 ? dto.pageSize * (dto.pageNumber - 1) : 0,
     };
 
-    const allComments = await this.commentsRepo.getAllCommentByBlog(
+    const allComments = await this.commentsRepo.getAllCommentsByBlog(
       userIdFromToken,
       paging,
     );

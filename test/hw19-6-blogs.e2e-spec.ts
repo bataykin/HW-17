@@ -109,33 +109,24 @@ describe("HW-19-6 - blogs (e2e)", () => {
     });
   }
 
-  it("GET => GET -> blogs", () => {
-    return request(app.getHttpServer())
-      .get(`/blogs/`)
-      .set("Content-Type", "application/json")
-      .set("Accept", "application/json")
-      .set("Authorization", `Bearer ${users[0].accessToken}`)
-      .expect(200)
-      .then((res) => {
-        // console.log(res.body);
-      });
-  });
+  for (let i = 0; i < counter; i++) {
+    it("POST => /posts/:postId/comments", () => {
+      return request(app.getHttpServer())
+        .post(`/posts/${posts[0].id}/comments`)
+        .send(JSON.stringify(comments[i].input))
+        .set("Content-Type", "application/json")
+        .set("Accept", "application/json")
+        .set("Authorization", `Bearer ${users[0].accessToken}`)
+        .expect(201)
+        .then((res) => {
+          // console.log(res.body);
+        });
+    });
+  }
 
-  it("GET => GET -> blogs/id", () => {
+  it("GET => blogger/blogs/comments", () => {
     return request(app.getHttpServer())
-      .get(`/blogs/${blogs[0].id}`)
-      .set("Content-Type", "application/json")
-      .set("Accept", "application/json")
-      .set("Authorization", `Bearer ${users[0].accessToken}`)
-      .expect(200)
-      .then((res) => {
-        // console.log(res.body);
-      });
-  });
-
-  it("GET -> /blogs/:blogId/posts", () => {
-    return request(app.getHttpServer())
-      .get(`/blogs/${blogs[0].id}/posts`)
+      .get(`/blogger/blogs/comments`)
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .set("Authorization", `Bearer ${users[0].accessToken}`)
@@ -144,4 +135,28 @@ describe("HW-19-6 - blogs (e2e)", () => {
         console.log(res.body);
       });
   });
+  //
+  // it("GET => GET -> blogs/id", () => {
+  //   return request(app.getHttpServer())
+  //     .get(`/blogs/${blogs[0].id}`)
+  //     .set("Content-Type", "application/json")
+  //     .set("Accept", "application/json")
+  //     .set("Authorization", `Bearer ${users[0].accessToken}`)
+  //     .expect(200)
+  //     .then((res) => {
+  //       // console.log(res.body);
+  //     });
+  // });
+  //
+  // it("GET -> /blogs/:blogId/posts", () => {
+  //   return request(app.getHttpServer())
+  //     .get(`/blogs/${blogs[0].id}/posts`)
+  //     .set("Content-Type", "application/json")
+  //     .set("Accept", "application/json")
+  //     .set("Authorization", `Bearer ${users[0].accessToken}`)
+  //     .expect(200)
+  //     .then((res) => {
+  //       console.log(res.body);
+  //     });
+  // });
 });

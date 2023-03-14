@@ -6,7 +6,6 @@ import { ICommentsRepo } from "./ICommentsRepo";
 import { CommentEntity } from "../entities/comment.entity";
 import { CommentToRepoDTO } from "../dto/CommentToRepoDTO";
 import { PaginationBasicDto } from "../dto/paginationBasicDto";
-import { BlogsPaginationDto } from "src/bloggers/dto/blogsPaginationDto";
 import { CommentViewPublicDTO } from "../dto/CommentViewPublicDTO";
 import { UserEntity } from "../../users/entity/user.entity";
 import { LikesEnum } from "../../posts/entities/likes.enum";
@@ -79,14 +78,41 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
     return mappedComments;
   }
 
-  async getAllCommentByBlog(
+  async getAllCommentsByBlog(
     userId: string,
-    dto: BlogsPaginationDto,
+    dto: PaginationBasicDto,
   ): Promise<CommentEntity[]> {
-    throw new Error("Method not implemented.");
+    const result = await this.dataSource.query(
+      `
+                SELECT comments.*
+                FROM comments 
+                left join posts on posts.id = comments."postId"
+                left join blogs on blogs.id = posts."blogId"
+                left join users on users.id = comments."userId"
+                WHERE blogs."userId" = $1 and users."isBanned" = false
+                    `,
+      [userId],
+    );
+    return result ?? null;
   }
   async countAllCommentsForAllUserBlogs(userId: string): Promise<number> {
-    throw new Error("Method not implemented.");
+    const result = await this.dataSource.query(
+      `
+                SELECT 
+                CASE
+                    WHEN COUNT(*) > 0 THEN COUNT(*)
+                    ELSE 0
+                END AS total
+                FROM comments
+                left join posts on posts.id = comments."postId"
+                left join blogs on blogs.id = posts."blogId"
+                left join users on users.id = blogs."userId"
+                
+                where users.id = $1
+                    `,
+      [userId],
+    );
+    return result[0].total ?? 0;
   }
 
   //// ORIGINAL FUNCTIONS ////
@@ -186,23 +212,40 @@ export class CommentsSQLRepo implements ICommentsRepo<CommentEntity> {
   ): Promise<CommentViewForBloggerDTO[]> {
     const mappedComments: CommentViewForBloggerDTO[] = [];
     for await (const comment of allComments) {
-      mappedComments.push({
-        id: comment.id,
-        content: comment.content,
-        commentatorInfo: {
-          userId: comment.userId,
-          userLogin: comment.userLogin,
-        },
-        createdAt: comment.createdAt,
-        postInfo: {
-          id: comment.postId,
-          title: comment.post.title,
-          blogId: comment.post.blogId,
-          blogName: comment.post.blogName,
-        },
-      });
+      mappedComments.push(await this.mapCommentToResponseForBlogger(comment));
     }
-
     return mappedComments;
+  }
+
+  async mapCommentToResponseForBlogger(
+    comment: CommentEntity,
+  ): Promise<CommentViewForBloggerDTO> {
+    const post = await this.dataSource.query(
+      `
+    select posts.* 
+    from  posts
+    left join comments on posts.id = comments."postId"
+    
+    where comments.id = $1 
+    `,
+      [comment.id],
+    );
+    console.log(post[0]);
+    const result: CommentViewForBloggerDTO = {
+      id: comment.id,
+      content: comment.content,
+      commentatorInfo: {
+        userId: comment.userId,
+        userLogin: comment.userLogin,
+      },
+      createdAt: comment.createdAt,
+      postInfo: {
+        id: post[0].id,
+        title: post[0].title,
+        blogName: post[0].blogName,
+        blogId: post[0].blogId,
+      },
+    };
+    return result;
   }
 }
