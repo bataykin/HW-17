@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { Inject, UnauthorizedException } from "@nestjs/common";
+import { Inject, NotFoundException } from "@nestjs/common";
 import { IQuestionsRepo, IQuestionsRepoToken } from "../DAL/IQuestionsRepo";
 import { QuestionEntity } from "../DAL/QuestionEntity";
 
@@ -19,7 +19,7 @@ export class DeleteQuestionHandler
   async execute(command: DeleteQuestionCommand): Promise<void> {
     const { questionId } = command;
     const question = await this.questionsRepo.getQuestionById(questionId);
-    if (!question) throw new UnauthorizedException("net takogo id");
+    if (!question) throw new NotFoundException("net takogo id");
     await this.questionsRepo.deleteQuestion(questionId);
     return;
   }
