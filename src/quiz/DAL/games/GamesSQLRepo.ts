@@ -21,7 +21,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
   async connectToGame(user: UserEntity): Promise<GameEntity> {
     const pendingGame = await this.dataSource.query(`
       select * from games
-      where status = "${GameStatusEnum.PendingSecondPlayer}" 
+      where "status" = "${GameStatusEnum.PendingSecondPlayer}" 
       and "firstPlayerId" != "${user.id}"
     `);
     if (!pendingGame) {
