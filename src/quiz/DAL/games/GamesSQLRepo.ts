@@ -22,7 +22,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     const pendingGame = await this.dataSource.query(`
       select * from games
       where status = "${GameStatusEnum.PendingSecondPlayer}" 
-      and "firstPlayerId" != ${user.id}
+      and "firstPlayerId" != "${user.id}"
     `);
     if (!pendingGame) {
       const newGame = await this.dataSource.query(`
