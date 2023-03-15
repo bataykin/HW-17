@@ -9,8 +9,8 @@ export const jwtConstants =
       }
     : {
         secret: "123",
-        accessTokenExpiresIn: 10,
-        refreshTokenExpiresIn: 20,
+        accessTokenExpiresIn: 10 * 60,
+        refreshTokenExpiresIn: 20 * 60,
         cookieSecure: true,
         httpOnly: true,
       };

@@ -3,6 +3,7 @@ import { INestApplication } from "@nestjs/common";
 import request from "supertest";
 import { AppModule } from "./../src/app.module";
 import { TestHelpersClass } from "./helpers/testHelpers";
+import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 
 const cookieParser = require("cookie-parser");
 
@@ -13,12 +14,23 @@ const blogs = testClass.createFakeBlogs(10);
 const comments = testClass.createFakeComments(10);
 const counter = 5;
 
+const localDB: TypeOrmModuleOptions = {
+  type: "postgres",
+  host: "localhost",
+  port: 5432,
+  username: "postgres",
+  password: "1984",
+  database: "lalala",
+  autoLoadEntities: true,
+  synchronize: true,
+};
+
 describe("HW-21 - 1 - blogs (e2e)", () => {
   let app: INestApplication;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule, TypeOrmModule.forRoot(localDB)],
     }).compile();
 
     app = moduleFixture.createNestApplication();
