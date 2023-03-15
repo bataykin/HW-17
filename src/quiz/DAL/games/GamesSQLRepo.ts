@@ -43,7 +43,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
          "secondPlayerId" = "${user.id}",
          "status" = "${GameStatusEnum.Active}",
          "startGameDate" = $1
-        where status = '${GameStatusEnum.PendingSecondPlayer} ' 
+        where status = '${GameStatusEnum.PendingSecondPlayer}' 
         returning *
       `,
         [new Date()],
