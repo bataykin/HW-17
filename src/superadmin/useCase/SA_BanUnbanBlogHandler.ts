@@ -43,12 +43,6 @@ export class SA_BanUnbanBlogHandler
     }
 
     await this.blogsRepo.SA_SetBlogBanStatus(blogId, dto.isBanned);
-    // if (dto.isBanned) {
-    //   const devices = await this.devRepo.getAllDevices(userId);
-    //   for await (const device of devices) {
-    //     await this.devRepo.deleteDeviceById(device.deviceId);
-    //   }
-    // }
     return;
   }
 }
