@@ -11,7 +11,6 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { QuestionsPaginationDTO } from "./dto/questionsPaginationDTO";
 import { QuestionInputModel } from "./dto/QuestionInputModel";
 import { QuestionPublishInputModel } from "./dto/QuestionPublishInputModel";
@@ -21,7 +20,10 @@ import { CreateQuestionCommand } from "./useCase/CreateQuestionHandler";
 import { DeleteQuestionCommand } from "./useCase/DeleteQuestionHandler";
 import { UpdateQuestionCommand } from "./useCase/UpdateQuestionHandler";
 import { PublishQuestionCommand } from "./useCase/PublishQuestionHandler";
+import { SkipThrottle } from "@nestjs/throttler";
+import { BaseAuthGuard } from "../guards/base.auth.guard";
 
+@SkipThrottle()
 @Controller("sa/quiz/questions")
 export class QuizController {
   constructor(
@@ -30,28 +32,28 @@ export class QuizController {
   ) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BaseAuthGuard)
   @HttpCode(200)
   async getAllQuestions(@Query() dto: QuestionsPaginationDTO) {
     return this.queryBus.execute(new GetAllQuestionsQuery(dto));
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BaseAuthGuard)
   @HttpCode(201)
   async createQuestion(@Body() dto: QuestionInputModel) {
     return this.commandBus.execute(new CreateQuestionCommand(dto));
   }
 
   @Delete("/:id")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BaseAuthGuard)
   @HttpCode(204)
   async deleteQuestionById(@Param("id", ParseUUIDPipe) questionId: string) {
     return this.commandBus.execute(new DeleteQuestionCommand(questionId));
   }
 
   @Put("/:id")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BaseAuthGuard)
   @HttpCode(204)
   async updateQuestionById(
     @Param("id", ParseUUIDPipe) questionId: string,
@@ -61,7 +63,7 @@ export class QuizController {
   }
 
   @Put("/:id/publish")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(BaseAuthGuard)
   @HttpCode(204)
   async publishQuestionById(
     @Param("id", ParseUUIDPipe) questionId: string,
