@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseUUIDPipe,
   Post,
   Request,
   UseGuards,
@@ -18,7 +19,7 @@ import { AnswerInputModel } from "./dto/game/AnswerInputModel";
 import { SendAnswerCommand } from "./useCase/game/SendAnswerHandler";
 
 @SkipThrottle()
-@Controller("pair-games-quiz/pairs")
+@Controller("pair-game-quiz/pairs")
 export class QuizGameContoller {
   constructor(
     private readonly commandBus: CommandBus,
@@ -36,7 +37,10 @@ export class QuizGameContoller {
   @Get(":id")
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  async getGameById(@Request() req, @Param() gameId: string) {
+  async getGameById(
+    @Request() req,
+    @Param("id", ParseUUIDPipe) gameId: string,
+  ) {
     const accessToken = req.headers.authorization?.split(" ")[1];
     return this.queryBus.execute(new GetGameByIdQuery(gameId, accessToken));
   }

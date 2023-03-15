@@ -33,6 +33,10 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       `);
       return newGame[0] ?? null;
     } else {
+      // TODO set 5 questions to game
+      const questions = await this.dataSource.query(`
+      select floor(random() * ( select count(*) from questions)) + 1
+      `);
       const game = await this.dataSource.query(
         `
         update games set 

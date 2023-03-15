@@ -50,6 +50,7 @@ export class SendAnswerHandler implements ICommandHandler<SendAnswerCommand> {
       activeGame,
       userFromToken,
     );
+    if (!lastQuestion) throw new ForbiddenException("no question");
     const checkAnswer = await this.gamesRepo.checkAnswer(lastQuestion, answer);
     const sendedAnswer = await this.gamesRepo.sendAnswer(
       userFromToken,
