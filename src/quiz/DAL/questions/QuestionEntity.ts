@@ -25,4 +25,7 @@ export class QuestionEntity extends BaseEntity {
 
   @Column({ type: "timestamptz", nullable: true, default: null })
   updatedAt: Date;
+
+  // @OneToOne(() => AnswerEntity, (answer) => answer.question)
+  // answer: AnswerEntity;
 }

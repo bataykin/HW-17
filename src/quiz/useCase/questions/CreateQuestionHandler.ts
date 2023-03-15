@@ -1,9 +1,12 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { QuestionsViewModel } from "../dto/QuestionsViewModel";
-import { QuestionInputModel } from "../dto/QuestionInputModel";
+import { QuestionsViewModel } from "../../dto/questions/QuestionsViewModel";
+import { QuestionInputModel } from "../../dto/questions/QuestionInputModel";
 import { Inject } from "@nestjs/common";
-import { IQuestionsRepo, IQuestionsRepoToken } from "../DAL/IQuestionsRepo";
-import { QuestionEntity } from "../DAL/QuestionEntity";
+import {
+  IQuestionsRepo,
+  IQuestionsRepoToken,
+} from "../../DAL/questions/IQuestionsRepo";
+import { QuestionEntity } from "../../DAL/questions/QuestionEntity";
 
 export class CreateQuestionCommand {
   constructor(public readonly dto: QuestionInputModel) {}

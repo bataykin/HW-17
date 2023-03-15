@@ -1,35 +1,57 @@
 import { Module } from "@nestjs/common";
-import { QuizController } from "./quiz.controller";
-import { CreateQuestionsHandler } from "./useCase/CreateQuestionHandler";
-import { DeleteQuestionHandler } from "./useCase/DeleteQuestionHandler";
-import { PublishQuestionHandler } from "./useCase/PublishQuestionHandler";
-import { UpdateQuestionHandler } from "./useCase/UpdateQuestionHandler";
-import { GetAllQuestionsHandler } from "./useCase/GetAllQuestionsHandler";
+import { QuizQuestionsController } from "./quizQuestionsController";
+import { CreateQuestionsHandler } from "./useCase/questions/CreateQuestionHandler";
+import { DeleteQuestionHandler } from "./useCase/questions/DeleteQuestionHandler";
+import { PublishQuestionHandler } from "./useCase/questions/PublishQuestionHandler";
+import { UpdateQuestionHandler } from "./useCase/questions/UpdateQuestionHandler";
+import { GetAllQuestionsHandler } from "./useCase/questions/GetAllQuestionsHandler";
 import { CqrsModule } from "@nestjs/cqrs";
-import { IQuestionsRepoToken } from "./DAL/IQuestionsRepo";
-import { QuestionsSQLRepo } from "./DAL/QuestionsSQLRepo";
+import { IQuestionsRepoToken } from "./DAL/questions/IQuestionsRepo";
+import { QuestionsSQLRepo } from "./DAL/questions/QuestionsSQLRepo";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { QuestionEntity } from "./DAL/QuestionEntity";
+import { QuestionEntity } from "./DAL/questions/QuestionEntity";
+import { QuizGameContoller } from "./quizGameController";
+import { GetCurrentGameHandler } from "./useCase/game/GetCurrentGameHandler";
+import { GetGameByIdHandler } from "./useCase/game/GetGameByIdHandler";
+import { JoinGameHandler } from "./useCase/game/JoinGameHandler";
+import { SendAnswerHandler } from "./useCase/game/SendAnswerHandler";
+import { GameEntity } from "./DAL/games/GameEntity";
+import { AnswerEntity } from "./DAL/answers/AnswerEntity";
+import { JwtService } from "@nestjs/jwt";
+import { IUsersQueryRepoToken } from "../users/DAL/IUserQueryRepo";
+import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
+import { IGamesRepoToken } from "./DAL/games/IGamesRepo";
+import { GamesSQLRepo } from "./DAL/games/GamesSQLRepo";
 
-const quizHandlers = [
+const questionsHandlers = [
   CreateQuestionsHandler,
   DeleteQuestionHandler,
   PublishQuestionHandler,
   UpdateQuestionHandler,
   GetAllQuestionsHandler,
 ];
+const gameHandlers = [
+  GetCurrentGameHandler,
+  GetGameByIdHandler,
+  JoinGameHandler,
+  SendAnswerHandler,
+];
 
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([QuestionEntity])],
+  imports: [
+    CqrsModule,
+    TypeOrmModule.forFeature([QuestionEntity, GameEntity, AnswerEntity]),
+  ],
 
-  controllers: [QuizController],
+  controllers: [QuizQuestionsController, QuizGameContoller],
 
   providers: [
-    ...quizHandlers,
-    {
-      provide: IQuestionsRepoToken,
-      useClass: QuestionsSQLRepo,
-    },
+    ...questionsHandlers,
+    ...gameHandlers,
+    JwtService,
+    { provide: IUsersQueryRepoToken, useClass: UsersSQLQueryRepo },
+    { provide: IQuestionsRepoToken, useClass: QuestionsSQLRepo },
+    { provide: IGamesRepoToken, useClass: GamesSQLRepo },
   ],
 
   exports: [],

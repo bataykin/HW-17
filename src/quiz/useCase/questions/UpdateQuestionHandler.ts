@@ -1,8 +1,11 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { QuestionInputModel } from "../dto/QuestionInputModel";
+import { QuestionInputModel } from "../../dto/questions/QuestionInputModel";
 import { Inject, NotFoundException } from "@nestjs/common";
-import { IQuestionsRepo, IQuestionsRepoToken } from "../DAL/IQuestionsRepo";
-import { QuestionEntity } from "../DAL/QuestionEntity";
+import {
+  IQuestionsRepo,
+  IQuestionsRepoToken,
+} from "../../DAL/questions/IQuestionsRepo";
+import { QuestionEntity } from "../../DAL/questions/QuestionEntity";
 
 export class UpdateQuestionCommand {
   constructor(

@@ -1,12 +1,12 @@
 import { IQuestionsRepo } from "./IQuestionsRepo";
-import { QuestionsPaginationDTO } from "../dto/questionsPaginationDTO";
-import { QuestionPublishInputModel } from "../dto/QuestionPublishInputModel";
-import { QuestionInputModel } from "../dto/QuestionInputModel";
+import { QuestionsPaginationDTO } from "../../dto/questions/questionsPaginationDTO";
+import { QuestionPublishInputModel } from "../../dto/questions/QuestionPublishInputModel";
+import { QuestionInputModel } from "../../dto/questions/QuestionInputModel";
 import { Injectable } from "@nestjs/common";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { QuestionEntity } from "./QuestionEntity";
-import { QuestionsViewModel } from "../dto/QuestionsViewModel";
+import { QuestionsViewModel } from "../../dto/questions/QuestionsViewModel";
 
 @Injectable()
 export class QuestionsSQLRepo implements IQuestionsRepo<QuestionEntity> {

@@ -1,10 +1,13 @@
-import { QuestionsPaginationDTO } from "../dto/questionsPaginationDTO";
+import { QuestionsPaginationDTO } from "../../dto/questions/questionsPaginationDTO";
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
-import { PaginatorModel } from "../../common/PaginatorModel";
-import { QuestionsViewModel } from "../dto/QuestionsViewModel";
+import { PaginatorModel } from "../../../common/PaginatorModel";
+import { QuestionsViewModel } from "../../dto/questions/QuestionsViewModel";
 import { Inject } from "@nestjs/common";
-import { IQuestionsRepo, IQuestionsRepoToken } from "../DAL/IQuestionsRepo";
-import { QuestionEntity } from "../DAL/QuestionEntity";
+import {
+  IQuestionsRepo,
+  IQuestionsRepoToken,
+} from "../../DAL/questions/IQuestionsRepo";
+import { QuestionEntity } from "../../DAL/questions/QuestionEntity";
 
 export class GetAllQuestionsQuery {
   constructor(public readonly dto: QuestionsPaginationDTO) {}

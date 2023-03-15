@@ -1,7 +1,7 @@
-import { QuestionInputModel } from "../dto/QuestionInputModel";
-import { QuestionPublishInputModel } from "../dto/QuestionPublishInputModel";
-import { QuestionsPaginationDTO } from "../dto/questionsPaginationDTO";
-import { QuestionsViewModel } from "../dto/QuestionsViewModel";
+import { QuestionInputModel } from "../../dto/questions/QuestionInputModel";
+import { QuestionPublishInputModel } from "../../dto/questions/QuestionPublishInputModel";
+import { QuestionsPaginationDTO } from "../../dto/questions/questionsPaginationDTO";
+import { QuestionsViewModel } from "../../dto/questions/QuestionsViewModel";
 
 export const IQuestionsRepoToken = Symbol("IQuestionsRepoToken");
 export interface IQuestionsRepo<GenericQuestionType> {

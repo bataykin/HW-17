@@ -11,21 +11,21 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
-import { QuestionsPaginationDTO } from "./dto/questionsPaginationDTO";
-import { QuestionInputModel } from "./dto/QuestionInputModel";
-import { QuestionPublishInputModel } from "./dto/QuestionPublishInputModel";
+import { QuestionsPaginationDTO } from "./dto/questions/questionsPaginationDTO";
+import { QuestionInputModel } from "./dto/questions/QuestionInputModel";
+import { QuestionPublishInputModel } from "./dto/questions/QuestionPublishInputModel";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
-import { GetAllQuestionsQuery } from "./useCase/GetAllQuestionsHandler";
-import { CreateQuestionCommand } from "./useCase/CreateQuestionHandler";
-import { DeleteQuestionCommand } from "./useCase/DeleteQuestionHandler";
-import { UpdateQuestionCommand } from "./useCase/UpdateQuestionHandler";
-import { PublishQuestionCommand } from "./useCase/PublishQuestionHandler";
+import { GetAllQuestionsQuery } from "./useCase/questions/GetAllQuestionsHandler";
+import { CreateQuestionCommand } from "./useCase/questions/CreateQuestionHandler";
+import { DeleteQuestionCommand } from "./useCase/questions/DeleteQuestionHandler";
+import { UpdateQuestionCommand } from "./useCase/questions/UpdateQuestionHandler";
+import { PublishQuestionCommand } from "./useCase/questions/PublishQuestionHandler";
 import { SkipThrottle } from "@nestjs/throttler";
 import { BaseAuthGuard } from "../guards/base.auth.guard";
 
 @SkipThrottle()
 @Controller("sa/quiz/questions")
-export class QuizController {
+export class QuizQuestionsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,

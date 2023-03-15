@@ -156,4 +156,9 @@ export class UserEntity {
 
   @OneToMany(() => BannedUsersEntity, (bannedUser) => bannedUser.user)
   bannedUsers: BannedUsersEntity[];
+
+  /////////////////// QUIZ //////////////////
+
+  // @OneToMany(() => GameEntity, (games) => games.user)
+  // games: GameEntity[];
 }
