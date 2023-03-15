@@ -115,4 +115,15 @@ export class QuestionsSQLRepo implements IQuestionsRepo<QuestionEntity> {
     );
     return count.length ?? 0;
   }
+
+  async getQuestionById(questionId: string): Promise<QuestionEntity> {
+    const question = await this.dataSource.query(
+      `
+    select * from questions
+    where id = $1
+    `,
+      [questionId],
+    );
+    return question[0] ?? null;
+  }
 }

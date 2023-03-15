@@ -27,4 +27,6 @@ export interface IQuestionsRepo<GenericQuestionType> {
   ): Promise<QuestionsViewModel[]>;
 
   countQuestions(dto: QuestionsPaginationDTO): Promise<number>;
+
+  getQuestionById(questionId: string): Promise<GenericQuestionType>;
 }
