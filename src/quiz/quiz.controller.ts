@@ -1,84 +1,72 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
+  ParseUUIDPipe,
   Post,
+  Put,
   Query,
-  Request,
   UseGuards,
 } from "@nestjs/common";
-import { BlogsPaginationDto } from "../bloggers/dto/blogsPaginationDto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { QuestionsPaginationDTO } from "./dto/questionsPaginationDTO";
+import { QuestionInputModel } from "./dto/QuestionInputModel";
+import { QuestionPublishInputModel } from "./dto/QuestionPublishInputModel";
+import { CommandBus, QueryBus } from "@nestjs/cqrs";
+import { GetAllQuestionsQuery } from "./useCase/GetAllQuestionsHandler";
+import { CreateQuestionCommand } from "./useCase/CreateQuestionHandler";
+import { DeleteQuestionCommand } from "./useCase/DeleteQuestionHandler";
+import { UpdateQuestionCommand } from "./useCase/UpdateQuestionHandler";
+import { PublishQuestionCommand } from "./useCase/PublishQuestionHandler";
 
-@Controller("pair-game-quiz")
+@Controller("sa/quiz/questions")
 export class QuizController {
-  constructor(/*protected readonly quizService: QuizSQLService,
-                private readonly authService: AuthMongoService*/) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
+  @Get()
   @UseGuards(JwtAuthGuard)
-  @Get("pairs/my-current")
   @HttpCode(200)
-  async getCurrentGame(@Request() req) {
-    // const token = req.headers.authorization.split(' ')[1]
-    // const retrievedUserFromToken = await this.authService.retrieveUser(token)
-    // const userId = retrievedUserFromToken.sub
-    // return 'Returns current pair in which current user is taking part'
+  async getAllQuestions(@Query() dto: QuestionsPaginationDTO) {
+    return this.queryBus.execute(new GetAllQuestionsQuery(dto));
   }
 
+  @Post()
   @UseGuards(JwtAuthGuard)
-  @Get("pairs/my")
-  @HttpCode(200)
-  async getAllMyGames(@Query() dto: BlogsPaginationDto, @Request() req) {
-    // const token = req.headers.authorization.split(' ')[1]
-    // const retrievedUserFromToken = await this.authService.retrieveUser(token)
-    // const userId = retrievedUserFromToken.sub
-    //
-    // return await this.quizService.getAllMyGames(userId, dto)
-    // return 'Returns all games where current user is'
+  @HttpCode(201)
+  async createQuestion(@Body() dto: QuestionInputModel) {
+    return this.commandBus.execute(new CreateQuestionCommand(dto));
   }
 
+  @Delete("/:id")
   @UseGuards(JwtAuthGuard)
-  @Get("pairs/:id")
-  @HttpCode(200)
-  async getGameById(@Param("id") gameId: string, @Request() req) {
-    // const token = req.headers.authorization.split(' ')[1]
-    // const retrievedUserFromToken = await this.authService.retrieveUser(token)
-    // const userId = retrievedUserFromToken.sub
-    //
-    // return await this.quizService.getGameById(userId, gameId)
-    // return `Returns pair by id = ${gameId} if current user is taking part in this pair`
+  @HttpCode(204)
+  async deleteQuestionById(@Param("id", ParseUUIDPipe) questionId: string) {
+    return this.commandBus.execute(new DeleteQuestionCommand(questionId));
   }
 
+  @Put("/:id")
   @UseGuards(JwtAuthGuard)
-  @Post("pairs/connection")
-  @HttpCode(200)
-  async joinGameOrCreate(@Request() req) {
-    // const token = req.headers.authorization.split(' ')[1]
-    // const retrievedUserFromToken = await this.authService.retrieveUser(token)
-    // const userId = retrievedUserFromToken.sub
-    //
-    // return await this.quizService.joinOrCreateGame(userId)
+  @HttpCode(204)
+  async updateQuestionById(
+    @Param("id", ParseUUIDPipe) questionId: string,
+    @Body() dto: QuestionInputModel,
+  ) {
+    return this.commandBus.execute(new UpdateQuestionCommand(questionId, dto));
   }
 
+  @Put("/:id/publish")
   @UseGuards(JwtAuthGuard)
-  @Post("pairs/my-current/answers")
-  @HttpCode(200)
-  async sendAnswer(@Body() answer: string, @Request() req) {
-    // const token = req.headers.authorization.split(' ')[1]
-    // const retrievedUserFromToken = await this.authService.retrieveUser(token)
-    // const userId = retrievedUserFromToken.sub
-    //
-    // return await this.quizService.sendAnswer(userId, answer)
-    // return `Returns answer result`
-  }
-
-  @Get("users/top")
-  @HttpCode(200)
-  async getTopUsers(@Query() dto: BlogsPaginationDto) {
-    // console.log(process.env.MONGO_URI)
-    // return await this.quizService.getTopUsers(dto)
-    // return 'Returns users TOP-X'
+  @HttpCode(204)
+  async publishQuestionById(
+    @Param("id", ParseUUIDPipe) questionId: string,
+    @Body() dto: QuestionPublishInputModel,
+  ) {
+    return this.commandBus.execute(new PublishQuestionCommand(questionId, dto));
   }
 }

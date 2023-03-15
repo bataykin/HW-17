@@ -1,82 +1,96 @@
-import {Injectable} from "@nestjs/common";
-import {InjectDataSource} from "@nestjs/typeorm";
-import {DataSource} from "typeorm";
-import {use} from "passport";
+import { Injectable } from "@nestjs/common";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
 
 @Injectable()
 export class QuizSQLRepo {
-    constructor(@InjectDataSource()
-                private readonly dataSource: DataSource) {
-    }
+  constructor(
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
+  ) {}
 
-
-    async getPendingGame() {
-        const gameId = await this.dataSource.query(`
+  async getPendingGame() {
+    const gameId = await this.dataSource.query(
+      `
                     SELECT id 
                     FROM games 
                     WHERE status = $1
-        `, ['PendingSecondPlayer'])
-        return gameId
-    }
+        `,
+      ["PendingSecondPlayer"],
+    );
+    return gameId;
+  }
 
-    async createNewPlayer(userId: number) {
-        const player  = await this.dataSource.query(`
+  async createNewPlayer(userId: number) {
+    const player = await this.dataSource.query(
+      `
                 INSERT INTO players
                 (answers, "userId", score)
                 VALUES ($1, $2, $3)
                 RETURNING *
-        `, [[], userId, 0])
-        return player
-    }
+        `,
+      [[], userId, 0],
+    );
+    return player;
+  }
 
-    async createNewGame(firstPlayerId: string) {
-
-        // get 5 question by using date
-        const fiveRandomQuestions = await this.dataSource.query(`
+  async createNewGame(firstPlayerId: string) {
+    // get 5 question by using date
+    const fiveRandomQuestions = await this.dataSource.query(
+      `
                     SELECT id, question 
                     FROM questions 
                     ORDER BY "lastUsedAt" ASC
                     LIMIT 5
-        `, [])
+        `,
+      [],
+    );
 
-        // update usedAt date for next sort retrieving questions
-        for (let i = 0; i < fiveRandomQuestions.length; i++) {
-            await this.dataSource.query(`
+    // update usedAt date for next sort retrieving questions
+    for (let i = 0; i < fiveRandomQuestions.length; i++) {
+      await this.dataSource.query(
+        `
                     UPDATE question 
                     SET "lastUsedAt" = NOW() 
                     WHERE id = $1
-        `, [fiveRandomQuestions[i].id])
-        }
+        `,
+        [fiveRandomQuestions[i].id],
+      );
+    }
 
-        // create new game;
-        const game  = await this.dataSource.query(`
+    // create new game;
+    const game = await this.dataSource.query(
+      `
                 INSERT INTO games
                 ("firstPlayer", questions, status)
                 VALUES ($1, $2, $3)
                 RETURNING id
-        `, [firstPlayerId, fiveRandomQuestions, 'PendingSecondPlayer'])
+        `,
+      [firstPlayerId, fiveRandomQuestions, "PendingSecondPlayer"],
+    );
 
+    return game;
+  }
 
-        return game
-
-    }
-
-    async connectGame(gameId: string, playerId: number) {
-        const game =  await this.dataSource.query(`
+  async connectGame(gameId: string, playerId: number) {
+    const game = await this.dataSource.query(
+      `
                     UPDATE games  
                     SET "secondPlayer" = $1,
                     status = $2, 
                     "startGameDate" = NOW()
                     WHERE id = $3
                     RETURNING id
-        `, [playerId, 'Active', gameId])
+        `,
+      [playerId, "Active", gameId],
+    );
 
+    return game;
+  }
 
-        return game
-    }
-
-    async isAlreadyPlay(userId: number) {
-        const activePlayer = await this.dataSource.query(`
+  async isAlreadyPlay(userId: number) {
+    const activePlayer = await this.dataSource.query(
+      `
                     SELECT p."userId", g.status, g.id as "gameId"
                     FROM games g
                      JOIN players p ON p.id  = g."firstPlayer" OR p.id = g."secondPlayer"
@@ -84,12 +98,15 @@ export class QuizSQLRepo {
                     ((g.status IN  ('PendingSecondPlayer', 'Active'))
                     AND (p."userId" = $1))
                     LIMIT 1
-        `, [userId])
-        return activePlayer
-    }
+        `,
+      [userId],
+    );
+    return activePlayer;
+  }
 
-    async getGameById(gameId: string) {
-        const activeGame = await this.dataSource.query(`
+  async getGameById(gameId: string) {
+    const activeGame = await this.dataSource.query(
+      `
                     SELECT 
                     g.id,
                     CASE
@@ -114,23 +131,28 @@ export class QuizSQLRepo {
                     WHERE 
                     ((g.status IN  ('PendingSecondPlayer', 'Active'))
                     AND (g.id = $1))
-        `, [ gameId ])
-        return activeGame
-    }
+        `,
+      [gameId],
+    );
+    return activeGame;
+  }
 
-    async getAllMyGames(userId: number) {
-        const myGames = await this.dataSource.query(`
+  async getAllMyGames(userId: number) {
+    const myGames = await this.dataSource.query(
+      `
                     SELECT g.id AS "gameId"
                     FROM games g
                      JOIN players p ON p.id  = g."firstPlayer" OR p.id = g."secondPlayer"
                     WHERE p."userId" = $1
-        `, [ userId ])
-        return myGames
-    }
+        `,
+      [userId],
+    );
+    return myGames;
+  }
 
-
-    async getTopUsers(topX: number) {
-        const myGames = await this.dataSource.query(`
+  async getTopUsers(topX: number) {
+    const myGames = await this.dataSource.query(
+      `
                     SELECT u.id ,u.login, 
                     SUM(p.score) as "sumScore",
                     COUNT(p.score) as "gamesCount",
@@ -142,48 +164,57 @@ export class QuizSQLRepo {
                     GROUP BY u.id, g.id
                     ORDER  BY "sumScore"
                     LIMIT $1
-        `, [ topX ])
-        return myGames
-    }
+        `,
+      [topX],
+    );
+    return myGames;
+  }
 
-    async getMyActiveGame(userId: number) {
-        const gameId = await this.dataSource.query(`
+  async getMyActiveGame(userId: number) {
+    const gameId = await this.dataSource.query(
+      `
                     SELECT g.id 
                     FROM games g
                     JOIN players p ON p.id  = g."firstPlayer" OR p.id = g."secondPlayer"
                     WHERE status = $1 AND p."userId" = $2
-        `, ['Active', userId])
-        return gameId
-    }
+        `,
+      ["Active", userId],
+    );
+    return gameId;
+  }
 
-    async getMyAnswers(gameId: number, userId: number) {
-        const answers = await this.dataSource.query(`
+  async getMyAnswers(gameId: number, userId: number) {
+    const answers = await this.dataSource.query(
+      `
                     SELECT p.answers 
                     FROM games g
                     JOIN players p ON p.id  = g."firstPlayer" OR p.id = g."secondPlayer"
                     WHERE g.id = $1 AND p."userId" = $2
-        `, [gameId, userId])
-        return answers
-    }
+        `,
+      [gameId, userId],
+    );
+    return answers;
+  }
 
-    async checkAnswer(id, userId: number, answer: string) {
+  async checkAnswer(id, userId: number, answer: string) {}
 
-        
-    }
-
-    async getGameQuestions(gameId:number) {
-        const questions = await this.dataSource.query(`
+  async getGameQuestions(gameId: number) {
+    const questions = await this.dataSource.query(
+      `
                     SELECT q.id, q.question, q.answer 
                     FROM games g
                     JOIN questions q
                     ON q.id = ANY (g.questions)
                     WHERE g.id = $1
-        `, [gameId])
-        return questions
-    }
+        `,
+      [gameId],
+    );
+    return questions;
+  }
 
-    async getMyUnansweredQuestions(gameId, userId: number) {
-        const x = await this.dataSource.query(`
+  async getMyUnansweredQuestions(gameId, userId: number) {
+    const x = await this.dataSource.query(
+      `
                     SELECT q.id, q.question, q.answer, p.id AS "playerId"
                     FROM games g
                     JOIN questions q
@@ -196,17 +227,26 @@ export class QuizSQLRepo {
                     ) as ans
                     ON q.id = ANY (ans.answers)
 
-        `, [gameId, userId])
-        return x
-    }
+        `,
+      [gameId, userId],
+    );
+    return x;
+  }
 
-    async saveAnswer(gameId: number, playerId: number, questionId: number, answerStatus: string) {
-        const answer  = await this.dataSource.query(`
+  async saveAnswer(
+    gameId: number,
+    playerId: number,
+    questionId: number,
+    answerStatus: string,
+  ) {
+    const answer = await this.dataSource.query(
+      `
                 INSERT INTO answers
                 ("gameId", "playerId", "questionId", "answerStatus")
                 VALUES ($1, $2, $3, $4)
                 RETURNING id
-        `, [gameId, playerId, questionId, answerStatus])
-
-    }
+        `,
+      [gameId, playerId, questionId, answerStatus],
+    );
+  }
 }
