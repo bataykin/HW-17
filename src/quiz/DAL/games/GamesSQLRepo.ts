@@ -21,7 +21,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
   async connectToGame(user: UserEntity): Promise<GameEntity> {
     const pendingGame = await this.dataSource.query(`
       select games.* from games
-      where games."status" = "${GameStatusEnum.PendingSecondPlayer}" 
+      where games."status" = '${GameStatusEnum.PendingSecondPlayer}' 
       and games."firstPlayerId" != '${user.id}'
     `);
     if (!pendingGame) {
@@ -40,8 +40,8 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       const game = await this.dataSource.query(
         `
         update games set 
-         "secondPlayerId" = "${user.id}",
-         "status" = "${GameStatusEnum.Active}",
+         "secondPlayerId" = '${user.id}',
+         "status" = '${GameStatusEnum.Active}',
          "startGameDate" = $1
         where status = '${GameStatusEnum.PendingSecondPlayer}' 
         returning *
@@ -88,8 +88,8 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
   async getActiveGame(user: UserEntity): Promise<GameEntity> {
     const activeGame = await this.dataSource.query(`
       select * from games
-      where status = "${GameStatusEnum.Active}" and
-      ("firstPlayerId" = "${user.id}" or "secondPlayerId" = "${user.id}")
+      where status = '${GameStatusEnum.Active}' and
+      ("firstPlayerId" = '${user.id}' or "secondPlayerId" = '${user.id}')
     `);
     return activeGame[0] ?? null;
   }
@@ -134,7 +134,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     const answeredQuestions = await this.dataSource.query(`
     select "questionId"
     from answers
-    where "gameId" = "${game.id}" and "playerId" = "${user.id}"
+    where "gameId" = '${game.id}' and "playerId" = '${user.id}'
     `);
     const notAnsweredQuestions = allQuestions.filter(
       (q) => !(q in answeredQuestions),
