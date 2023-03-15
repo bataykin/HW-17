@@ -106,12 +106,10 @@ export class QuestionsSQLRepo implements IQuestionsRepo<QuestionEntity> {
       `
     select * from questions
    where 
-    case when $3::text is null then true
-    else (upper(body) ~ $3::text) end
-    order by "${dto.sortBy}" ${dto.sortDirection}
-    limit $1 offset $2
+    case when $1::text is null then true
+    else (upper(body) ~ $1::text) end
     `,
-      [dto.pageSize, dto.skipSize, dto.bodySearchTerm],
+      [dto.bodySearchTerm],
     );
     return count.length ?? 0;
   }
