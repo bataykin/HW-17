@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { QuestionInputModel } from "../dto/QuestionInputModel";
-import { Inject } from "@nestjs/common";
+import { Inject, NotFoundException } from "@nestjs/common";
 import { IQuestionsRepo, IQuestionsRepoToken } from "../DAL/IQuestionsRepo";
 import { QuestionEntity } from "../DAL/QuestionEntity";
 
@@ -22,6 +22,8 @@ export class UpdateQuestionHandler
 
   async execute(command: UpdateQuestionCommand): Promise<void> {
     const { questionId, dto } = command;
+    const question = await this.questionsRepo.getQuestionById(questionId);
+    if (!question) throw new NotFoundException("net takogo id");
     await this.questionsRepo.updateQuestion(questionId, dto);
     return;
   }
