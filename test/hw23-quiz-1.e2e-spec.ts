@@ -98,7 +98,7 @@ describe("HW-23 - Questions - 1 - blogs (e2e)", () => {
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .set("user-Agent", "deviceTitle")
-      .set("Authorization", `Bearer ${users[0].accessToken}`)
+      .set("Authorization", "Basic YWRtaW46cXdlcnR5")
       .expect(201)
       .then((res) => {
         question.id = res.body.id;
@@ -112,7 +112,7 @@ describe("HW-23 - Questions - 1 - blogs (e2e)", () => {
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .set("user-Agent", "deviceTitle")
-      .set("Authorization", `Bearer ${users[0].accessToken}`)
+      .set("Authorization", "Basic YWRtaW46cXdlcnR5")
       .expect(200)
       .then((res) => {
         console.log(res.body);
@@ -125,7 +125,7 @@ describe("HW-23 - Questions - 1 - blogs (e2e)", () => {
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .set("user-Agent", "deviceTitle")
-      .set("Authorization", `Bearer ${users[0].accessToken}`)
+      .set("Authorization", "Basic YWRtaW46cXdlcnR5")
       .expect(204)
       .then((res) => {
         // console.log(res.body);
@@ -141,11 +141,26 @@ describe("HW-23 - Questions - 1 - blogs (e2e)", () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .set("user-Agent", "deviceTitle")
-        .set("Authorization", `Bearer ${users[0].accessToken}`)
+        .set("Authorization", "Basic YWRtaW46cXdlcnR5")
         .expect(200)
         .then((res) => {
           console.log(res.body);
         })
     );
+  });
+
+  it(`(POST -> "sa/quiz/questions"  )`, () => {
+    return request(app.getHttpServer())
+      .post("/sa/quiz/questions")
+      .send(JSON.stringify(question.input))
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .set("user-Agent", "deviceTitle")
+      .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+      .expect(201)
+      .then((res) => {
+        question.id = res.body.id;
+        console.log(res.body);
+      });
   });
 });

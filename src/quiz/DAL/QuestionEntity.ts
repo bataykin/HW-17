@@ -4,7 +4,6 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from "typeorm";
 
 @Entity({ name: "questions" })
@@ -24,6 +23,6 @@ export class QuestionEntity extends BaseEntity {
   @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @Column({ type: "timestamptz", nullable: true, default: null })
   updatedAt: Date;
 }

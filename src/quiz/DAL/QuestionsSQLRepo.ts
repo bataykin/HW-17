@@ -59,11 +59,14 @@ export class QuestionsSQLRepo implements IQuestionsRepo<QuestionEntity> {
     questionId: string,
     dto: QuestionPublishInputModel,
   ): Promise<void> {
-    await this.dataSource.query(`
+    await this.dataSource.query(
+      `
     update questions
-    set published = ${dto.published}
-    where id = ${questionId}
-    `);
+    set published = $1,"updatedAt" = $2
+    where id = $3
+    `,
+      [dto.published, new Date(), questionId],
+    );
     return;
   }
 
@@ -71,11 +74,14 @@ export class QuestionsSQLRepo implements IQuestionsRepo<QuestionEntity> {
     questionId: string,
     dto: QuestionInputModel,
   ): Promise<void> {
-    await this.dataSource.query(`
+    await this.dataSource.query(
+      `
     update questions
-    set body = ${dto.body}, "correctAnswers" = ${dto.correctAnswers}
-    where id = ${questionId}
-    `);
+    set body = $1, "correctAnswers" = $2, "updatedAt" = $3
+    where id = $4
+    `,
+      [dto.body, dto.correctAnswers, new Date(), questionId],
+    );
     return;
   }
 
