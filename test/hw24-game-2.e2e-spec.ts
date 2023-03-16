@@ -162,6 +162,8 @@ describe("HW-24 - Game - 2 (e2e)", () => {
       });
   });
 
+  ///////////
+
   for (let i = 0; i < 5; i++) {
     it(`(POST: /pair-game-quiz/pairs/my-current/answers send answer0 by user0"  )`, () => {
       return request(app.getHttpServer())
@@ -170,30 +172,15 @@ describe("HW-24 - Game - 2 (e2e)", () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .set("user-Agent", "deviceTitle")
-        .set("Authorization", `Bearer ${users[1].accessToken}`)
+        .set("Authorization", `Bearer ${users[0].accessToken}`)
         .expect(200)
         .then((res) => {
           // console.log(res.body);
         });
     });
-
-    it(`(GET: /pair-game-quiz/pairs/my-current by user0"  )`, () => {
-      return request(app.getHttpServer())
-        .get("/pair-game-quiz/pairs/my-current")
-        .set("Content-Type", "application/json")
-        .set("Accept", "application/json")
-        .set("user-Agent", "deviceTitle")
-        .set("Authorization", `Bearer ${users[0].accessToken}`)
-        .expect(200)
-        .then((res) => {
-          console.log(res.body);
-        });
-    });
   }
 
-  ///////////
-
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 5; i++) {
     it(`(POST: /pair-game-quiz/pairs/my-current/answers send answer0 by user1"  )`, () => {
       return request(app.getHttpServer())
         .post("/pair-game-quiz/pairs/my-current/answers")
@@ -201,53 +188,13 @@ describe("HW-24 - Game - 2 (e2e)", () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .set("user-Agent", "deviceTitle")
-        .set("Authorization", `Bearer ${users[0].accessToken}`)
+        .set("Authorization", `Bearer ${users[1].accessToken}`)
         .expect(200)
         .then((res) => {
           // console.log(res.body);
         });
     });
-
-    it(`(GET: /pair-game-quiz/pairs/my-current by user1"  )`, () => {
-      return request(app.getHttpServer())
-        .get("/pair-game-quiz/pairs/my-current")
-        .set("Content-Type", "application/json")
-        .set("Accept", "application/json")
-        .set("user-Agent", "deviceTitle")
-        .set("Authorization", `Bearer ${users[1].accessToken}`)
-        .expect(200)
-        .then((res) => {
-          console.log(res.body);
-        });
-    });
   }
-
-  it(`(GET: /pair-game-quiz/pairs/my-current by user0"  )`, () => {
-    return request(app.getHttpServer())
-      .get("/pair-game-quiz/pairs/my-current")
-      .set("Content-Type", "application/json")
-      .set("Accept", "application/json")
-      .set("user-Agent", "deviceTitle")
-      .set("Authorization", `Bearer ${users[0].accessToken}`)
-      .expect(200)
-      .then((res) => {
-        console.log(res.body);
-      });
-  });
-
-  it(`(POST: /pair-game-quiz/pairs/my-current/answers send answer0 by user1"  )`, () => {
-    return request(app.getHttpServer())
-      .post("/pair-game-quiz/pairs/my-current/answers")
-      .send(JSON.stringify(answers[5]))
-      .set("Content-Type", "application/json")
-      .set("Accept", "application/json")
-      .set("user-Agent", "deviceTitle")
-      .set("Authorization", `Bearer ${users[0].accessToken}`)
-      .expect(200)
-      .then((res) => {
-        // console.log(res.body);
-      });
-  });
 
   it(`(GET: /pair-game-quiz/pairs/my-current by user0"  )`, () => {
     return request(app.getHttpServer())
@@ -258,6 +205,8 @@ describe("HW-24 - Game - 2 (e2e)", () => {
       .set("Authorization", `Bearer ${users[0].accessToken}`)
       .expect(404)
       .then((res) => {
+        console.dir(users[0].accessToken);
+        console.log(gameId);
         // console.log(res.body);
       });
   });

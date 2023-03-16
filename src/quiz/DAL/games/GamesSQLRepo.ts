@@ -60,7 +60,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
         where id = '${pendingGame[0].id}'
         returning *
       `,
-        [new Date(), selected],
+        [new Date(), questions],
       );
       return game[0][0] ?? null;
     }
@@ -213,11 +213,13 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     const notAnsQId = gameQId.filter((id) => answeredId.indexOf(id) == -1);
     if (notAnsQId.length == 0) return null;
 
+    const qIndex = 5 - allQuestions.length - answeredQuestions.length;
+
     const lastQuestion = await this.dataSource.query(`
       select * from questions
-      where id = '${notAnsQId[0]}'
+      where id = '${gameQuestions[qIndex].id}'
     `);
-    // console.log(lastQuestion);
+
     return lastQuestion[0] ?? null;
   }
 
