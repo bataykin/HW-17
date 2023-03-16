@@ -52,12 +52,6 @@ export class SendAnswerHandler implements ICommandHandler<SendAnswerCommand> {
     );
     if (!lastQuestion) throw new ForbiddenException("no question");
 
-    // console.log({ answer: lastQuestion.correctAnswers[0] });
-    // const checkAnswer = await this.gamesRepo.checkAnswer(lastQuestion, {
-    //   answer: lastQuestion.correctAnswers[0],
-    // });
-    // console.log(checkAnswer);
-
     const checkAnswer = await this.gamesRepo.checkAnswer(lastQuestion, answer);
     const sendedAnswer = await this.gamesRepo.sendAnswer(
       userFromToken,
@@ -66,6 +60,18 @@ export class SendAnswerHandler implements ICommandHandler<SendAnswerCommand> {
       checkAnswer,
       answer.answer,
     );
+
+    const isQuestionStillExists = await this.gamesRepo.getLastQuestion(
+      activeGame,
+      userFromToken,
+    );
+    if (!isQuestionStillExists) {
+      const score = await this.gamesRepo.calculateUserScore(
+        userFromToken,
+        activeGame,
+      );
+    }
+
     return sendedAnswer;
   }
 }

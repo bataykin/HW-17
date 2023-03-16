@@ -155,7 +155,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
           id: game.firstPlayerId,
           login: await getUserLogin(game.firstPlayerId),
         },
-        score: 0,
+        score: game.firstPlayerScore,
       },
       secondPlayerProgress: game.secondPlayerId
         ? {
@@ -164,7 +164,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
               id: game.secondPlayerId,
               login: await getUserLogin(game.secondPlayerId),
             },
-            score: 0,
+            score: game.secondPlayerScore,
           }
         : null,
       questions: mappedQuestions,
@@ -236,5 +236,75 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     } else res = AnswerStatusEnum.Incorrect;
     // console.log(res, answer.answer, question.correctAnswers);
     return res as AnswerStatusEnum;
+  }
+
+  async calculateUserScore(user: UserEntity, game: GameEntity): Promise<void> {
+    const score = await this.dataSource.query(`
+    select * from answers
+    where "gameId" = '${game.id}' and "playerId" = '${user.id}'
+    and "answerStatus" = '${AnswerStatusEnum.Correct}'
+    `);
+
+    // console.log(score.length, score.length + 1);
+
+    const getFirstAnsweredAll = await this.dataSource.query(`
+    select * from games
+    where id = '${game.id}'
+    and
+    ("firstPlayerScore" is null and "secondPlayerScore" is null)
+    `);
+
+    // if user first answered to all questiong then he get plus 1 point
+    if (getFirstAnsweredAll[0]) {
+      await this.dataSource.query(`
+      update games set 
+      "firstPlayerScore" =
+      case 
+      when "firstPlayerId" = '${user.id}' then  ${
+        score.length > 0 ? score.length + 1 : 0
+      } 
+      else null end,
+      "secondPlayerScore" =
+      case 
+      when "secondPlayerId" = '${user.id}' then  ${
+        score.length > 0 ? score.length + 1 : 0
+      } 
+      else null end
+      where id = '${game.id}'
+      `);
+    } else {
+      // calculate last player, finish game, detect winner
+
+      //update scores
+      await this.dataSource.query(
+        `
+      update games set 
+      "firstPlayerScore" =
+      case 
+      when "firstPlayerId" = '${user.id}' then  ${score.length} 
+      else "firstPlayerScore" end,
+      "secondPlayerScore" =
+      case 
+      when "secondPlayerId" = '${user.id}' then  ${score.length} 
+      else "secondPlayerScore" end,
+      "status" = '${GameStatusEnum.Finished}',
+      "finishGameDate" = $1
+      where id = '${game.id}'
+      `,
+        [new Date()],
+      );
+
+      // detect winner
+      await this.dataSource.query(`
+      update games set 
+      "winner" =
+      case
+      when "firstPlayerScore" > "secondPlayerScore" then  '${game.firstPlayerId}'
+      when "firstPlayerScore" < "secondPlayerScore" then  '${game.secondPlayerId}'
+      else 'draw' end
+      where id = '${game.id}'
+      `);
+    }
+    return;
   }
 }

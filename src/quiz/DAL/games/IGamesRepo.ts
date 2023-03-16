@@ -43,4 +43,6 @@ export interface IGamesRepo<GenericGameType> {
     question: QuestionEntity,
     answer: AnswerInputModel,
   ): Promise<AnswerStatusEnum>;
+
+  calculateUserScore(user: UserEntity, game: GenericGameType): Promise<void>;
 }
