@@ -171,7 +171,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
           id: game.firstPlayerId,
           login: await getUserLogin(game.firstPlayerId),
         },
-        score: game.firstPlayerScore ? game.firstPlayerScore : 0,
+        score: game.firstPlayerScore,
       },
       secondPlayerProgress: game.secondPlayerId
         ? {
@@ -180,7 +180,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
               id: game.secondPlayerId,
               login: await getUserLogin(game.secondPlayerId),
             },
-            score: game.secondPlayerScore ? game.secondPlayerScore : 0,
+            score: game.secondPlayerScore,
           }
         : null,
       questions: mappedQuestions,
