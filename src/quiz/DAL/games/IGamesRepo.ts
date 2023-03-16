@@ -10,12 +10,13 @@ export const IGamesRepoToken = Symbol("IGamesRepoToken");
 export interface IGamesRepo<GenericGameType> {
   connectToGame(user: UserEntity): Promise<GenericGameType>;
   getCurrentGame(user: UserEntity): Promise<GenericGameType>;
-  getGameById(user: UserEntity, gameId: string): Promise<GenericGameType>;
+  getGameById(gameId: string): Promise<GenericGameType>;
   sendAnswer(
     user: UserEntity,
     game: GameEntity,
     question: QuestionEntity,
     answerStatus: AnswerStatusEnum,
+    answer: string,
   ): Promise<AnswerViewModel>;
 
   mapGameToView(game: GenericGameType): Promise<GameViewModel>;
@@ -25,6 +26,18 @@ export interface IGamesRepo<GenericGameType> {
     game: GenericGameType,
     user: UserEntity,
   ): Promise<QuestionEntity>;
+
+  mapQuestionToView(question: QuestionEntity): Promise<{
+    id: string;
+    body: string;
+  }>;
+
+  mapQuestionsToView(questions: QuestionEntity[]): Promise<
+    {
+      id: string;
+      body: string;
+    }[]
+  >;
 
   checkAnswer(
     question: QuestionEntity,

@@ -1,5 +1,9 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { Inject, UnauthorizedException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Inject,
+  UnauthorizedException,
+} from "@nestjs/common";
 import {
   IUsersQueryRepo,
   IUsersQueryRepoToken,
@@ -37,8 +41,11 @@ export class JoinGameHandler implements ICommandHandler<JoinGameCommand> {
       : null;
     if (!userFromToken) throw new UnauthorizedException("no user");
 
-    const game = await this.gamesRepo.connectToGame(userFromToken);
-    const mappedGame = await this.gamesRepo.mapGameToView(game);
+    const activeGame = await this.gamesRepo.getActiveGame(userFromToken);
+    if (activeGame) throw new ForbiddenException("active game already");
+
+    const game: GameEntity = await this.gamesRepo.connectToGame(userFromToken);
+    const mappedGame: GameViewModel = await this.gamesRepo.mapGameToView(game);
     return mappedGame;
   }
 }

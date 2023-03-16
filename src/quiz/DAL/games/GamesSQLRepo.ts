@@ -19,36 +19,50 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
   ) {}
 
   async connectToGame(user: UserEntity): Promise<GameEntity> {
+    //check that game already exists:
     const pendingGame = await this.dataSource.query(`
-      select games.* from games
-      where games."status" = '${GameStatusEnum.PendingSecondPlayer}' 
-      and games."firstPlayerId" != '${user.id}'
+      select * from games
+      where "status" = '${GameStatusEnum.PendingSecondPlayer}' 
     `);
-    if (!pendingGame) {
+
+    // if no existed pending game, then create:
+    if (pendingGame.length == 0) {
       const newGame = await this.dataSource.query(`
         insert into games
         ("firstPlayerId", "status")
-        values ("${user.id}", "${GameStatusEnum.PendingSecondPlayer}")
+        values ('${user.id}', '${GameStatusEnum.PendingSecondPlayer}')
         returning *
       `);
       return newGame[0] ?? null;
-    } else {
-      // TODO set 5 questions to game
+    }
+
+    // if pending game is existed then connect and start game:
+    else {
+      if (pendingGame[0].firstPlayerId == user.id) {
+        return pendingGame[0];
+      }
+
       const questions = await this.dataSource.query(`
-      select floor(random() * ( select count(*) from questions)) + 1
+        select * from questions
       `);
+      // Shuffle array
+      const shuffled = questions.sort(() => 0.5 - Math.random());
+      // Get sub-array of first 5 elements after shuffled
+      let selected = shuffled.slice(0, 5);
+
       const game = await this.dataSource.query(
         `
         update games set 
          "secondPlayerId" = '${user.id}',
          "status" = '${GameStatusEnum.Active}',
-         "startGameDate" = $1
-        where status = '${GameStatusEnum.PendingSecondPlayer}' 
+         "startGameDate" = $1,
+         "questions" = $2
+        where id = '${pendingGame[0].id}'
         returning *
       `,
-        [new Date()],
+        [new Date(), selected],
       );
-      return game[0] ?? null;
+      return game[0][0] ?? null;
     }
   }
 
@@ -56,8 +70,12 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     return Promise.resolve(undefined);
   }
 
-  async getGameById(user: UserEntity, gameId: string): Promise<GameEntity> {
-    return Promise.resolve(undefined);
+  async getGameById(gameId: string): Promise<GameEntity> {
+    const game = await this.dataSource.query(`
+      select * from games
+      where id = '${gameId}' 
+    `);
+    return game[0] ?? null;
   }
 
   async sendAnswer(
@@ -65,17 +83,19 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     game: GameEntity,
     question: QuestionEntity,
     answerStatus: AnswerStatusEnum,
+    answer: string,
   ): Promise<AnswerViewModel> {
     const setAnswer = await this.dataSource.query(`
      insert into answers
-     ("gameId", "playerId", "questionId", "answerStatus")
-      values ("${game.id}", "${user.id}", "${question.id}", "${answerStatus}") 
+     ("gameId", "playerId", "questionId", "answerStatus", "answer")
+      values ('${game.id}', '${user.id}', '${question.id}', '${answerStatus}', '${answer}') 
       returning *
     `);
     // const checkUnanswered = await this.dataSource.query(`
     //   select * from answers
     //   where "gameId" = "${game.id} and "playerId" = "${user.id}"
     // `);
+    // console.log(setAnswer);
 
     // TODO ???
     return {
@@ -95,25 +115,50 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
   }
 
   async mapGameToView(game: GameEntity): Promise<GameViewModel> {
+    //
+    const mappedQuestions = game.questions
+      ? await this.mapQuestionsToView(game.questions)
+      : null;
+
+    const getUserLogin = async (id: string) => {
+      if (!id) return null;
+      const login = await this.dataSource.query(
+        `
+        select * from users
+        where id = '${id}'
+        `,
+      );
+      return login[0]?.login;
+    };
+
+    const getUserAnswers = async (userId) => {
+      if (!userId) return [];
+      const answers = await this.dataSource.query(`
+      select "questionId" as "id", "answerStatus", "addedAt"
+       from answers
+      where "gameId" = '${game.id}' and "playerId" = '${userId}'`);
+      return answers;
+    };
+
     const gameView: GameViewModel = {
       id: game.id,
       firstPlayerProgress: {
-        answers: [],
+        answers: await getUserAnswers(game.firstPlayerId),
         player: {
           id: game.firstPlayerId,
-          login: "",
+          login: await getUserLogin(game.firstPlayerId),
         },
         score: 0,
       },
       secondPlayerProgress: {
-        answers: [],
+        answers: await getUserAnswers(game.secondPlayerId),
         player: {
           id: game.secondPlayerId,
-          login: "",
+          login: await getUserLogin(game.secondPlayerId),
         },
         score: 0,
       },
-      questions: [],
+      questions: mappedQuestions,
       status: game.status as GameStatusEnum,
       pairCreatedDate: game.pairCreatedDate,
       startGameDate: game.startGameDate,
@@ -129,29 +174,57 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     const allQuestions = await this.dataSource.query(`
     select questions
     from games
-    where id = "${game.id}"
+    where id = '${game.id}'
     `);
+    const gameQuestions = allQuestions[0].questions;
+
     const answeredQuestions = await this.dataSource.query(`
     select "questionId"
     from answers
     where "gameId" = '${game.id}' and "playerId" = '${user.id}'
     `);
-    const notAnsweredQuestions = allQuestions.filter(
-      (q) => !(q in answeredQuestions),
-    );
+    const answeredId = answeredQuestions.map((q) => q.questionId);
+    const gameQId = gameQuestions.map((q) => q.id);
+    const notAnsQId = gameQId.filter((id) => answeredId.indexOf(id) == -1);
+
     const lastQuestion = await this.dataSource.query(`
       select * from questions
-      where id = "${notAnsweredQuestions[0].questionId}"
+      where id = '${notAnsQId[0]}'
     `);
+    // console.log(lastQuestion);
     return lastQuestion[0] ?? null;
+  }
+
+  async mapQuestionToView(
+    question: QuestionEntity,
+  ): Promise<{ id: string; body: string }> {
+    return { id: question.id, body: question.body };
+  }
+
+  async mapQuestionsToView(
+    questions: QuestionEntity[],
+  ): Promise<{ id: string; body: string }[]> {
+    const mappedQuestions = [];
+    for await (const question of questions) {
+      mappedQuestions.push(await this.mapQuestionToView(question));
+    }
+    return mappedQuestions;
   }
 
   async checkAnswer(
     question: QuestionEntity,
     answer: AnswerInputModel,
   ): Promise<AnswerStatusEnum> {
-    if (answer.answer in question.correctAnswers) {
-      return AnswerStatusEnum.Correct;
-    } else return AnswerStatusEnum.Incorrect;
+    let res = "";
+    // console.log(answer.answer, question.correctAnswers);
+    const checkCorrectness = question.correctAnswers.filter(
+      (ans) => answer.answer === ans,
+    );
+
+    if (checkCorrectness[0]) {
+      res = AnswerStatusEnum.Correct;
+    } else res = AnswerStatusEnum.Incorrect;
+    // console.log(res, answer.answer, question.correctAnswers);
+    return res as AnswerStatusEnum;
   }
 }

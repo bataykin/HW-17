@@ -79,6 +79,37 @@ export class TestHelpersClass {
     return comments;
   };
 
+  createFakeQuestions = (count: number) => {
+    const questions = [];
+    for (let i = 0; i < count; i++) {
+      let answers = [];
+      for (let j = 0; j < 5; j++) {
+        answers.push(this.createRandomString(5));
+      }
+      questions.push({
+        input: {
+          body: this.createRandomString(15),
+          correctAnswers: answers,
+        },
+        id: null,
+      });
+    }
+    return questions;
+  };
+
+  createRandomAnswers = (count: number, question: any[]) => {
+    const answers = [];
+    for (let i = 0; i < question.length; i++) {
+      answers.push({
+        answer:
+          question[i].input.correctAnswers[
+            Math.floor(Math.random() * question[i].input.correctAnswers.length)
+          ],
+      });
+    }
+    return answers;
+  };
+
   banReason = this.createRandomString(15);
 
   banUserDto = {

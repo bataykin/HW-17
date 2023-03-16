@@ -55,7 +55,7 @@ export class QuizGameContoller {
 
   @Post("my-current/answers")
   @UseGuards(JwtAuthGuard)
-  @HttpCode(201)
+  @HttpCode(200)
   async sendAnswerToGame(@Request() req, @Body() answer: AnswerInputModel) {
     const accessToken = req.headers.authorization?.split(" ")[1];
     return this.commandBus.execute(new SendAnswerCommand(answer, accessToken));

@@ -1,13 +1,18 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
-import { Inject } from "@nestjs/common";
+import { Inject, UnauthorizedException } from "@nestjs/common";
+import { IGamesRepo, IGamesRepoToken } from "../../DAL/games/IGamesRepo";
+import { GameEntity } from "../../DAL/games/GameEntity";
 import {
-  IQuestionsRepo,
-  IQuestionsRepoToken,
-} from "../../DAL/questions/IQuestionsRepo";
-import { QuestionEntity } from "../../DAL/questions/QuestionEntity";
+  IUsersQueryRepo,
+  IUsersQueryRepoToken,
+} from "../../../users/DAL/IUserQueryRepo";
+import { UserEntity } from "../../../users/entity/user.entity";
+import { JwtService } from "@nestjs/jwt";
+import { jwtConstants } from "../../../auth/constants";
+import { GameViewModel } from "../../dto/game/GameViewModel";
 
 export class GetCurrentGameQuery {
-  constructor(public readonly token: string) {}
+  constructor(public readonly accessToken: string) {}
 }
 
 @QueryHandler(GetCurrentGameQuery)
@@ -15,10 +20,28 @@ export class GetCurrentGameHandler
   implements IQueryHandler<GetCurrentGameQuery>
 {
   constructor(
-    @Inject(IQuestionsRepoToken)
-    private readonly questionsRepo: IQuestionsRepo<QuestionEntity>,
+    @Inject(IGamesRepoToken)
+    private readonly gamesRepo: IGamesRepo<GameEntity>,
+    @Inject(IUsersQueryRepoToken)
+    private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
+    private readonly jwtService: JwtService,
   ) {}
   async execute(query: GetCurrentGameQuery): Promise<any> {
-    const { token } = query;
+    const { accessToken } = query;
+    const retrievedUserFromToken = accessToken
+      ? await this.jwtService.verify(accessToken, {
+          secret: jwtConstants.secret,
+        })
+      : null;
+    const userFromToken = retrievedUserFromToken
+      ? await this.usersQueryRepo.findById(retrievedUserFromToken.userId)
+      : null;
+    if (!userFromToken) throw new UnauthorizedException("no user");
+
+    const activeGame = await this.gamesRepo.getActiveGame(userFromToken);
+    const mappedGame: GameViewModel = await this.gamesRepo.mapGameToView(
+      activeGame,
+    );
+    return mappedGame;
   }
 }

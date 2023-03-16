@@ -6,10 +6,11 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { GameStatusEnum } from "../../dto/game/GameStatusEnum";
+import { QuestionEntity } from "../questions/QuestionEntity";
 
 @Entity({ name: "games" })
 export class GameEntity extends BaseEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ nullable: false })
@@ -18,8 +19,8 @@ export class GameEntity extends BaseEntity {
   @Column({ nullable: true })
   secondPlayerId: string;
 
-  @Column({ type: "text", nullable: true, array: true })
-  questions: string[];
+  @Column({ type: "json", nullable: true, array: true })
+  questions: QuestionEntity[];
 
   @Column({ enum: GameStatusEnum, nullable: false })
   status: string;

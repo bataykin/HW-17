@@ -23,6 +23,9 @@ export class AnswerEntity extends BaseEntity {
   @Column({ nullable: false })
   questionId: string;
 
+  @Column({ nullable: true })
+  answer: string;
+
   @Column({ enum: AnswerStatusEnum, nullable: false })
   answerStatus: string;
 
