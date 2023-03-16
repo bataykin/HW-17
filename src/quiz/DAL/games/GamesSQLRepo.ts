@@ -157,7 +157,9 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       const answers = await this.dataSource.query(`
       select "questionId", "answerStatus", "addedAt"
        from answers
-      where "gameId" = '${game.id}' and "playerId" = '${userId}'`);
+      where "gameId" = '${game.id}' and "playerId" = '${userId}'
+      order by "addedAt" asc
+      `);
       return answers;
     };
 
