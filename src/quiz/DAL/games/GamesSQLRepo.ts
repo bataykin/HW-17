@@ -155,7 +155,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
           id: game.firstPlayerId,
           login: await getUserLogin(game.firstPlayerId),
         },
-        score: game.firstPlayerScore,
+        score: game.firstPlayerScore ? game.firstPlayerScore : 0,
       },
       secondPlayerProgress: game.secondPlayerId
         ? {
@@ -164,7 +164,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
               id: game.secondPlayerId,
               login: await getUserLogin(game.secondPlayerId),
             },
-            score: game.secondPlayerScore,
+            score: game.secondPlayerScore ? game.secondPlayerScore : 0,
           }
         : null,
       questions: mappedQuestions,
@@ -253,7 +253,6 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     and
     ("firstPlayerScore" is null and "secondPlayerScore" is  null)
     `);
-    console.log(getFirstAnsweredAll);
     // if user first answered to all questiong then he get plus 1 point
     if (getFirstAnsweredAll[0]) {
       console.log(getFirstAnsweredAll);
