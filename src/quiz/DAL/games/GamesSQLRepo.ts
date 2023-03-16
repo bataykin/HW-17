@@ -251,11 +251,11 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     select * from games
     where id = '${game.id}'
     and
-    ("firstPlayerScore" is null and "secondPlayerScore" is null)
+    ("firstPlayerScore" = 0 and "secondPlayerScore" = 0)
     `);
-
     // if user first answered to all questiong then he get plus 1 point
     if (getFirstAnsweredAll[0]) {
+      console.log(getFirstAnsweredAll);
       await this.dataSource.query(`
       update games set 
       "firstPlayerScore" =
@@ -263,13 +263,13 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       when "firstPlayerId" = '${user.id}' then  ${
         score.length > 0 ? score.length + 1 : 0
       } 
-      else null end,
+      else 0 end,
       "secondPlayerScore" =
       case 
       when "secondPlayerId" = '${user.id}' then  ${
         score.length > 0 ? score.length + 1 : 0
       } 
-      else null end
+      else 0 end
       where id = '${game.id}'
       `);
     } else {

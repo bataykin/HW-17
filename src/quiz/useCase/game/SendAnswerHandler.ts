@@ -44,8 +44,10 @@ export class SendAnswerHandler implements ICommandHandler<SendAnswerCommand> {
       ? await this.usersQueryRepo.findById(retrievedUserFromToken.userId)
       : null;
     if (!userFromToken) throw new UnauthorizedException("no user");
+
     const activeGame = await this.gamesRepo.getActiveGame(userFromToken);
     if (!activeGame) throw new ForbiddenException("no active game");
+
     const lastQuestion = await this.gamesRepo.getLastQuestion(
       activeGame,
       userFromToken,
