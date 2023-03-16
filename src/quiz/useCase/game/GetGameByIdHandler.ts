@@ -48,14 +48,9 @@ export class GetGameByIdHandler implements IQueryHandler<GetGameByIdQuery> {
     const game = await this.gamesRepo.getGameById(gameId);
     if (!game) throw new NotFoundException("no game by id");
 
-    console.log(game.firstPlayerId, game.secondPlayerId, userFromToken.id);
-    if (
-      !(
-        game.firstPlayerId == userFromToken.id ||
-        game.secondPlayerId == userFromToken.id
-      )
-    )
+    if (![game.firstPlayerId, game.secondPlayerId].includes(userFromToken.id))
       throw new ForbiddenException("not participated");
+
     const mappedGame: GameViewModel = await this.gamesRepo.mapGameToView(game);
     return mappedGame;
   }
