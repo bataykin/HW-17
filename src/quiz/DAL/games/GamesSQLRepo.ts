@@ -269,7 +269,6 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
    `);
     // if user first answered to all questiong then he get plus 1 point
     if (getFirstAnsweredAll[0]) {
-      console.log(getFirstAnsweredAll);
       await this.dataSource.query(`
       update games set 
       "firstPlayerScore" =
