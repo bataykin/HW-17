@@ -208,7 +208,7 @@ describe("HW-24 - Game - 2 (e2e)", () => {
   }
 
   for (let i = 0; i < 5; i++) {
-    it(`(POST: /pair-game-quiz/pairs/my-current/answers send answer0 by user0"  )`, () => {
+    it(`(POST: /pair-game-quiz/pairs/my-current/answers send answer0 by user1"  )`, () => {
       return request(app.getHttpServer())
         .post("/pair-game-quiz/pairs/my-current/answers")
         .send(JSON.stringify(answers[i]))
