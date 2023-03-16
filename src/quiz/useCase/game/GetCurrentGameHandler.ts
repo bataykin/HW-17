@@ -1,5 +1,9 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
-import { Inject, UnauthorizedException } from "@nestjs/common";
+import {
+  Inject,
+  NotFoundException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { IGamesRepo, IGamesRepoToken } from "../../DAL/games/IGamesRepo";
 import { GameEntity } from "../../DAL/games/GameEntity";
 import {
@@ -39,6 +43,8 @@ export class GetCurrentGameHandler
     if (!userFromToken) throw new UnauthorizedException("no user");
 
     const activeGame = await this.gamesRepo.getActiveGame(userFromToken);
+    if (!activeGame) throw new NotFoundException("no active game");
+
     const mappedGame: GameViewModel = await this.gamesRepo.mapGameToView(
       activeGame,
     );

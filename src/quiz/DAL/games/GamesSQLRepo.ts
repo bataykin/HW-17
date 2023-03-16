@@ -67,7 +67,14 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
   }
 
   async getCurrentGame(user: UserEntity): Promise<GameEntity> {
-    return Promise.resolve(undefined);
+    const curGame = await this.dataSource.query(`
+      select * from games
+      where 
+      (status = '${GameStatusEnum.Active}' or status = '${GameStatusEnum.PendingSecondPlayer}')
+       and
+      ("firstPlayerId" = '${user.id}' or "secondPlayerId" = '${user.id}')
+    `);
+    return curGame[0] ?? null;
   }
 
   async getGameById(gameId: string): Promise<GameEntity> {
@@ -150,14 +157,16 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
         },
         score: 0,
       },
-      secondPlayerProgress: {
-        answers: await getUserAnswers(game.secondPlayerId),
-        player: {
-          id: game.secondPlayerId,
-          login: await getUserLogin(game.secondPlayerId),
-        },
-        score: 0,
-      },
+      secondPlayerProgress: game.secondPlayerId
+        ? {
+            answers: await getUserAnswers(game.secondPlayerId),
+            player: {
+              id: game.secondPlayerId,
+              login: await getUserLogin(game.secondPlayerId),
+            },
+            score: 0,
+          }
+        : null,
       questions: mappedQuestions,
       status: game.status as GameStatusEnum,
       pairCreatedDate: game.pairCreatedDate,
@@ -186,6 +195,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     const answeredId = answeredQuestions.map((q) => q.questionId);
     const gameQId = gameQuestions.map((q) => q.id);
     const notAnsQId = gameQId.filter((id) => answeredId.indexOf(id) == -1);
+    if (notAnsQId.length == 0) return null;
 
     const lastQuestion = await this.dataSource.query(`
       select * from questions

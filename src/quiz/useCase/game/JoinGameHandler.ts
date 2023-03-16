@@ -41,8 +41,8 @@ export class JoinGameHandler implements ICommandHandler<JoinGameCommand> {
       : null;
     if (!userFromToken) throw new UnauthorizedException("no user");
 
-    const activeGame = await this.gamesRepo.getActiveGame(userFromToken);
-    if (activeGame) throw new ForbiddenException("active game already");
+    const curGame = await this.gamesRepo.getCurrentGame(userFromToken);
+    if (curGame) throw new ForbiddenException("current game already");
 
     const game: GameEntity = await this.gamesRepo.connectToGame(userFromToken);
     const mappedGame: GameViewModel = await this.gamesRepo.mapGameToView(game);
