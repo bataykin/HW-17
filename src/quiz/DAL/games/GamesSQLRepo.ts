@@ -98,11 +98,25 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       values ('${game.id}', '${user.id}', '${question.id}', '${answerStatus}', '${answer}') 
       returning *
     `);
-    // const checkUnanswered = await this.dataSource.query(`
-    //   select * from answers
-    //   where "gameId" = "${game.id} and "playerId" = "${user.id}"
-    // `);
-    // console.log(setAnswer);
+    if (answerStatus == AnswerStatusEnum.Correct) {
+      await this.dataSource.query(
+        `
+      update games set 
+      
+      "firstPlayerScore" =
+      case 
+      when "firstPlayerId" = '${user.id}' then  "firstPlayerScore" + 1
+      else "firstPlayerScore" end,
+      
+      "secondPlayerScore" =
+      case 
+      when "secondPlayerId" = '${user.id}' then  "secondPlayerScore" + 1
+      else "secondPlayerScore" end
+      
+      where id = '${game.id}'
+      `,
+      );
+    }
 
     // TODO ???
     return {
@@ -249,10 +263,8 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
 
     const getFirstAnsweredAll = await this.dataSource.query(`
     select * from games
-    where id = '${game.id}'
-    and
-    ("firstPlayerScore" is null and "secondPlayerScore" is  null)
-    `);
+    where id = '${game.id}' and "firstFinished" = false
+   `);
     // if user first answered to all questiong then he get plus 1 point
     if (getFirstAnsweredAll[0]) {
       console.log(getFirstAnsweredAll);
@@ -269,7 +281,8 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       when "secondPlayerId" = '${user.id}' then  ${
         score.length > 0 ? score.length + 1 : 0
       } 
-      else 0 end
+      else 0 end,
+      "firstFinished" = true
       where id = '${game.id}'
       `);
     } else {

@@ -37,12 +37,15 @@ export class GameEntity extends BaseEntity {
   // @ManyToOne(() => UserEntity, (user) => user.games)
   // user: UserEntity;
 
-  @Column({ default: null, nullable: true })
+  @Column({ default: 0, nullable: true })
   firstPlayerScore: number;
 
-  @Column({ default: null, nullable: true })
+  @Column({ default: 0, nullable: true })
   secondPlayerScore: number;
 
   @Column({ nullable: true })
   winner: string;
+
+  @Column({ default: false })
+  firstFinished: boolean;
 }
