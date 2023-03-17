@@ -207,20 +207,23 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     select "questionId"
     from answers
     where "gameId" = '${game.id}' and "playerId" = '${user.id}'
+    order by "addedAt" asc
     `);
-    const answeredId = answeredQuestions.map((q) => q.questionId);
-    const gameQId = gameQuestions.map((q) => q.id);
-    const notAnsQId = gameQId.filter((id) => answeredId.indexOf(id) == -1);
-    if (notAnsQId.length == 0) return null;
+    // console.log(gameQuestions, answeredQuestions);
+    // const answeredId = answeredQuestions.map((q) => q.questionId);
+    // const gameQId = gameQuestions.map((q) => q.id);
+    // const notAnsQId = gameQId.filter((id) => answeredId.indexOf(id) == -1);
+    // if (notAnsQId.length == 0) return null;
 
-    const qIndex = 5 - allQuestions.length - answeredQuestions.length;
+    const qIndex = answeredQuestions.length;
+    const lastQuestion = gameQuestions[qIndex];
 
-    const lastQuestion = await this.dataSource.query(`
-      select * from questions
-      where id = '${gameQuestions[qIndex].id}'
-    `);
+    // const lastQuestion = await this.dataSource.query(`
+    //   select * from questions
+    //   where id = '${gameQuestions[qIndex].id}'
+    // `);
 
-    return lastQuestion[0] ?? null;
+    return lastQuestion ?? null;
   }
 
   async mapQuestionToView(

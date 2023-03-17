@@ -184,7 +184,7 @@ describe("HW-24 - Game - 2 (e2e)", () => {
     it(`(POST: /pair-game-quiz/pairs/my-current/answers send answer0 by user1"  )`, () => {
       return request(app.getHttpServer())
         .post("/pair-game-quiz/pairs/my-current/answers")
-        .send(JSON.stringify(answers[i]))
+        .send(JSON.stringify(answers[5 - i]))
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .set("user-Agent", "deviceTitle")
