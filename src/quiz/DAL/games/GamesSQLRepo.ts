@@ -44,7 +44,11 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
 
       const questions = await this.dataSource.query(`
         select * from questions
+        order by "createdAt" asc
       `);
+
+      // console.log(questions);
+
       // Shuffle array
       const shuffled = questions.sort(() => 0.5 - Math.random());
       // Get sub-array of first 5 elements after shuffled
@@ -60,7 +64,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
         where id = '${pendingGame[0].id}'
         returning *
       `,
-        [new Date(), questions],
+        [new Date(), shuffled],
       );
       return game[0][0] ?? null;
     }
@@ -118,7 +122,6 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       );
     }
 
-    // TODO ???
     return {
       questionId: question.id,
       answerStatus: answerStatus,
@@ -200,6 +203,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     select questions
     from games
     where id = '${game.id}'
+    --order by games.questions->>"createdAt" asc
     `);
     const gameQuestions = allQuestions[0].questions;
 

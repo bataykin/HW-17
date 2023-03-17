@@ -175,7 +175,7 @@ describe("HW-24 - Game - 2 (e2e)", () => {
         .set("Authorization", `Bearer ${users[0].accessToken}`)
         .expect(200)
         .then((res) => {
-          // console.log(res.body);
+          // console.log(answers[4 - i]);
         });
     });
   }
@@ -184,7 +184,7 @@ describe("HW-24 - Game - 2 (e2e)", () => {
     it(`(POST: /pair-game-quiz/pairs/my-current/answers send answer0 by user1"  )`, () => {
       return request(app.getHttpServer())
         .post("/pair-game-quiz/pairs/my-current/answers")
-        .send(JSON.stringify(answers[5 - i]))
+        .send(JSON.stringify(answers[i]))
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .set("user-Agent", "deviceTitle")

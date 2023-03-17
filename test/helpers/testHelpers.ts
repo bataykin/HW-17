@@ -101,10 +101,7 @@ export class TestHelpersClass {
     const answers = [];
     for (let i = 0; i < question.length; i++) {
       answers.push({
-        answer:
-          question[i].input.correctAnswers[
-            Math.floor(Math.random() * question[i].input.correctAnswers.length)
-          ],
+        answer: question[i].input.correctAnswers[0],
       });
     }
     return answers;
