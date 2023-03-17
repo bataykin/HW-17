@@ -77,7 +77,7 @@ export class SendAnswerHandler implements ICommandHandler<SendAnswerCommand> {
       //
       console.log(`${userFromToken.id} finished...`);
       const activeGameFirst = await this.gamesRepo.getActiveGame(userFromToken);
-      console.log(activeGameFirst);
+      // console.log(activeGameFirst);
 
       const score = await this.gamesRepo.calculateUserScore(
         userFromToken,

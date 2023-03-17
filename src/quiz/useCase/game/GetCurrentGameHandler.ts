@@ -47,7 +47,7 @@ export class GetCurrentGameHandler
 
     const currentGame = await this.gamesRepo.getCurrentGame(userFromToken);
     if (!currentGame) throw new NotFoundException("no active game");
-    console.log(currentGame);
+    // console.log(currentGame);
 
     const mappedGame: GameViewModel = await this.gamesRepo.mapGameToView(
       currentGame,
