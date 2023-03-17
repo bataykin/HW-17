@@ -47,8 +47,6 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
         order by "createdAt" asc
       `);
 
-      // console.log(questions);
-
       // Shuffle array
       const shuffled = questions.sort(() => 0.5 - Math.random());
       // Get sub-array of first 5 elements after shuffled
@@ -66,6 +64,17 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       `,
         [new Date(), shuffled],
       );
+
+      //
+      const allQuestions = await this.dataSource.query(`
+    select questions
+    from games
+    where id = '${pendingGame[0].id}'
+    --order by games.questions->>"createdAt" asc
+    `);
+      console.log(questions, allQuestions[0]);
+      //
+
       return game[0][0] ?? null;
     }
   }
@@ -213,7 +222,8 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     where "gameId" = '${game.id}' and "playerId" = '${user.id}'
     order by "addedAt" asc
     `);
-    // console.log(gameQuestions, answeredQuestions);
+
+    console.dir(gameQuestions, answeredQuestions);
     // const answeredId = answeredQuestions.map((q) => q.questionId);
     // const gameQId = gameQuestions.map((q) => q.id);
     // const notAnsQId = gameQId.filter((id) => answeredId.indexOf(id) == -1);

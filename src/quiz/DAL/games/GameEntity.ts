@@ -19,7 +19,7 @@ export class GameEntity extends BaseEntity {
   @Column({ nullable: true })
   secondPlayerId: string;
 
-  @Column({ type: "json", nullable: true, array: true })
+  @Column({ type: "jsonb", nullable: true, array: true })
   questions: QuestionEntity[];
 
   @Column({ enum: GameStatusEnum, nullable: false })
