@@ -185,7 +185,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     };
 
     const currScore = game.firstPlayerScore + " : " + game.secondPlayerScore;
-    console.log(currScore);
+    // console.log(currScore);
 
     const gameView: GameViewModel = {
       id: game.id,
@@ -373,11 +373,13 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     user: UserEntity,
     dto: GamesPaginationDTO,
   ): Promise<GameEntity[]> {
+    console.log(dto);
     const games = await this.dataSource.query(
       `
     select * from games
     where ("firstPlayerId" = $1 or "secondPlayerId" = $1)
-    order by "${dto.sortBy}" ${dto.sortDirection}
+    order by "${dto.sortBy}" ${dto.sortDirection},
+    "pairCreatedDate" desc
     limit ${dto.pageSize} offset ${dto.skipSize}
     `,
       [user.id],

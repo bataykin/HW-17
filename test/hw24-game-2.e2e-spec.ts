@@ -321,7 +321,7 @@ describe("HW-24 - Game - 2 (e2e)", () => {
 
   it(`(GET: /pair-game-quiz/pairs/my-current by user0"  )`, () => {
     return request(app.getHttpServer())
-      .get("/pair-game-quiz/pairs/my")
+      .get("/pair-game-quiz/pairs/my?sortBy=status&sortDirection=asc")
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .set("user-Agent", "deviceTitle")
