@@ -6,6 +6,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   Request,
   UseGuards,
 } from "@nestjs/common";
@@ -17,6 +18,8 @@ import { GetGameByIdQuery } from "./useCase/game/GetGameByIdHandler";
 import { JoinGameCommand } from "./useCase/game/JoinGameHandler";
 import { AnswerInputModel } from "./dto/game/AnswerInputModel";
 import { SendAnswerCommand } from "./useCase/game/SendAnswerHandler";
+import { GetAllMyGamesQuery } from "./useCase/game/GetAllMyGamesHandler";
+import { GamesPaginationDTO } from "./dto/game/GamesPaginationDTO";
 
 @SkipThrottle()
 @Controller("pair-game-quiz/pairs")
@@ -32,6 +35,14 @@ export class QuizGameContoller {
   async getCurrentGame(@Request() req) {
     const accessToken = req.headers.authorization?.split(" ")[1];
     return this.queryBus.execute(new GetCurrentGameQuery(accessToken));
+  }
+
+  @Get("my")
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async getAllMyGames(@Query() dto: GamesPaginationDTO, @Request() req) {
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    return this.queryBus.execute(new GetAllMyGamesQuery(accessToken, dto));
   }
 
   @Get(":id")

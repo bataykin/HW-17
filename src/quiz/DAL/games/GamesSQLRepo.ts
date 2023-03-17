@@ -10,6 +10,7 @@ import { GameViewModel } from "../../dto/game/GameViewModel";
 import { AnswerStatusEnum } from "../../dto/game/AnswerStatusEnum";
 import { AnswerViewModel } from "../../dto/game/AnswerViewModel";
 import { QuestionEntity } from "../questions/QuestionEntity";
+import { GamesPaginationDTO } from "../../dto/game/GamesPaginationDTO";
 
 @Injectable()
 export class GamesSQLRepo implements IGamesRepo<GameEntity> {
@@ -355,5 +356,40 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       `);
     }
     return;
+  }
+
+  async countMyGames(user: UserEntity): Promise<number> {
+    const games = await this.dataSource.query(
+      `
+    select * from games
+    where ("firstPlayerId" = $1 or "secondPlayerId" = $1)
+    `,
+      [user.id],
+    );
+    return games.length;
+  }
+
+  async getAllUsersGames(
+    user: UserEntity,
+    dto: GamesPaginationDTO,
+  ): Promise<GameEntity[]> {
+    const games = await this.dataSource.query(
+      `
+    select * from games
+    where ("firstPlayerId" = $1 or "secondPlayerId" = $1)
+    order by "${dto.sortBy}" ${dto.sortDirection}
+    limit ${dto.pageSize} offset ${dto.skipSize}
+    `,
+      [user.id],
+    );
+    return games;
+  }
+
+  async mapGamesToView(games: GameEntity[]): Promise<GameViewModel[]> {
+    const mappedGames = [];
+    for await (const game of games) {
+      mappedGames.push(await this.mapGameToView(game));
+    }
+    return mappedGames;
   }
 }

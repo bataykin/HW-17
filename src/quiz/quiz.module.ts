@@ -22,6 +22,7 @@ import { IUsersQueryRepoToken } from "../users/DAL/IUserQueryRepo";
 import { UsersSQLQueryRepo } from "../users/DAL/users.SQL.QueryRepo";
 import { IGamesRepoToken } from "./DAL/games/IGamesRepo";
 import { GamesSQLRepo } from "./DAL/games/GamesSQLRepo";
+import { GetAllMyGamesHandler } from "./useCase/game/GetAllMyGamesHandler";
 
 const questionsHandlers = [
   CreateQuestionsHandler,
@@ -35,6 +36,7 @@ const gameHandlers = [
   GetGameByIdHandler,
   JoinGameHandler,
   SendAnswerHandler,
+  GetAllMyGamesHandler,
 ];
 
 @Module({
