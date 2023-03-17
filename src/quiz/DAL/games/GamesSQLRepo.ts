@@ -112,6 +112,12 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       values ('${game.id}', '${user.id}', '${question.id}', '${answerStatus}', '${answer}') 
       returning *
     `);
+
+    const correctAnswers = await this.dataSource.query(`
+    select * from answers
+    where "gameId" = '${game.id}' and "playerId" = '${user.id}'
+    and "answerStatus" = '${AnswerStatusEnum.Correct}' 
+    `);
     if (answerStatus == AnswerStatusEnum.Correct) {
       await this.dataSource.query(
         `
@@ -119,12 +125,12 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       
       "firstPlayerScore" =
       case 
-      when "firstPlayerId" = '${user.id}' then  "firstPlayerScore" + 1
+      when "firstPlayerId" = '${user.id}' then  '${correctAnswers.length}'
       else "firstPlayerScore" end,
       
       "secondPlayerScore" =
       case 
-      when "secondPlayerId" = '${user.id}' then  "secondPlayerScore" + 1
+      when "secondPlayerId" = '${user.id}' then  '${correctAnswers.length}'
       else "secondPlayerScore" end
       
       where id = '${game.id}'
@@ -209,6 +215,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     game: GameEntity,
     user: UserEntity,
   ): Promise<QuestionEntity> {
+    //
     const allQuestions = await this.dataSource.query(`
     select questions
     from games
@@ -291,18 +298,21 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     if (getFirstAnsweredAll[0]) {
       await this.dataSource.query(`
       update games set 
+      
       "firstPlayerScore" =
       case 
       when "firstPlayerId" = '${user.id}' then  ${
         score.length > 0 ? score.length + 1 : 0
       } 
       else 0 end,
+      
       "secondPlayerScore" =
       case 
       when "secondPlayerId" = '${user.id}' then  ${
         score.length > 0 ? score.length + 1 : 0
       } 
       else 0 end,
+      
       "firstFinished" = true
       where id = '${game.id}'
       `);
