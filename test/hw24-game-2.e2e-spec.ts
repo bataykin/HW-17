@@ -29,6 +29,10 @@ const answers = testClass.createRandomAnswers(counter, questions);
 
 let gameId = null;
 
+let published = {
+  published: true,
+};
+
 describe("HW-24 - Game - 2 (e2e)", () => {
   let app: INestApplication;
 
@@ -66,6 +70,22 @@ describe("HW-24 - Game - 2 (e2e)", () => {
         .expect(201)
         .then((res) => {
           questions[i].id = res.body.id;
+          // console.log(res.body);
+        });
+    });
+  }
+
+  for (let i = 0; i < counter; i++) {
+    it(`(POST -> "sa/quiz/questions/{id}/publish "  )`, () => {
+      return request(app.getHttpServer())
+        .put(`/sa/quiz/questions/${questions[i].id}/publish`)
+        .send(JSON.stringify(published))
+        .set("Content-Type", "application/json")
+        .set("Accept", "application/json")
+        .set("user-Agent", "deviceTitle")
+        .set("Authorization", "Basic YWRtaW46cXdlcnR5")
+        .expect(204)
+        .then((res) => {
           // console.log(res.body);
         });
     });

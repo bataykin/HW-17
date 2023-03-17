@@ -14,7 +14,7 @@ export class QuestionEntity extends BaseEntity {
   @Column({ type: "varchar" })
   body: string;
 
-  @Column({ type: "text", array: true })
+  @Column({ type: "varchar", array: true })
   correctAnswers: string[];
 
   @Column({ type: "boolean", default: false })

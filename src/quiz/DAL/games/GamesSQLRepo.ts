@@ -44,6 +44,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
 
       const questions = await this.dataSource.query(`
         select * from questions
+        where "published" = true
         order by "createdAt" asc
       `);
 
@@ -65,15 +66,15 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
         [new Date(), shuffled],
       );
 
-      //
-      const allQuestions = await this.dataSource.query(`
-    select questions
-    from games
-    where id = '${pendingGame[0].id}'
-    --order by games.questions->>"createdAt" asc
-    `);
-      console.log(questions, allQuestions[0]);
-      //
+      // // testing questions order:
+      // const allQuestions = await this.dataSource.query(`
+      // select questions
+      // from games
+      // where id = '${pendingGame[0].id}'
+      // --order by games.questions->>"createdAt" asc
+      // `);
+      // console.log(questions, allQuestions[0]);
+      // //
 
       return game[0][0] ?? null;
     }
@@ -204,7 +205,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     return gameView;
   }
 
-  async getLastQuestion(
+  async getNextQuestion(
     game: GameEntity,
     user: UserEntity,
   ): Promise<QuestionEntity> {
@@ -223,7 +224,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     order by "addedAt" asc
     `);
 
-    console.dir(gameQuestions, answeredQuestions);
+    // console.groupCollapsed(gameQuestions, answeredQuestions);
     // const answeredId = answeredQuestions.map((q) => q.questionId);
     // const gameQId = gameQuestions.map((q) => q.id);
     // const notAnsQId = gameQId.filter((id) => answeredId.indexOf(id) == -1);

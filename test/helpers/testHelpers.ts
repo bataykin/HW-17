@@ -101,7 +101,7 @@ export class TestHelpersClass {
     const answers = [];
     for (let i = 0; i < question.length; i++) {
       answers.push({
-        answer: question[i].input.correctAnswers[0],
+        answer: question[i].input.correctAnswers[3],
       });
     }
     return answers;

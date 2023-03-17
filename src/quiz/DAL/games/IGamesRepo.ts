@@ -22,7 +22,7 @@ export interface IGamesRepo<GenericGameType> {
   mapGameToView(game: GenericGameType): Promise<GameViewModel>;
 
   getActiveGame(user: UserEntity): Promise<GenericGameType>;
-  getLastQuestion(
+  getNextQuestion(
     game: GenericGameType,
     user: UserEntity,
   ): Promise<QuestionEntity>;

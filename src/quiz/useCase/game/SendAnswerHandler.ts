@@ -48,25 +48,25 @@ export class SendAnswerHandler implements ICommandHandler<SendAnswerCommand> {
     const activeGame = await this.gamesRepo.getActiveGame(userFromToken);
     if (!activeGame) throw new ForbiddenException("no active game");
 
-    const lastQuestion = await this.gamesRepo.getLastQuestion(
+    const nextQuestion = await this.gamesRepo.getNextQuestion(
       activeGame,
       userFromToken,
     );
-    if (!lastQuestion) throw new ForbiddenException("no question");
+    if (!nextQuestion) throw new ForbiddenException("no question");
 
-    const checkAnswer = await this.gamesRepo.checkAnswer(lastQuestion, answer);
+    const checkAnswer = await this.gamesRepo.checkAnswer(nextQuestion, answer);
 
-    // console.log(answer.answer, lastQuestion, checkAnswer);
+    console.log(answer.answer, nextQuestion, checkAnswer);
 
     const sendedAnswer = await this.gamesRepo.sendAnswer(
       userFromToken,
       activeGame,
-      lastQuestion,
+      nextQuestion,
       checkAnswer,
       answer.answer,
     );
 
-    const isQuestionStillExists = await this.gamesRepo.getLastQuestion(
+    const isQuestionStillExists = await this.gamesRepo.getNextQuestion(
       activeGame,
       userFromToken,
     );
