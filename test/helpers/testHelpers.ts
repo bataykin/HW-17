@@ -84,7 +84,7 @@ export class TestHelpersClass {
     for (let i = 0; i < count; i++) {
       let answers = [];
       for (let j = 0; j < 5; j++) {
-        answers.push(this.createRandomString(5));
+        answers.push("correct");
       }
       questions.push({
         input: {
@@ -101,7 +101,7 @@ export class TestHelpersClass {
     const answers = [];
     for (let i = 0; i < question.length; i++) {
       answers.push({
-        answer: question[i].input.correctAnswers[3],
+        answer: question[i].input.correctAnswers[0],
       });
     }
     return answers;

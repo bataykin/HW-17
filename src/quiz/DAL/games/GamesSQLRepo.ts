@@ -84,7 +84,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     const curGame = await this.dataSource.query(`
       select * from games
       where 
-      (status = '${GameStatusEnum.Active}' or status = '${GameStatusEnum.PendingSecondPlayer}')
+      status != '${GameStatusEnum.Finished}'
        and
       ("firstPlayerId" = '${user.id}' or "secondPlayerId" = '${user.id}')
     `);
@@ -118,6 +118,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     where "gameId" = '${game.id}' and "playerId" = '${user.id}'
     and "answerStatus" = '${AnswerStatusEnum.Correct}' 
     `);
+
     if (answerStatus == AnswerStatusEnum.Correct) {
       await this.dataSource.query(
         `
@@ -181,6 +182,9 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       `);
       return answers;
     };
+
+    const currScore = game.firstPlayerScore + " : " + game.secondPlayerScore;
+    console.log(currScore);
 
     const gameView: GameViewModel = {
       id: game.id,
@@ -304,14 +308,14 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       when "firstPlayerId" = '${user.id}' then  ${
         score.length > 0 ? score.length + 1 : 0
       } 
-      else 0 end,
+      else "firstPlayerScore" end,
       
       "secondPlayerScore" =
       case 
       when "secondPlayerId" = '${user.id}' then  ${
         score.length > 0 ? score.length + 1 : 0
       } 
-      else 0 end,
+      else "secondPlayerScore" end,
       
       "firstFinished" = true
       where id = '${game.id}'

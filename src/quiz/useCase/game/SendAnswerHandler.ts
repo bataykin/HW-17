@@ -56,7 +56,7 @@ export class SendAnswerHandler implements ICommandHandler<SendAnswerCommand> {
 
     const checkAnswer = await this.gamesRepo.checkAnswer(nextQuestion, answer);
 
-    console.log(answer.answer, nextQuestion, checkAnswer);
+    // console.log(answer.answer, nextQuestion, checkAnswer);
 
     const sendedAnswer = await this.gamesRepo.sendAnswer(
       userFromToken,
@@ -65,15 +65,23 @@ export class SendAnswerHandler implements ICommandHandler<SendAnswerCommand> {
       checkAnswer,
       answer.answer,
     );
+    const currScore =
+      activeGame.firstPlayerScore + " : " + activeGame.secondPlayerScore;
+    console.log(currScore);
 
     const isQuestionStillExists = await this.gamesRepo.getNextQuestion(
       activeGame,
       userFromToken,
     );
     if (!isQuestionStillExists) {
+      //
+      console.log(`${userFromToken.id} finished...`);
+      const activeGameFirst = await this.gamesRepo.getActiveGame(userFromToken);
+      console.log(activeGameFirst);
+
       const score = await this.gamesRepo.calculateUserScore(
         userFromToken,
-        activeGame,
+        activeGameFirst,
       );
     }
 
