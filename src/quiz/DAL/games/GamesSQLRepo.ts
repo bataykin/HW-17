@@ -11,6 +11,7 @@ import { AnswerStatusEnum } from "../../dto/game/AnswerStatusEnum";
 import { AnswerViewModel } from "../../dto/game/AnswerViewModel";
 import { QuestionEntity } from "../questions/QuestionEntity";
 import { GamesPaginationDTO } from "../../dto/game/GamesPaginationDTO";
+import { GameStatisticsDTO } from "../../dto/game/GameStatisticsDTO";
 
 @Injectable()
 export class GamesSQLRepo implements IGamesRepo<GameEntity> {
@@ -393,5 +394,72 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       mappedGames.push(await this.mapGameToView(game));
     }
     return mappedGames;
+  }
+
+  async getFinishedGamesStatistics(
+    user: UserEntity,
+  ): Promise<GameStatisticsDTO> {
+    const games = await this.dataSource.query(
+      `
+    select * from games
+      where  ("firstPlayerId" = '${user.id}' or "secondPlayerId" = '${user.id}')
+      and "status" = '${GameStatusEnum.Finished}'    
+    `,
+    );
+
+    const wins = await this.dataSource.query(`
+    select count(*) from 
+    (select * from games
+      where  ("firstPlayerId" = '${user.id}' or "secondPlayerId" = '${user.id}')
+      and "status" = '${GameStatusEnum.Finished}' ) as g
+    where g."winner" = '${user.id}'
+    `);
+
+    const losses = await this.dataSource.query(`
+     select count(*) from
+    (select * from games
+      where  ("firstPlayerId" = '${user.id}' or "secondPlayerId" = '${user.id}')
+      and "status" = '${GameStatusEnum.Finished}' ) as g
+    where g."winner" != '${user.id}' and g."winner" != 'draw'
+    `);
+
+    const summa = await this.dataSource.query(`
+     select coalesce(sum(
+     case when g."firstPlayerId" = '${user.id}' then g."firstPlayerScore"
+     else g."secondPlayerScore" end
+     ), 0) as sum  from 
+     
+    (select * from games
+      where  ("firstPlayerId" = '${user.id}' or "secondPlayerId" = '${user.id}')
+      and "status" = '${GameStatusEnum.Finished}' ) as g
+      
+    where g."winner" = '${user.id}'
+    `);
+
+    // console.log({
+    //   sumScore: +summa[0].sum,
+    //   avgScores: +summa[0].sum / games.length,
+    //   gamesCount: games.length,
+    //   winsCount: +wins[0].count,
+    //   lossesCount: +losses[0].count,
+    //   drawsCount: games.length - wins[0].count - losses[0].count,
+    // });
+    return games.length > 0
+      ? {
+          sumScore: +summa[0].sum,
+          avgScores: +summa[0].sum / games.length,
+          gamesCount: games.length,
+          winsCount: +wins[0].count,
+          lossesCount: +losses[0].count,
+          drawsCount: games.length - wins[0].count - losses[0].count,
+        }
+      : {
+          sumScore: 0,
+          avgScores: 0,
+          gamesCount: 0,
+          winsCount: 0,
+          lossesCount: 0,
+          drawsCount: 0,
+        };
   }
 }

@@ -20,16 +20,25 @@ import { AnswerInputModel } from "./dto/game/AnswerInputModel";
 import { SendAnswerCommand } from "./useCase/game/SendAnswerHandler";
 import { GetAllMyGamesQuery } from "./useCase/game/GetAllMyGamesHandler";
 import { GamesPaginationDTO } from "./dto/game/GamesPaginationDTO";
+import { GetMyStatisticsQuery } from "./useCase/game/GetMyStatisticsHandler";
 
 @SkipThrottle()
-@Controller("pair-game-quiz/pairs")
+@Controller("pair-game-quiz")
 export class QuizGameContoller {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
 
-  @Get("my-current")
+  @Get("users/my-statistic")
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async getMyStatistics(@Request() req) {
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    return this.queryBus.execute(new GetMyStatisticsQuery(accessToken));
+  }
+
+  @Get("pairs/my-current")
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async getCurrentGame(@Request() req) {
@@ -37,7 +46,7 @@ export class QuizGameContoller {
     return this.queryBus.execute(new GetCurrentGameQuery(accessToken));
   }
 
-  @Get("my")
+  @Get("pairs/my")
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async getAllMyGames(@Query() dto: GamesPaginationDTO, @Request() req) {
@@ -45,7 +54,7 @@ export class QuizGameContoller {
     return this.queryBus.execute(new GetAllMyGamesQuery(accessToken, dto));
   }
 
-  @Get(":id")
+  @Get("pairs/:id")
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async getGameById(
@@ -56,7 +65,7 @@ export class QuizGameContoller {
     return this.queryBus.execute(new GetGameByIdQuery(gameId, accessToken));
   }
 
-  @Post("connection")
+  @Post("pairs/connection")
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async joinGame(@Request() req) {
@@ -64,7 +73,7 @@ export class QuizGameContoller {
     return this.commandBus.execute(new JoinGameCommand(accessToken));
   }
 
-  @Post("my-current/answers")
+  @Post("pairs/my-current/answers")
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async sendAnswerToGame(@Request() req, @Body() answer: AnswerInputModel) {

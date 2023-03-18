@@ -6,6 +6,7 @@ import { GameEntity } from "./GameEntity";
 import { QuestionEntity } from "../questions/QuestionEntity";
 import { AnswerStatusEnum } from "../../dto/game/AnswerStatusEnum";
 import { GamesPaginationDTO } from "../../dto/game/GamesPaginationDTO";
+import { GameStatisticsDTO } from "../../dto/game/GameStatisticsDTO";
 
 export const IGamesRepoToken = Symbol("IGamesRepoToken");
 export interface IGamesRepo<GenericGameType> {
@@ -55,4 +56,6 @@ export interface IGamesRepo<GenericGameType> {
   calculateUserScore(user: UserEntity, game: GenericGameType): Promise<void>;
 
   countMyGames(user: UserEntity): Promise<number>;
+
+  getFinishedGamesStatistics(user: UserEntity): Promise<GameStatisticsDTO>;
 }

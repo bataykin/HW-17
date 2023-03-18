@@ -67,7 +67,7 @@ export class SendAnswerHandler implements ICommandHandler<SendAnswerCommand> {
     );
     const currScore =
       activeGame.firstPlayerScore + " : " + activeGame.secondPlayerScore;
-    console.log(currScore);
+    // console.log(currScore);
 
     const isQuestionStillExists = await this.gamesRepo.getNextQuestion(
       activeGame,
@@ -75,7 +75,7 @@ export class SendAnswerHandler implements ICommandHandler<SendAnswerCommand> {
     );
     if (!isQuestionStillExists) {
       //
-      console.log(`${userFromToken.id} finished...`);
+      // console.log(`${userFromToken.id} finished...`);
       const activeGameFirst = await this.gamesRepo.getActiveGame(userFromToken);
       // console.log(activeGameFirst);
 
