@@ -136,7 +136,7 @@ describe("HW-26 - Game statistics - 1 (e2e)", () => {
     });
   }
 
-  for (let j = 0; j < 3; j++) {
+  for (let j = 0; j < 5; j++) {
     it(`(POST: pair-game-quiz/pairs/connection to create pending game by user0"  )`, () => {
       return request(app.getHttpServer())
         .post("/pair-game-quiz/pairs/connection")

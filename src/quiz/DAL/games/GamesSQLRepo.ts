@@ -329,12 +329,14 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       "firstPlayerScore" =
       case 
       when "firstPlayerId" = '${user.id}' then  ${score.length} 
-      else games."firstPlayerScore" +1  end,
+      when "firstPlayerId" != '${user.id}' and "firstPlayerScore" > 0 then "firstPlayerScore" + 1
+      else "firstPlayerScore"   end,
       
       "secondPlayerScore" =
       case 
       when "secondPlayerId" = '${user.id}' then  ${score.length} 
-      else games."secondPlayerScore"+1   end,
+      when "secondPlayerId" != '${user.id}' and "secondPlayerScore" > 0 then  "secondPlayerScore" + 1 
+      else "secondPlayerScore"   end,
       
       "status" = '${GameStatusEnum.Finished}',
       
