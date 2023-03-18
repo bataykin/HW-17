@@ -425,15 +425,16 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
 
     const summa = await this.dataSource.query(`
      select coalesce(sum(
-     case when g."firstPlayerId" = '${user.id}' then g."firstPlayerScore"
-     else g."secondPlayerScore" end
+     case when g."firstPlayerId" = '${user.id}'  then g."firstPlayerScore"
+     when g."secondPlayerId" = '${user.id}' then g."secondPlayerScore"
+     end
      ), 0) as sum  from 
      
     (select * from games
       where  ("firstPlayerId" = '${user.id}' or "secondPlayerId" = '${user.id}')
       and "status" = '${GameStatusEnum.Finished}' ) as g
       
-    where g."winner" = '${user.id}'
+    
     `);
 
     // console.log({
@@ -447,7 +448,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     return games.length > 0
       ? {
           sumScore: +summa[0].sum,
-          avgScores: +summa[0].sum / games.length,
+          avgScores: +(+summa[0].sum / games.length).toFixed(2),
           gamesCount: games.length,
           winsCount: +wins[0].count,
           lossesCount: +losses[0].count,
