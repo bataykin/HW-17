@@ -24,6 +24,7 @@ import { IGamesRepoToken } from "./DAL/games/IGamesRepo";
 import { GamesSQLRepo } from "./DAL/games/GamesSQLRepo";
 import { GetAllMyGamesHandler } from "./useCase/game/GetAllMyGamesHandler";
 import { GetMyStatisticsHandler } from "./useCase/game/GetMyStatisticsHandler";
+import { GetTopPlayersHandler } from "./useCase/game/GetTopPlayersHandler";
 
 const questionsHandlers = [
   CreateQuestionsHandler,
@@ -39,6 +40,7 @@ const gameHandlers = [
   SendAnswerHandler,
   GetAllMyGamesHandler,
   GetMyStatisticsHandler,
+  GetTopPlayersHandler,
 ];
 
 @Module({

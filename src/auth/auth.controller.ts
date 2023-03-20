@@ -13,8 +13,6 @@ import {
   Response,
   UnauthorizedException,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from "@nestjs/common";
 import { RegistrationDto } from "./dto/registration.dto";
 import { LoginDto } from "./dto/login.dto";
@@ -103,7 +101,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   // @UseGuards(RequestLimitGuard)
-  @UsePipes(new ValidationPipe())
   @Post("login")
   async login(
     @Request() req,

@@ -21,6 +21,10 @@ import { SendAnswerCommand } from "./useCase/game/SendAnswerHandler";
 import { GetAllMyGamesQuery } from "./useCase/game/GetAllMyGamesHandler";
 import { GamesPaginationDTO } from "./dto/game/GamesPaginationDTO";
 import { GetMyStatisticsQuery } from "./useCase/game/GetMyStatisticsHandler";
+import { UserFromToken } from "../common/decorators/UserFromToken";
+import { UserEntity } from "../users/entity/user.entity";
+import { GetTopPlayersQuery } from "./useCase/game/GetTopPlayersHandler";
+import { TopPlayersDTO } from "./dto/game/TopPlayersDTO";
 
 @SkipThrottle()
 @Controller("pair-game-quiz")
@@ -29,6 +33,16 @@ export class QuizGameContoller {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
+
+  @Get("users/top")
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async getTopPlayers(
+    @UserFromToken() token: string,
+    @Query() dto: TopPlayersDTO,
+  ) {
+    return this.queryBus.execute(new GetTopPlayersQuery(token, dto));
+  }
 
   @Get("users/my-statistic")
   @UseGuards(JwtAuthGuard)
@@ -49,7 +63,12 @@ export class QuizGameContoller {
   @Get("pairs/my")
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  async getAllMyGames(@Query() dto: GamesPaginationDTO, @Request() req) {
+  async getAllMyGames(
+    @Query() dto: GamesPaginationDTO,
+    @Request() req,
+    @UserFromToken("hello") user: UserEntity,
+  ) {
+    console.log(user);
     const accessToken = req.headers.authorization?.split(" ")[1];
     return this.queryBus.execute(new GetAllMyGamesQuery(accessToken, dto));
   }

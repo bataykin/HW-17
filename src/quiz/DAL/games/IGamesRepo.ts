@@ -7,6 +7,8 @@ import { QuestionEntity } from "../questions/QuestionEntity";
 import { AnswerStatusEnum } from "../../dto/game/AnswerStatusEnum";
 import { GamesPaginationDTO } from "../../dto/game/GamesPaginationDTO";
 import { GameStatisticsDTO } from "../../dto/game/GameStatisticsDTO";
+import { TopPlayersDTO } from "../../dto/game/TopPlayersDTO";
+import { TopPlayerViewModel } from "../../dto/game/TopPlayerViewModel";
 
 export const IGamesRepoToken = Symbol("IGamesRepoToken");
 export interface IGamesRepo<GenericGameType> {
@@ -58,4 +60,8 @@ export interface IGamesRepo<GenericGameType> {
   countMyGames(user: UserEntity): Promise<number>;
 
   getFinishedGamesStatistics(user: UserEntity): Promise<GameStatisticsDTO>;
+
+  getTopPlayers(dto: TopPlayersDTO): Promise<TopPlayerViewModel[]>;
+
+  countAllFinishedGames(): Promise<number>;
 }

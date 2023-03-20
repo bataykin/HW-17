@@ -26,9 +26,6 @@ async function bootstrap() {
       transform: true,
       stopAtFirstError: true,
       validateCustomDecorators: true,
-      // exceptionFactory: (validationErrors: ValidationError[] = []) => {
-      //   return new BadRequestException(validationErrors);
-      // }
       validationError: { target: false },
     }),
   );
@@ -37,6 +34,7 @@ async function bootstrap() {
     fallback: true,
   });
   app.useGlobalFilters(new HttpExceptionFilter());
+
   await app.listen(PORT);
   console.log(`Application is running on: ${await app.getUrl()}`);
   console.log(

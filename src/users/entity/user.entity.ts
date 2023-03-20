@@ -11,6 +11,7 @@ import { CommentEntity } from "../../comments/entities/comment.entity";
 import { LikeEntity } from "../../likes/entities/like.entity";
 import { BlogEntity } from "../../bloggers/entities/blogEntity";
 import { BannedUsersEntity } from "../../bloggers/entities/bannedUsersEntity";
+import { GameEntity } from "../../quiz/DAL/games/GameEntity";
 
 //
 // @Entity()
@@ -159,6 +160,5 @@ export class UserEntity {
 
   /////////////////// QUIZ //////////////////
 
-  // @OneToMany(() => GameEntity, (games) => games.user)
-  // games: GameEntity[];
+  games: GameEntity[];
 }

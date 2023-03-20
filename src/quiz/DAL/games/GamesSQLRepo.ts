@@ -12,6 +12,8 @@ import { AnswerViewModel } from "../../dto/game/AnswerViewModel";
 import { QuestionEntity } from "../questions/QuestionEntity";
 import { GamesPaginationDTO } from "../../dto/game/GamesPaginationDTO";
 import { GameStatisticsDTO } from "../../dto/game/GameStatisticsDTO";
+import { TopPlayersDTO } from "src/quiz/dto/game/TopPlayersDTO";
+import { TopPlayerViewModel } from "src/quiz/dto/game/TopPlayerViewModel";
 
 @Injectable()
 export class GamesSQLRepo implements IGamesRepo<GameEntity> {
@@ -439,14 +441,6 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     
     `);
 
-    // console.log({
-    //   sumScore: +summa[0].sum,
-    //   avgScores: +summa[0].sum / games.length,
-    //   gamesCount: games.length,
-    //   winsCount: +wins[0].count,
-    //   lossesCount: +losses[0].count,
-    //   drawsCount: games.length - wins[0].count - losses[0].count,
-    // });
     return games.length > 0
       ? {
           sumScore: +summa[0].sum,
@@ -464,5 +458,46 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
           lossesCount: 0,
           drawsCount: 0,
         };
+  }
+
+  async countAllFinishedGames() {
+    const allgames = await this.dataSource.query(`
+    select * from games
+    where status = '${GameStatusEnum.Finished}'
+    `);
+    return allgames.length;
+  }
+
+  async getTopPlayers(dto: TopPlayersDTO): Promise<TopPlayerViewModel[]> {
+    const allgames = await this.dataSource.query(`
+
+    select distinct  "firstPlayerId"  from games
+    union 
+    select  distinct  "secondPlayerId"  from games
+    
+
+    where  status = '${GameStatusEnum.Finished}'
+                
+   -- limit ${dto.pageSize} offset ${dto.skipSize}
+    `);
+    const allPlayers = allgames.map((g) => g.firstPlayerId);
+    const res = [];
+
+    const getUserById = async (userId: string): Promise<UserEntity> => {
+      return await this.dataSource.query(`
+      select * from users where id='${userId}'`);
+    };
+
+    for (let i = 0; i < allPlayers.length; i++) {
+      let player = await getUserById(allPlayers[i]);
+      let stata = await this.getFinishedGamesStatistics(player[0]);
+      let preRes = {
+        ...stata,
+        player: { id: player[0].id, login: player[0].login },
+      };
+      res.push(preRes);
+    }
+
+    return res;
   }
 }
