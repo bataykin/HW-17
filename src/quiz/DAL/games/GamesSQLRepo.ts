@@ -498,8 +498,8 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
     }
 
     res.sort((a, b) => b.sumScore - a.sumScore || b.avgScores - a.avgScores);
-
+    const x = res.slice(0, 5);
     const [a, b, c, ...rest] = res;
-    return [a, b, c];
+    return x;
   }
 }
