@@ -497,15 +497,18 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       res.push(preRes);
     }
 
-    for (let i = 0; i < dto.sort.length; i++) {
+    if (dto.sortBy.length == 2) {
       res.sort((a, b) =>
-        dto.sortDirection[i] === "desc"
-          ? b[dto.sortBy[i]] - a[dto.sortBy[i]]
-          : a[dto.sortBy[i]] - b[dto.sortBy[i]],
+        dto.sortDirection[0] === "desc"
+          ? b[dto.sortBy[0]] - a[dto.sortBy[0]]
+          : a[dto.sortBy[0]] - b[dto.sortBy[0]] ||
+            dto.sortDirection[1] === "desc"
+          ? b[dto.sortBy[1]] - a[dto.sortBy[1]]
+          : a[dto.sortBy[1]] - b[dto.sortBy[1]],
       );
     }
+
     // res.sort((a, b) => b.sumScore - a.sumScore || b.avgScores - a.avgScores);
-    const x = res.slice(0, dto.pageSize);
-    return x;
+    return res.slice(0, dto.pageSize);
   }
 }
