@@ -462,25 +462,24 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
 
   async countAllFinishedGames() {
     const allgames = await this.dataSource.query(`
-    select * from games
-    where status = '${GameStatusEnum.Finished}'
+    select distinct  "firstPlayerId"  from games
+    union 
+    select  distinct  "secondPlayerId"  from games
+    where  status = '${GameStatusEnum.Finished}'
     `);
     return allgames.length;
   }
 
   async getTopPlayers(dto: TopPlayersDTO): Promise<TopPlayerViewModel[]> {
     const allgames = await this.dataSource.query(`
-
     select distinct  "firstPlayerId"  from games
     union 
     select  distinct  "secondPlayerId"  from games
-    
-
     where  status = '${GameStatusEnum.Finished}'
-                
-   -- limit ${dto.pageSize} offset ${dto.skipSize}
     `);
     const allPlayers = allgames.map((g) => g.firstPlayerId);
+    console.log(allPlayers);
+
     const res = [];
 
     const getUserById = async (userId: string): Promise<UserEntity> => {
@@ -498,26 +497,7 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       res.push(preRes);
     }
 
-    function dynamicSort(property) {
-      let sortOrder = 1;
-      property = property[0];
-      if (property[1] === "desc") {
-        sortOrder = -1;
-      }
-      return function (a, b) {
-        /* next line works with strings and numbers,
-         * and you may want to customize it to your needs
-         */
-        let result =
-          a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
-        return result * sortOrder;
-      };
-    }
-
-    console.log(dto.sort);
-    for (let i = 0; i < dto.sort?.length; i++) {
-      res.sort(dynamicSort(dto.sort[dto.sort.length - i - 1]));
-    }
+    res.sort((a, b) => b.avgScores - a.avgScores || b.sumScore - a.sumScore);
 
     const [a, b, c, ...rest] = res;
     return [a, b, c];

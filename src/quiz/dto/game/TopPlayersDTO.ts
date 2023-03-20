@@ -1,7 +1,7 @@
 import { Transform } from "class-transformer";
 
 export class TopPlayersDTO {
-  sort: string[]; // as fieldName<пробел>sortDirection[]
+  sort: string[] = ["avgScores desc", "sumScore desc"]; //"?sort=avgScores desc&sort=sumScore desc "; // as fieldName<пробел>sortDirection[]
   @Transform(({ value }) => parseInt(value))
   pageNumber = 1;
   @Transform(({ value }) => parseInt(value))
