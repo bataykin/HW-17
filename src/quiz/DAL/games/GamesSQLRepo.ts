@@ -538,8 +538,10 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
           : a[dto.sortBy[2]] - b[dto.sortBy[2]],
       );
     }
-    console.log(sorted);
+    // console.log(sorted);
+    // console.log(dto.skipSize, dto.pageSize);
+    // console.log(sorted.slice(dto.skipSize, dto.skipSize + dto.pageSize));
     // res.sort((a, b) => b.sumScore - a.sumScore || b.avgScores - a.avgScores);
-    return sorted.slice(dto.skipSize, dto.pageSize);
+    return sorted.slice(dto.skipSize, dto.skipSize + dto.pageSize);
   }
 }
