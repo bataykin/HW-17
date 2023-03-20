@@ -39,6 +39,7 @@ export class GetTopPlayersHandler implements IQueryHandler<GetTopPlayersQuery> {
           secret: jwtConstants.secret,
         })
       : null;
+    console.log(retrievedUserFromToken);
     const userFromToken = retrievedUserFromToken
       ? await this.usersQueryRepo.findById(retrievedUserFromToken.userId)
       : null;
