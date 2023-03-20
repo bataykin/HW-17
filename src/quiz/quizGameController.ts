@@ -35,7 +35,6 @@ export class QuizGameContoller {
   ) {}
 
   @Get("users/top")
-  // @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async getTopPlayers(@Query() dto: TopPlayersDTO) {
     return this.queryBus.execute(new GetTopPlayersQuery(dto));

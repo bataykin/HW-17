@@ -498,6 +498,28 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       res.push(preRes);
     }
 
-    return res;
+    function dynamicSort(property) {
+      let sortOrder = 1;
+      property = property[0];
+      if (property[1] === "desc") {
+        sortOrder = -1;
+      }
+      return function (a, b) {
+        /* next line works with strings and numbers,
+         * and you may want to customize it to your needs
+         */
+        let result =
+          a[property] < b[property] ? -1 : a[property] > b[property] ? 1 : 0;
+        return result * sortOrder;
+      };
+    }
+
+    console.log(dto.sort);
+    for (let i = 0; i < dto.sort?.length; i++) {
+      res.sort(dynamicSort(dto.sort[dto.sort.length - i - 1]));
+    }
+
+    const [a, b, c, ...rest] = res;
+    return [a, b, c];
   }
 }
