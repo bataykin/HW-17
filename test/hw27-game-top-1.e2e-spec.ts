@@ -214,7 +214,7 @@ describe("HW-27 - Game top - 1 (e2e)", () => {
       .set("Authorization", `Bearer ${users[0].accessToken}`)
       .expect(200)
       .then((res) => {
-        console.log(res.body);
+        // console.log(res.body);
       });
   });
 
