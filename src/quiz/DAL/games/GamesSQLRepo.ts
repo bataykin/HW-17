@@ -14,6 +14,7 @@ import { GamesPaginationDTO } from "../../dto/game/GamesPaginationDTO";
 import { GameStatisticsDTO } from "../../dto/game/GameStatisticsDTO";
 import { TopPlayersDTO } from "src/quiz/dto/game/TopPlayersDTO";
 import { TopPlayerViewModel } from "src/quiz/dto/game/TopPlayerViewModel";
+import _ from "lodash";
 
 @Injectable()
 export class GamesSQLRepo implements IGamesRepo<GameEntity> {
@@ -496,6 +497,24 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       };
       res.push(preRes);
     }
+    console.log(dto.sort);
+    console.log(res[0][dto.sortBy[1]]);
+
+    // if (dto.sortBy.length == 2) {
+    //   res.sort((a, b) =>
+    //     dto.sortDirection[0] === "desc"
+    //       ? b[dto.sortBy[0]] - a[dto.sortBy[0]]
+    //       : a[dto.sortBy[0]] - b[dto.sortBy[0]] ||
+    //       dto.sortDirection[1] === "desc"
+    //         ? b[dto.sortBy[1]] - a[dto.sortBy[1]]
+    //         : a[dto.sortBy[1]] - b[dto.sortBy[1]],
+    //   );
+
+    const sorted = _.orderBy(
+      res,
+      dto.sortBy,
+      dto.sortDirection as "asc" | "desc"[],
+    );
 
     if (dto.sortBy.length == 2) {
       res.sort((a, b) =>
@@ -519,7 +538,8 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
           : a[dto.sortBy[2]] - b[dto.sortBy[2]],
       );
     }
+    console.log(sorted);
     // res.sort((a, b) => b.sumScore - a.sumScore || b.avgScores - a.avgScores);
-    return res.slice(0, dto.pageSize);
+    return sorted.slice(0, dto.pageSize);
   }
 }

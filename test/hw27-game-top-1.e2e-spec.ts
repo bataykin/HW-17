@@ -220,7 +220,9 @@ describe("HW-27 - Game top - 1 (e2e)", () => {
 
   it(`(GET: /pair-game-quiz/users/my-statistic by user0"  )`, () => {
     return request(app.getHttpServer())
-      .get("/pair-game-quiz/users/top?sort=avgScores desc&sort=sumScore desc")
+      .get(
+        "/pair-game-quiz/users/top?pageSize=3&sort=sumScore desc&sort=avgScores desc",
+      )
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .set("user-Agent", "deviceTitle")
