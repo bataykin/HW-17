@@ -224,7 +224,6 @@ describe("HW-27 - Game top - 1 (e2e)", () => {
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .set("user-Agent", "deviceTitle")
-      .set("Authorization", `Bearer ${users[1].accessToken}`)
       .expect(200)
       .then((res) => {
         console.log(res.body);

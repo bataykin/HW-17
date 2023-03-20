@@ -35,11 +35,10 @@ export class QuizGameContoller {
   ) {}
 
   @Get("users/top")
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  async getTopPlayers(@Request() req, @Query() dto: TopPlayersDTO) {
-    const accessToken = req.headers.authorization?.split(" ")[1];
-    return this.queryBus.execute(new GetTopPlayersQuery(accessToken, dto));
+  async getTopPlayers(@Query() dto: TopPlayersDTO) {
+    return this.queryBus.execute(new GetTopPlayersQuery(dto));
   }
 
   @Get("users/my-statistic")

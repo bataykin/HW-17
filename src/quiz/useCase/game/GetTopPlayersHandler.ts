@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
-import { Inject, UnauthorizedException } from "@nestjs/common";
+import { Inject } from "@nestjs/common";
 import { IGamesRepo, IGamesRepoToken } from "../../DAL/games/IGamesRepo";
 import { GameEntity } from "../../DAL/games/GameEntity";
 import {
@@ -8,16 +8,12 @@ import {
 } from "../../../users/DAL/IUserQueryRepo";
 import { UserEntity } from "../../../users/entity/user.entity";
 import { JwtService } from "@nestjs/jwt";
-import { jwtConstants } from "../../../auth/constants";
 import { TopPlayersDTO } from "../../dto/game/TopPlayersDTO";
 import { PaginatorModel } from "../../../common/PaginatorModel";
 import { TopPlayerViewModel } from "../../dto/game/TopPlayerViewModel";
 
 export class GetTopPlayersQuery {
-  constructor(
-    public readonly accessToken: string,
-    public readonly dto: TopPlayersDTO,
-  ) {}
+  constructor(public readonly dto: TopPlayersDTO) {}
 }
 
 @QueryHandler(GetTopPlayersQuery)
@@ -32,18 +28,7 @@ export class GetTopPlayersHandler implements IQueryHandler<GetTopPlayersQuery> {
   async execute(
     query: GetTopPlayersQuery,
   ): Promise<PaginatorModel<TopPlayerViewModel[]>> {
-    const { accessToken, dto } = query;
-
-    const retrievedUserFromToken = accessToken
-      ? await this.jwtService.verify(accessToken, {
-          secret: jwtConstants.secret,
-        })
-      : null;
-    console.log(retrievedUserFromToken);
-    const userFromToken = retrievedUserFromToken
-      ? await this.usersQueryRepo.findById(retrievedUserFromToken.userId)
-      : null;
-    if (!userFromToken) throw new UnauthorizedException("no user");
+    const { dto } = query;
 
     const topPlayers = await this.gamesRepo.getTopPlayers(dto);
     const docCount = await this.gamesRepo.countAllFinishedGames();
