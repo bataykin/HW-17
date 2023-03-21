@@ -41,6 +41,9 @@ import { PostsSQLRepo } from "../posts/DAL/posts.SQL.repo";
 import { BannedUsersSQLRepo } from "./DAL/BannedUsersSQLRepo";
 import { LikesSQLRepo } from "../likes/DAL/likes.SQL.repo";
 import { CommentsSQLRepo } from "../comments/DAL/comments.SQL.repo";
+import { UploadImageHandler } from "./useCase/UploadImageHandler";
+import { ImagesService } from "../images/images.service";
+import { ImageEntity } from "../images/entities/ImageEntity";
 
 const blogsRouteHandlers = [
   GetBlogsOfBloggerHandler,
@@ -58,12 +61,15 @@ const blogsRouteHandlers = [
   GetAllCommentsOnMyBlogHandler,
   BanUnbanUserByBlogHandler,
   GetBannedUsersForBlogHandler,
+
+  UploadImageHandler,
 ];
 
 // let a = useServiceClassGeneric<BloggersMongoService, BloggersSQLService, BloggersORMService>(BloggersMongoService, BloggersSQLService, BloggersORMService)
 
 @Module({
   imports: [
+    // MulterModule.register({})
     CqrsModule,
     TypeOrmModule.forFeature([
       BlogEntity,
@@ -72,6 +78,7 @@ const blogsRouteHandlers = [
       UserEntity,
       LikeEntity,
       CommentEntity,
+      ImageEntity,
     ]),
 
     forwardRef(() => PostsModule),
@@ -115,48 +122,8 @@ const blogsRouteHandlers = [
       useClass: CommentsSQLRepo,
     },
 
-    // {
-    //     provide: ABloggersService,
-    //     useClass: useBloggerServiceClass()
-    //     // process.env.REPO_TYPE === 'MONGO' ? BloggersMongoService : BloggersSQLService,
-    // },
-    // {
-    //     provide: APostService,
-    //     useClass: usePostServiceClass()
-    //     // process.env.REPO_TYPE === 'MONGO' ? BloggersMongoService : BloggersSQLService,
-    // },
-    // {
-    //     provide: AAuthService,
-    //     useClass: useAuthServiceClass()
-    //     // process.env.REPO_TYPE === 'MONGO' ? BloggersMongoService : BloggersSQLService,
-    // },
-
-    // BloggersORMService,
-    // BloggersORMRepo,
-    //
-    //
-    // BloggersSQLService,
-    // BloggersSQLRepo,
-    //
-    // BloggersMongoService,
-    // BloggersMongoRepo,
-
-    // LikesORMService,
-    // LikesORMRepo,
-
-    // UsersORMRepo,
+    ImagesService,
   ],
-  exports: [
-    IBlogsRepoToken,
-    BlogService,
-
-    // BloggersSQLService,
-    // BloggersSQLRepo,
-    //
-    // BloggersMongoService,
-    //
-    // BloggersORMService,
-    // BloggersORMRepo,
-  ],
+  exports: [IBlogsRepoToken, BlogService],
 })
 export class BloggersModule {}

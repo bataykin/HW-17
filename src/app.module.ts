@@ -14,6 +14,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { DeviceModule } from "./device/device.module";
 import { SuperAdminModule } from "./superadmin/superAdminModule";
 import { QuizModule } from "./quiz/quiz.module";
+import { ImagesModule } from "./images/images.module";
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { QuizModule } from "./quiz/quiz.module";
     CommentsModule,
     DeviceModule,
     SuperAdminModule,
+    ImagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -36,6 +36,7 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(PORT);
+  console.log("AWS S3 at " + configService.get("AWS_REGION"));
   console.log(`Application is running on: ${await app.getUrl()}`);
   console.log(
     "REPO_TYPE = ",

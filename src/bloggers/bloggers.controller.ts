@@ -2,15 +2,19 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   HttpCode,
   HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   ParseUUIDPipe,
   Post,
   Put,
   Query,
   Request,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
@@ -35,6 +39,9 @@ import { BanUnbanUserByBloggerCommand } from "./useCase/BanUnbanUserByBlogHandle
 import { GetBannedUsersForBlogQuery } from "./useCase/getBannedUsersForBlogHandler";
 import { GetBannedUsersPaginationDTO } from "./dto/GetBannedUsersPaginationDTO";
 import { CreatePostDto } from "../posts/dto/create-post.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { Express } from "express";
+import { UploadImageCommand } from "./useCase/UploadImageHandler";
 
 @SkipThrottle()
 @Controller("blogger")
@@ -43,6 +50,33 @@ export class BloggersController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
+
+  @Post("blogs/:blogId/images/wallpaper")
+  @UseInterceptors(
+    FileInterceptor("file", {
+      // dest: "./uploads/wallpapers",
+    }),
+  )
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(201)
+  async uploadWallpaperForBlog(
+    @Request() req,
+    @Param("blogId", ParseUUIDPipe) blogId: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: ".(png|jpeg|jpg)" }),
+          new MaxFileSizeValidator({ maxSize: 1024 * 100 }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    return await this.commandBus.execute(
+      new UploadImageCommand(file, blogId, accessToken),
+    );
+  }
 
   @Get("blogs/comments")
   @UseGuards(JwtAuthGuard)
