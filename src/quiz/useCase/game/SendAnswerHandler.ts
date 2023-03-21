@@ -83,6 +83,16 @@ export class SendAnswerHandler implements ICommandHandler<SendAnswerCommand> {
         userFromToken,
         activeGameFirst,
       );
+      const opponent =
+        activeGame.firstPlayerId == userFromToken.id
+          ? activeGame.secondPlayerId
+          : activeGame.firstPlayerId;
+      const otherPlayer = await this.usersQueryRepo.findById(opponent);
+      setTimeout(
+        async () =>
+          await this.gamesRepo.calculateUserScore(otherPlayer, activeGame),
+        10000,
+      );
     }
 
     return sendedAnswer;

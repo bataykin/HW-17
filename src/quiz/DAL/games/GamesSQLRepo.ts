@@ -497,8 +497,8 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       };
       res.push(preRes);
     }
-    console.log(dto.sort);
-    console.log(res[0][dto.sortBy[1]]);
+    // console.log(dto.sort);
+    // console.log(res[0][dto.sortBy[1]]);
 
     // if (dto.sortBy.length == 2) {
     //   res.sort((a, b) =>
@@ -516,30 +516,30 @@ export class GamesSQLRepo implements IGamesRepo<GameEntity> {
       dto.sortDirection as "asc" | "desc"[],
     );
 
-    if (dto.sortBy.length == 2) {
-      res.sort((a, b) =>
-        dto.sortDirection[0] === "desc"
-          ? b[dto.sortBy[0]] - a[dto.sortBy[0]]
-          : a[dto.sortBy[0]] - b[dto.sortBy[0]] ||
-            dto.sortDirection[1] === "desc"
-          ? b[dto.sortBy[1]] - a[dto.sortBy[1]]
-          : a[dto.sortBy[1]] - b[dto.sortBy[1]],
-      );
-    } else if (dto.sortBy.length == 3) {
-      res.sort((a, b) =>
-        dto.sortDirection[0] === "desc"
-          ? b[dto.sortBy[0]] - a[dto.sortBy[0]]
-          : a[dto.sortBy[0]] - b[dto.sortBy[0]] ||
-            dto.sortDirection[1] === "desc"
-          ? b[dto.sortBy[1]] - a[dto.sortBy[1]]
-          : a[dto.sortBy[1]] - b[dto.sortBy[1]] ||
-            dto.sortDirection[2] === "desc"
-          ? b[dto.sortBy[2]] - a[dto.sortBy[2]]
-          : a[dto.sortBy[2]] - b[dto.sortBy[2]],
-      );
-    }
-    console.log(dto);
-    console.log(dto.sortBy, dto.sortDirection);
+    // if (dto.sortBy.length == 2) {
+    //   res.sort((a, b) =>
+    //     dto.sortDirection[0] === "desc"
+    //       ? b[dto.sortBy[0]] - a[dto.sortBy[0]]
+    //       : a[dto.sortBy[0]] - b[dto.sortBy[0]] ||
+    //         dto.sortDirection[1] === "desc"
+    //       ? b[dto.sortBy[1]] - a[dto.sortBy[1]]
+    //       : a[dto.sortBy[1]] - b[dto.sortBy[1]],
+    //   );
+    // } else if (dto.sortBy.length == 3) {
+    //   res.sort((a, b) =>
+    //     dto.sortDirection[0] === "desc"
+    //       ? b[dto.sortBy[0]] - a[dto.sortBy[0]]
+    //       : a[dto.sortBy[0]] - b[dto.sortBy[0]] ||
+    //         dto.sortDirection[1] === "desc"
+    //       ? b[dto.sortBy[1]] - a[dto.sortBy[1]]
+    //       : a[dto.sortBy[1]] - b[dto.sortBy[1]] ||
+    //         dto.sortDirection[2] === "desc"
+    //       ? b[dto.sortBy[2]] - a[dto.sortBy[2]]
+    //       : a[dto.sortBy[2]] - b[dto.sortBy[2]],
+    //   );
+    // }
+    // console.log(dto);
+    // console.log(dto.sortBy, dto.sortDirection);
     // console.log(sorted);
     // console.log(dto.skipSize, dto.pageSize);
     // console.log(sorted.slice(dto.skipSize, dto.skipSize + dto.pageSize));
