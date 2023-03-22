@@ -22,7 +22,7 @@ import {
   ImageTypeEnum,
 } from "../../images/entities/ImageEntity";
 import sharp from "sharp";
-import { ImageMetaView } from "../dto/ImagesViewModel";
+import { MainImageMetaView } from "../dto/ImagesViewModel";
 import { IPostsRepo, IPostsRepoToken } from "../../posts/DAL/IPostsRepo";
 import { PostEntity } from "../../posts/entities/post.entity";
 
@@ -52,7 +52,7 @@ export class UploadMainPostHandler
     private readonly imagesService: ImagesService,
   ) {}
 
-  async execute(command: UploadMainPostCommand): Promise<ImageMetaView[]> {
+  async execute(command: UploadMainPostCommand): Promise<MainImageMetaView> {
     const { accessToken, file, blogId, postId } = command;
     const retrievedUserFromToken = await this.authService.retrieveUser(
       accessToken,
@@ -86,10 +86,13 @@ export class UploadMainPostHandler
         `imgs only, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,
       );
 
-    const fittedBuffer = await sharp(file.buffer)
-      .resize({ width: 940, height: 432 })
-      // .png({ quality: 80 })
-      .toBuffer();
+    let fittedBuffer = file.buffer;
+    if (origMeta.height != 432 || origMeta.width != 940) {
+      fittedBuffer = await sharp(file.buffer)
+        .resize({ width: 940, height: 432 })
+        // .png({ quality: 80 })
+        .toBuffer();
+    }
 
     const metadata = await sharp(fittedBuffer).metadata();
 

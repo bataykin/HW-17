@@ -9,3 +9,7 @@ export class ImageMetaView {
   height: number;
   fileSize: number;
 }
+
+export class MainImageMetaView {
+  main: ImageMetaView[];
+}

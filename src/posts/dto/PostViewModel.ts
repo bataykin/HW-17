@@ -1,5 +1,5 @@
 import { LikeStatusEnum } from "../../likes/LikeStatusEnum";
-import { ImageMetaView } from "../../bloggers/dto/ImagesViewModel";
+import { MainImageMetaView } from "../../bloggers/dto/ImagesViewModel";
 
 export class PostViewModel {
   id: string;
@@ -19,7 +19,5 @@ export class PostViewModel {
       login: string;
     }[];
   };
-  images: {
-    main: ImageMetaView[];
-  };
+  images: MainImageMetaView;
 }

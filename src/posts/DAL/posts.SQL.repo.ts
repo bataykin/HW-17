@@ -11,7 +11,10 @@ import { PostViewModel } from "../dto/PostViewModel";
 import { PaginationPostsDto } from "../dto/pagination.posts.dto";
 import { LikesEnum } from "../entities/likes.enum";
 import { UserEntity } from "../../users/entity/user.entity";
-import { ImageMetaView } from "src/bloggers/dto/ImagesViewModel";
+import {
+  ImageMetaView,
+  MainImageMetaView,
+} from "src/bloggers/dto/ImagesViewModel";
 import {
   ImageEntity,
   ImageTargetEnum,
@@ -25,7 +28,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     private readonly dataSource: DataSource,
   ) {}
 
-  async mapImagesToPost(post: PostEntity): Promise<ImageMetaView[]> {
+  async mapImagesToPost(post: PostEntity): Promise<MainImageMetaView> {
     const imgs: ImageEntity[] = await this.dataSource.query(`
     select * from images
      where target = '${ImageTargetEnum.Post}' and "targetId" = '${post.id}' `);
@@ -41,7 +44,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
         };
       });
 
-    return main.length > 0 ? main : null;
+    return { main: main };
   }
 
   async findPostById(id: string): Promise<PostEntity> {
@@ -298,9 +301,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
         myStatus: myStatus,
         newestLikes: newLikes,
       },
-      images: {
-        main: imgs ? imgs : undefined,
-      },
+      images: imgs,
     };
   }
 

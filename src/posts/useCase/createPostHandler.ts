@@ -42,9 +42,7 @@ export class CreatePostHandler implements ICommandHandler<CreatePostCommand> {
         myStatus: LikeStatusEnum.None,
         newestLikes: [],
       },
-      images: {
-        main: await this.postsRepo.mapImagesToPost(post),
-      },
+      images: await this.postsRepo.mapImagesToPost(post),
     };
 
     return Promise.resolve(res);
