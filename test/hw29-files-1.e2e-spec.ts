@@ -4,7 +4,6 @@ import request from "supertest";
 import { AppModule } from "./../src/app.module";
 import { TestHelpersClass } from "./helpers/testHelpers";
 import { LikesEnum } from "../src/posts/entities/likes.enum";
-import * as fs from "fs";
 import * as path from "path";
 
 const cookieParser = require("cookie-parser");
@@ -123,7 +122,7 @@ describe("HW-29 - Files - 1 (e2e)", () => {
       .set("Authorization", `Bearer ${users[0].accessToken}`)
       .expect(201)
       .then((res) => {
-        console.log(res.body);
+        // console.log(res.body);
         // console.log(path.join(__dirname, "img-940x432.png"));
         posts[0].id = res.body.id;
         posts[0].createdAt = res.body.createdAt;
@@ -142,7 +141,7 @@ describe("HW-29 - Files - 1 (e2e)", () => {
     "POST -> blogger/blogs/:blogId/posts/:postId/images/main , " +
       "Add main image 940x432 to post",
     () => {
-      const file = fs.readFileSync(path.join(__dirname, "img-940x432.png"));
+      // const file = fs.readFileSync(path.join(__dirname, "img-940x432.png"));
 
       return (
         request(app.getHttpServer())
@@ -150,6 +149,50 @@ describe("HW-29 - Files - 1 (e2e)", () => {
             `/blogger/blogs/${blogs[0].id}/posts/${posts[0].id}/images/main`,
           )
           .attach("file", path.join(__dirname, "img-940x432.png"))
+          // .send(imageData)
+          // .set("Content-Type", "multipart/form-data")
+          .set("Accept", "*/*")
+          .set("Authorization", `Bearer ${users[0].accessToken}`)
+          // .expect(201)
+          .then((res) => {
+            console.log(res.body);
+          })
+      );
+    },
+  );
+
+  it(
+    "POST -> blogger/blogs/:blogId/posts/:postId/images/main , " +
+      "Add main image 940x432 to post",
+    () => {
+      // const file = fs.readFileSync(path.join(__dirname, "img-940x432.png"));
+
+      return (
+        request(app.getHttpServer())
+          .post(
+            `/blogger/blogs/${blogs[0].id}/posts/${posts[0].id}/images/main`,
+          )
+          .attach("file", path.join(__dirname, "img-940x432.png"))
+          // .send(imageData)
+          // .set("Content-Type", "multipart/form-data")
+          .set("Accept", "*/*")
+          .set("Authorization", `Bearer ${users[0].accessToken}`)
+          // .expect(201)
+          .then((res) => {
+            console.log(res.body);
+          })
+      );
+    },
+  );
+
+  it(
+    "POST -> blogger/blogs/:blogId/images/wallpaper , " +
+      "Add wallpaper image 1028x312 to blog",
+    () => {
+      return (
+        request(app.getHttpServer())
+          .post(`/blogger/blogs/${blogs[0].id}/images/wallpaper`)
+          .attach("file", path.join(__dirname, "img-1028x312.jpg"))
           // .send(imageData)
           // .set("Content-Type", "multipart/form-data")
           .set("Accept", "*/*")

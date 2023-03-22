@@ -60,7 +60,7 @@ export class UploadWallpaperBlogHandler
 
     const blog = await this.blogsRepo.findBlogById(blogId);
     if (!blog) throw new NotFoundException("no blog");
-    if (blog.userId != user.id) throw new ForbiddenException("not your blog");
+    if (blog.userId != user.id) throw new ForbiddenException(`not your blog`);
 
     const origMeta = await sharp(file.buffer).metadata();
     if (origMeta.height < 312 || origMeta.width < 1028)
