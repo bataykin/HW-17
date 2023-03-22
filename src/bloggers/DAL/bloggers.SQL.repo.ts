@@ -8,7 +8,7 @@ import { BlogEntity } from "../entities/blogEntity";
 import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { BlogViewModel } from "../dto/BlogViewModel";
 import { SA_BlogViewModel } from "../../superadmin/dto/SA_BlogViewModel";
-import { BlogImagesViewModel, ImageMetaView } from "../dto/BlogImagesViewModel";
+import { ImageMetaView, ImagesViewModel } from "../dto/ImagesViewModel";
 import {
   ImageEntity,
   ImageTargetEnum,
@@ -269,10 +269,11 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
     throw new Error("Method not implemented.");
   }
 
-  async mapImagesToBlog(blog: BlogEntity): Promise<BlogImagesViewModel> {
+  async mapImagesToBlog(blog: BlogEntity): Promise<ImagesViewModel> {
     const imgs: ImageEntity[] = await this.dataSource.query(`
     select * from images
      where target = '${ImageTargetEnum.Blog}' and "targetId" = '${blog.id}' `);
+
     const main: ImageMetaView[] = imgs
       .filter((i) => i.type == ImageTypeEnum.Main)
       .map((i) => {
@@ -283,6 +284,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
           fileSize: i.fileSize,
         };
       });
+
     const wallPaper: ImageMetaView[] = imgs
       .filter((i) => i.type == ImageTypeEnum.Wallpaper)
       .map((i) => {
@@ -293,7 +295,12 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
           fileSize: i.fileSize,
         };
       });
-    const mapped = { wallpaper: wallPaper[0], main: main };
+
+    const mapped = {
+      wallpaper: wallPaper[0] ? wallPaper[0] : null,
+      main: main,
+    };
+
     return mapped;
   }
 

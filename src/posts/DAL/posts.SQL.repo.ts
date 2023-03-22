@@ -11,6 +11,12 @@ import { PostViewModel } from "../dto/PostViewModel";
 import { PaginationPostsDto } from "../dto/pagination.posts.dto";
 import { LikesEnum } from "../entities/likes.enum";
 import { UserEntity } from "../../users/entity/user.entity";
+import { ImageMetaView } from "src/bloggers/dto/ImagesViewModel";
+import {
+  ImageEntity,
+  ImageTargetEnum,
+  ImageTypeEnum,
+} from "../../images/entities/ImageEntity";
 
 @Injectable()
 export class PostsSQLRepo implements IPostsRepo<PostEntity> {
@@ -18,6 +24,25 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
+
+  async mapImagesToPost(post: PostEntity): Promise<ImageMetaView[]> {
+    const imgs: ImageEntity[] = await this.dataSource.query(`
+    select * from images
+     where target = '${ImageTargetEnum.Post}' and "targetId" = '${post.id}' `);
+
+    const main: ImageMetaView[] = imgs
+      .filter((i) => i.type == ImageTypeEnum.Main)
+      .map((i) => {
+        return {
+          url: i.link,
+          width: i.width,
+          height: i.height,
+          fileSize: i.fileSize,
+        };
+      });
+
+    return main;
+  }
 
   async findPostById(id: string): Promise<PostEntity> {
     const result = await this.dataSource.query(
@@ -270,6 +295,9 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
         dislikesCount: +likes[0]?.dislikesCount ?? 0,
         myStatus: myStatus,
         newestLikes: newLikes,
+      },
+      images: {
+        main: await this.mapImagesToPost(post),
       },
     };
   }

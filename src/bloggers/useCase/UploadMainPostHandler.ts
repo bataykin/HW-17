@@ -22,21 +22,24 @@ import {
   ImageTypeEnum,
 } from "../../images/entities/ImageEntity";
 import sharp from "sharp";
-import { ImagesViewModel } from "../dto/ImagesViewModel";
+import { ImageMetaView } from "../dto/ImagesViewModel";
+import { IPostsRepo, IPostsRepoToken } from "../../posts/DAL/IPostsRepo";
+import { PostEntity } from "../../posts/entities/post.entity";
 
 // import sharp from "sharp";
 
-export class UploadMainBlogCommand {
+export class UploadMainPostCommand {
   constructor(
     public readonly file: Express.Multer.File,
     public readonly blogId: string,
+    public readonly postId: string,
     public readonly accessToken: string,
   ) {}
 }
 
-@CommandHandler(UploadMainBlogCommand)
-export class UploadMainBlogHandler
-  implements ICommandHandler<UploadMainBlogCommand>
+@CommandHandler(UploadMainPostCommand)
+export class UploadMainPostHandler
+  implements ICommandHandler<UploadMainPostCommand>
 {
   constructor(
     private readonly authService: AuthService,
@@ -44,11 +47,13 @@ export class UploadMainBlogHandler
     private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
     @Inject(IBlogsRepoToken)
     private readonly blogsRepo: IBlogsRepo<BlogEntity>,
+    @Inject(IPostsRepoToken)
+    private readonly postsRepo: IPostsRepo<PostEntity>,
     private readonly imagesService: ImagesService,
   ) {}
 
-  async execute(command: UploadMainBlogCommand): Promise<ImagesViewModel> {
-    const { accessToken, file, blogId } = command;
+  async execute(command: UploadMainPostCommand): Promise<ImageMetaView[]> {
+    const { accessToken, file, blogId, postId } = command;
     const retrievedUserFromToken = await this.authService.retrieveUser(
       accessToken,
     );
@@ -62,18 +67,22 @@ export class UploadMainBlogHandler
     if (!blog) throw new NotFoundException("no blog");
     if (blog.userId != user.id) throw new ForbiddenException("not your blog");
 
+    const post = await this.postsRepo.findPostById(postId);
+    if (!post) throw new NotFoundException("no post");
+    if (post.blogId != blog.id) throw new ForbiddenException("not your post");
+
     const origMeta = await sharp(file.buffer).metadata();
-    if (origMeta.height > 156 || origMeta.width > 156)
+    if (origMeta.height > 432 || origMeta.width > 940)
       throw new BadRequestException(
-        `too large for main img, received ${file.mimetype} : ${origMeta.width} * ${origMeta.height}`,
+        `too large for main img, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,
       );
     if (!(file.mimetype in ["image/jpeg", "image/x-png", "image/png"]))
       throw new BadRequestException(
-        `imgs only, received ${file.mimetype} : ${origMeta.width} * ${origMeta.height}`,
+        `imgs only, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,
       );
 
     const fittedBuffer = await sharp(file.buffer)
-      .resize({ width: 156, height: 156 })
+      .resize({ width: 940, height: 432 })
       // .png({ quality: 80 })
       .toBuffer();
 
@@ -86,8 +95,8 @@ export class UploadMainBlogHandler
 
     const fileMetaData = getFileImageDto(
       ImageTypeEnum.Main,
-      ImageTargetEnum.Blog,
-      blogId,
+      ImageTargetEnum.Post,
+      postId,
       s3file,
       user.id,
       metadata,
@@ -95,8 +104,6 @@ export class UploadMainBlogHandler
 
     await this.imagesService.saveMetaData(fileMetaData);
 
-    const imgs = this.blogsRepo.mapImagesToBlog(blog);
-
-    return imgs;
+    return this.postsRepo.mapImagesToPost(post);
   }
 }

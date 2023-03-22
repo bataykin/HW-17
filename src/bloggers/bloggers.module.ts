@@ -45,6 +45,7 @@ import { UploadWallpaperBlogHandler } from "./useCase/UploadWallpaperBlogHandler
 import { ImagesService } from "../images/images.service";
 import { ImageEntity } from "../images/entities/ImageEntity";
 import { UploadMainBlogHandler } from "./useCase/UploadMainBlogHandler";
+import { UploadMainPostHandler } from "./useCase/UploadMainPostHandler";
 
 const blogsRouteHandlers = [
   GetBlogsOfBloggerHandler,
@@ -65,6 +66,7 @@ const blogsRouteHandlers = [
 
   UploadWallpaperBlogHandler,
   UploadMainBlogHandler,
+  UploadMainPostHandler,
 ];
 
 // let a = useServiceClassGeneric<BloggersMongoService, BloggersSQLService, BloggersORMService>(BloggersMongoService, BloggersSQLService, BloggersORMService)

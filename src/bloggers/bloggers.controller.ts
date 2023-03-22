@@ -43,6 +43,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { Express } from "express";
 import { UploadWallpaperBlogCommand } from "./useCase/UploadWallpaperBlogHandler";
 import { UploadMainBlogCommand } from "./useCase/UploadMainBlogHandler";
+import { UploadMainPostCommand } from "./useCase/UploadMainPostHandler";
 
 @SkipThrottle()
 @Controller("blogger")
@@ -95,6 +96,30 @@ export class BloggersController {
     const accessToken = req.headers.authorization?.split(" ")[1];
     return await this.commandBus.execute(
       new UploadMainBlogCommand(file, blogId, accessToken),
+    );
+  }
+
+  @Post("blogs/:blogId/posts/:postId/images/main")
+  @UseInterceptors(FileInterceptor("file", {}))
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(201)
+  async uploadMainForPost(
+    @Request() req,
+    @Param("blogId", ParseUUIDPipe) blogId: string,
+    @Param("postId", ParseUUIDPipe) postId: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: ".(png|jpeg|jpg)" }),
+          new MaxFileSizeValidator({ maxSize: 1024 * 100 }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    return await this.commandBus.execute(
+      new UploadMainPostCommand(file, blogId, postId, accessToken),
     );
   }
 

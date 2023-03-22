@@ -34,13 +34,16 @@ export class CreatePostHandler implements ICommandHandler<CreatePostCommand> {
     }
     const blogName = await this.blogsRepo.getBlogNameById(dto.blogId);
     const post = await this.postsRepo.createPost(dto, blog);
-    const res = {
+    const res: PostViewModel = {
       ...post,
       extendedLikesInfo: {
         likesCount: 0,
         dislikesCount: 0,
         myStatus: LikeStatusEnum.None,
         newestLikes: [],
+      },
+      images: {
+        main: await this.postsRepo.mapImagesToPost(post),
       },
     };
 

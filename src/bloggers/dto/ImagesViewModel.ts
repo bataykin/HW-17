@@ -1,4 +1,4 @@
-export class BlogImagesViewModel {
+export class ImagesViewModel {
   wallpaper: ImageMetaView;
   main: ImageMetaView[];
 }

@@ -1,5 +1,5 @@
 import { IsDate, IsUUID } from "class-validator";
-import { BlogImagesViewModel } from "./BlogImagesViewModel";
+import { ImagesViewModel } from "./ImagesViewModel";
 
 export class BlogViewModel {
   @IsUUID()
@@ -16,5 +16,5 @@ export class BlogViewModel {
 
   isMembership: boolean;
 
-  images: BlogImagesViewModel;
+  images: ImagesViewModel;
 }

@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Inject,
+  NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { UserEntity } from "../../users/entity/user.entity";
@@ -21,7 +22,7 @@ import {
   ImageTypeEnum,
 } from "../../images/entities/ImageEntity";
 import sharp from "sharp";
-import { BlogImagesViewModel } from "../dto/BlogImagesViewModel";
+import { ImagesViewModel } from "../dto/ImagesViewModel";
 
 // import sharp from "sharp";
 
@@ -46,9 +47,7 @@ export class UploadWallpaperBlogHandler
     private readonly imagesService: ImagesService,
   ) {}
 
-  async execute(
-    command: UploadWallpaperBlogCommand,
-  ): Promise<BlogImagesViewModel> {
+  async execute(command: UploadWallpaperBlogCommand): Promise<ImagesViewModel> {
     const { accessToken, file, blogId } = command;
     const retrievedUserFromToken = await this.authService.retrieveUser(
       accessToken,
@@ -60,14 +59,18 @@ export class UploadWallpaperBlogHandler
     }
 
     const blog = await this.blogsRepo.findBlogById(blogId);
-    if (!blog) throw new UnauthorizedException("no blog");
+    if (!blog) throw new NotFoundException("no blog");
     if (blog.userId != user.id) throw new ForbiddenException("not your blog");
 
     const origMeta = await sharp(file.buffer).metadata();
-    if (origMeta.height < 1028 || origMeta.width < 312)
-      throw new BadRequestException("too large for main img");
+    if (origMeta.height < 312 || origMeta.width < 1028)
+      throw new BadRequestException(
+        `too large for main img, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,
+      );
     if (!(file.mimetype in ["image/jpeg", "image/x-png", "image/png"]))
-      throw new BadRequestException("imgs only");
+      throw new BadRequestException(
+        `imgs only, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,
+      );
 
     const fittedBuffer = await sharp(file.buffer)
       .resize({ width: 1028, height: 312 })

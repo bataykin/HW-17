@@ -6,7 +6,7 @@ import { ConfigService } from "@nestjs/config";
 import { v4 as uuid } from "uuid";
 import { S3 } from "aws-sdk";
 import { FileDTO } from "../bloggers/dto/FileDTO";
-import { ImageMetaView } from "../bloggers/dto/BlogImagesViewModel";
+import { ImageMetaView } from "../bloggers/dto/ImagesViewModel";
 
 @Injectable()
 export class ImagesService {

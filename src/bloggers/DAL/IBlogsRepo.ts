@@ -4,7 +4,7 @@ import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { BlogEntity } from "../entities/blogEntity";
 import { BlogViewModel } from "../dto/BlogViewModel";
 import { SA_BlogViewModel } from "../../superadmin/dto/SA_BlogViewModel";
-import { BlogImagesViewModel } from "../dto/BlogImagesViewModel";
+import { ImagesViewModel } from "../dto/ImagesViewModel";
 
 export const IBlogsRepoToken = Symbol("IBlogsRepoToken");
 
@@ -48,7 +48,7 @@ export interface IBlogsRepo<GenericBlogType> {
 
   mapBlogsWithOwnersToResponse(blogs: BlogEntity[]);
 
-  mapImagesToBlog(blog: BlogEntity): Promise<BlogImagesViewModel>;
+  mapImagesToBlog(blog: BlogEntity): Promise<ImagesViewModel>;
 
   SA_SetBlogBanStatus(blogId: string, isBanned: boolean): void;
 

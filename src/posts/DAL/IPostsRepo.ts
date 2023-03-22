@@ -5,6 +5,7 @@ import { BlogEntity } from "../../bloggers/entities/blogEntity";
 import { PostViewModel } from "../dto/PostViewModel";
 import { PostEntity } from "../entities/post.entity";
 import { UserEntity } from "../../users/entity/user.entity";
+import { ImageMetaView } from "../../bloggers/dto/ImagesViewModel";
 
 export const IPostsRepoToken = Symbol("IPostsRepoToken");
 
@@ -40,4 +41,6 @@ export interface IPostsRepo<GenericPostType> {
     post: PostEntity[],
     user: UserEntity | null,
   ): Promise<PostViewModel[]>;
+
+  mapImagesToPost(post: PostEntity): Promise<ImageMetaView[]>;
 }

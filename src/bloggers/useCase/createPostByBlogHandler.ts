@@ -16,6 +16,7 @@ import {
   IUsersQueryRepoToken,
 } from "../../users/DAL/IUserQueryRepo";
 import { CreatePostDto } from "../../posts/dto/create-post.dto";
+import { PostViewModel } from "../../posts/dto/PostViewModel";
 
 export class CreatePostByBlogCommand {
   constructor(
@@ -39,7 +40,7 @@ export class CreatePostByBlogHandler
     private readonly usersQueryRepo: IUsersQueryRepo<UserEntity>,
   ) {}
 
-  async execute(command: CreatePostByBlogCommand): Promise<any> {
+  async execute(command: CreatePostByBlogCommand): Promise<PostViewModel> {
     const { dto, blogId, accessToken } = command;
     const retrievedUserFromToken = await this.authService.retrieveUser(
       accessToken,
