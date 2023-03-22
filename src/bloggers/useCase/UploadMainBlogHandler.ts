@@ -1,5 +1,6 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import {
+  BadRequestException,
   ForbiddenException,
   Inject,
   UnauthorizedException,
@@ -20,11 +21,11 @@ import {
   ImageTypeEnum,
 } from "../../images/entities/ImageEntity";
 import sharp from "sharp";
-import { BlogImagesViewModel, ImageMetaView } from "../dto/BlogImagesViewModel";
+import { BlogImagesViewModel } from "../dto/BlogImagesViewModel";
 
 // import sharp from "sharp";
 
-export class UploadImageCommand {
+export class UploadMainBlogCommand {
   constructor(
     public readonly file: Express.Multer.File,
     public readonly blogId: string,
@@ -32,8 +33,10 @@ export class UploadImageCommand {
   ) {}
 }
 
-@CommandHandler(UploadImageCommand)
-export class UploadImageHandler implements ICommandHandler<UploadImageCommand> {
+@CommandHandler(UploadMainBlogCommand)
+export class UploadMainBlogHandler
+  implements ICommandHandler<UploadMainBlogCommand>
+{
   constructor(
     private readonly authService: AuthService,
     @Inject(IUsersQueryRepoToken)
@@ -43,7 +46,7 @@ export class UploadImageHandler implements ICommandHandler<UploadImageCommand> {
     private readonly imagesService: ImagesService,
   ) {}
 
-  async execute(command: UploadImageCommand): Promise<BlogImagesViewModel> {
+  async execute(command: UploadMainBlogCommand): Promise<BlogImagesViewModel> {
     const { accessToken, file, blogId } = command;
     const retrievedUserFromToken = await this.authService.retrieveUser(
       accessToken,
@@ -58,14 +61,18 @@ export class UploadImageHandler implements ICommandHandler<UploadImageCommand> {
     if (!blog) throw new UnauthorizedException("no blog");
     if (blog.userId != user.id) throw new ForbiddenException("not your blog");
 
+    const origMeta = await sharp(file.buffer).metadata();
+    if (origMeta.height > 156 || origMeta.width > 156)
+      throw new BadRequestException("too large for main img");
+    if (!(file.mimetype in ["image/jpeg", "image/x-png", "image/png"]))
+      throw new BadRequestException("imgs only");
+
     const fittedBuffer = await sharp(file.buffer)
-      .resize({ width: 997, height: 303 })
-      .png({ quality: 80 })
+      .resize({ width: 156, height: 156 })
+      // .png({ quality: 80 })
       .toBuffer();
 
     const metadata = await sharp(fittedBuffer).metadata();
-
-    // console.log(metadata);
 
     const s3file = await this.imagesService.uploadFile(
       fittedBuffer,
@@ -73,7 +80,7 @@ export class UploadImageHandler implements ICommandHandler<UploadImageCommand> {
     );
 
     const fileMetaData = getFileImageDto(
-      ImageTypeEnum.Wallpaper,
+      ImageTypeEnum.Main,
       ImageTargetEnum.Blog,
       blogId,
       s3file,
@@ -81,19 +88,10 @@ export class UploadImageHandler implements ICommandHandler<UploadImageCommand> {
       metadata,
     );
 
-    const savedImageData = await this.imagesService.saveMetaData(fileMetaData);
-    const mainPics: ImageMetaView[] =
-      await this.imagesService.getMainMetaDatasBlog(blogId);
+    await this.imagesService.saveMetaData(fileMetaData);
 
-    const res = {
-      wallpaper: {
-        url: s3file.Location,
-        width: metadata.width,
-        height: metadata.height,
-        fileSize: metadata.size,
-      },
-      main: mainPics,
-    };
-    return res;
+    const imgs = this.blogsRepo.mapImagesToBlog(blog);
+
+    return imgs;
   }
 }

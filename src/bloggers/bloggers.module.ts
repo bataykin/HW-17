@@ -41,9 +41,10 @@ import { PostsSQLRepo } from "../posts/DAL/posts.SQL.repo";
 import { BannedUsersSQLRepo } from "./DAL/BannedUsersSQLRepo";
 import { LikesSQLRepo } from "../likes/DAL/likes.SQL.repo";
 import { CommentsSQLRepo } from "../comments/DAL/comments.SQL.repo";
-import { UploadImageHandler } from "./useCase/UploadImageHandler";
+import { UploadWallpaperBlogHandler } from "./useCase/UploadWallpaperBlogHandler";
 import { ImagesService } from "../images/images.service";
 import { ImageEntity } from "../images/entities/ImageEntity";
+import { UploadMainBlogHandler } from "./useCase/UploadMainBlogHandler";
 
 const blogsRouteHandlers = [
   GetBlogsOfBloggerHandler,
@@ -62,7 +63,8 @@ const blogsRouteHandlers = [
   BanUnbanUserByBlogHandler,
   GetBannedUsersForBlogHandler,
 
-  UploadImageHandler,
+  UploadWallpaperBlogHandler,
+  UploadMainBlogHandler,
 ];
 
 // let a = useServiceClassGeneric<BloggersMongoService, BloggersSQLService, BloggersORMService>(BloggersMongoService, BloggersSQLService, BloggersORMService)

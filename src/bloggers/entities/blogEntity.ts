@@ -1,11 +1,19 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { PostEntity } from "../../posts/entities/post.entity";
 import { UserEntity } from "../../users/entity/user.entity";
 import { BannedUsersEntity } from "./bannedUsersEntity";
 
-@Entity({ name: 'blogs' })
+@Entity({ name: "blogs" })
 export class BlogEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
@@ -25,13 +33,13 @@ export class BlogEntity {
 
   //additional fields
 
-  @Column({ type: 'uuid', nullable: false })
+  @Column({ type: "uuid", nullable: false })
   userId: string;
 
   @Column({ default: false })
   isBanned: boolean;
 
-  @Column({ type: 'timestamptz', nullable: true })
+  @Column({ type: "timestamptz", nullable: true })
   banDate: Date;
 
   //relations
@@ -40,11 +48,11 @@ export class BlogEntity {
   user: UserEntity;
 
   @OneToMany(() => PostEntity, (post) => post.blogger)
-  @JoinColumn({ referencedColumnName: 'blogId' })
+  @JoinColumn({ referencedColumnName: "blogId" })
   posts: PostEntity[];
 
   @OneToMany(() => BannedUsersEntity, (bannedUser) => bannedUser.blog)
-  @JoinColumn({ referencedColumnName: 'blogId' })
+  @JoinColumn({ referencedColumnName: "blogId" })
   bannedUsers: BannedUsersEntity[];
 
   // @AfterInsert()

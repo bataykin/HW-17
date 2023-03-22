@@ -8,6 +8,12 @@ import { BlogEntity } from "../entities/blogEntity";
 import { BlogsPaginationDto } from "../dto/blogsPaginationDto";
 import { BlogViewModel } from "../dto/BlogViewModel";
 import { SA_BlogViewModel } from "../../superadmin/dto/SA_BlogViewModel";
+import { BlogImagesViewModel, ImageMetaView } from "../dto/BlogImagesViewModel";
+import {
+  ImageEntity,
+  ImageTargetEnum,
+  ImageTypeEnum,
+} from "../../images/entities/ImageEntity";
 
 @Injectable()
 export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
@@ -77,9 +83,11 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
     );
     return result[0] ?? null;
   }
+
   SA_findBlogById(id: string): Promise<BlogEntity> {
     throw new Error("Method not implemented.");
   }
+
   countBlogs(): Promise<number> {
     throw new Error("Method not implemented.");
   }
@@ -244,6 +252,7 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
 
     return mappedBlogs;
   }
+
   async mapBlogToResponse(blog: BlogEntity): Promise<BlogViewModel> {
     return {
       id: blog.id,
@@ -252,10 +261,40 @@ export class BloggersSQLRepo implements IBlogsRepo<BlogEntity> {
       websiteUrl: blog.websiteUrl,
       createdAt: blog.createdAt,
       isMembership: blog.isMembership,
+      images: await this.mapImagesToBlog(blog),
     } as BlogViewModel;
   }
+
   mapBlogsWithOwnersToResponse(blogs: BlogEntity[]) {
     throw new Error("Method not implemented.");
+  }
+
+  async mapImagesToBlog(blog: BlogEntity): Promise<BlogImagesViewModel> {
+    const imgs: ImageEntity[] = await this.dataSource.query(`
+    select * from images
+     where target = '${ImageTargetEnum.Blog}' and "targetId" = '${blog.id}' `);
+    const main: ImageMetaView[] = imgs
+      .filter((i) => i.type == ImageTypeEnum.Main)
+      .map((i) => {
+        return {
+          url: i.link,
+          width: i.width,
+          height: i.height,
+          fileSize: i.fileSize,
+        };
+      });
+    const wallPaper: ImageMetaView[] = imgs
+      .filter((i) => i.type == ImageTypeEnum.Wallpaper)
+      .map((i) => {
+        return {
+          url: i.link,
+          width: i.width,
+          height: i.height,
+          fileSize: i.fileSize,
+        };
+      });
+    const mapped = { wallpaper: wallPaper[0], main: main };
+    return mapped;
   }
 
   async SA_SetBlogBanStatus(
