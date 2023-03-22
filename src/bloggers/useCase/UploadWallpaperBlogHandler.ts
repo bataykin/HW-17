@@ -72,10 +72,14 @@ export class UploadWallpaperBlogHandler
         `imgs only, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,
       );
 
-    const fittedBuffer = await sharp(file.buffer)
-      .resize({ width: 1028, height: 312 })
-      // .png({ quality: 80 })
-      .toBuffer();
+    let fittedBuffer = file.buffer;
+
+    if (origMeta.height != 312 || origMeta.width != 1028) {
+      fittedBuffer = await sharp(file.buffer)
+        .resize({ width: 1028, height: 312 })
+        // .png({ quality: 80 })
+        .toBuffer();
+    }
 
     const metadata = await sharp(fittedBuffer).metadata();
 

@@ -72,10 +72,14 @@ export class UploadMainBlogHandler
         `imgs only, received ${file.mimetype} : ${origMeta.width} * ${origMeta.height}`,
       );
 
-    const fittedBuffer = await sharp(file.buffer)
-      .resize({ width: 156, height: 156 })
-      // .png({ quality: 80 })
-      .toBuffer();
+    let fittedBuffer = file.buffer;
+
+    if (origMeta.height != 156 || origMeta.width != 156) {
+      fittedBuffer = await sharp(file.buffer)
+        .resize({ width: 156, height: 156 })
+        // .png({ quality: 80 })
+        .toBuffer();
+    }
 
     const metadata = await sharp(fittedBuffer).metadata();
 
