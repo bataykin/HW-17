@@ -77,10 +77,10 @@ export class UploadMainPostHandler
         `too large for main img, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,
       );
 
-    // if (origMeta.height < 432 || origMeta.width < 940)
-    //   throw new BadRequestException(
-    //     `too small for main img, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,
-    //   );
+    if (origMeta.height < 432 || origMeta.width < 940)
+      throw new BadRequestException(
+        `too small for main img, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,
+      );
     if (!["image/jpeg", "image/x-png", "image/png"].includes(file.mimetype))
       throw new BadRequestException(
         `imgs only, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,
@@ -94,14 +94,14 @@ export class UploadMainPostHandler
         .toBuffer();
     }
 
-    const metadata = await sharp(fittedBuffer).metadata();
+    let metadata = await sharp(fittedBuffer).metadata();
 
-    const s3file = await this.imagesService.uploadFile(
+    let s3file = await this.imagesService.uploadFile(
       fittedBuffer,
       file.originalname,
     );
 
-    const fileMetaData = getFileImageDto(
+    let fileMetaData = getFileImageDto(
       ImageTypeEnum.Main,
       ImageTargetEnum.Post,
       postId,
@@ -110,6 +110,46 @@ export class UploadMainPostHandler
       metadata,
     );
 
+    await this.imagesService.saveMetaData(fileMetaData);
+
+    /// MEDIUM
+    fittedBuffer = await sharp(file.buffer)
+      .resize({ width: 300, height: 180 })
+      // .png({ quality: 80 })
+      .toBuffer();
+    metadata = await sharp(fittedBuffer).metadata();
+    s3file = await this.imagesService.uploadFile(
+      fittedBuffer,
+      file.originalname,
+    );
+    fileMetaData = getFileImageDto(
+      ImageTypeEnum.Main,
+      ImageTargetEnum.Post,
+      postId,
+      s3file,
+      user.id,
+      metadata,
+    );
+    await this.imagesService.saveMetaData(fileMetaData);
+
+    //SMALL///
+    fittedBuffer = await sharp(file.buffer)
+      .resize({ width: 149, height: 96 })
+      // .png({ quality: 80 })
+      .toBuffer();
+    metadata = await sharp(fittedBuffer).metadata();
+    s3file = await this.imagesService.uploadFile(
+      fittedBuffer,
+      file.originalname,
+    );
+    fileMetaData = getFileImageDto(
+      ImageTypeEnum.Main,
+      ImageTargetEnum.Post,
+      postId,
+      s3file,
+      user.id,
+      metadata,
+    );
     await this.imagesService.saveMetaData(fileMetaData);
 
     return this.postsRepo.mapImagesToPost(post);
