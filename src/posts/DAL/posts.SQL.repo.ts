@@ -41,7 +41,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
         };
       });
 
-    return main;
+    return main.length > 0 ? main : null;
   }
 
   async findPostById(id: string): Promise<PostEntity> {
@@ -282,6 +282,8 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
       [post.id],
     );
 
+    const imgs = await this.mapImagesToPost(post);
+
     return {
       id: post.id,
       title: post.title,
@@ -297,7 +299,7 @@ export class PostsSQLRepo implements IPostsRepo<PostEntity> {
         newestLikes: newLikes,
       },
       images: {
-        main: await this.mapImagesToPost(post),
+        main: imgs ? imgs : undefined,
       },
     };
   }

@@ -76,6 +76,11 @@ export class UploadMainPostHandler
       throw new BadRequestException(
         `too large for main img, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,
       );
+
+    if (origMeta.height < 432 || origMeta.width < 940)
+      throw new BadRequestException(
+        `too small for main img, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,
+      );
     if (!["image/jpeg", "image/x-png", "image/png"].includes(file.mimetype))
       throw new BadRequestException(
         `imgs only, received ${file.mimetype}: ${origMeta.width} * ${origMeta.height}`,

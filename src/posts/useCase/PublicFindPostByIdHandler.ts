@@ -48,6 +48,7 @@ export class PublicFindPostByIdHandler
     const userIdFromToken = retrievedUserFromToken
       ? await this.usersQueryRepo.findById(retrievedUserFromToken.userId)
       : null;
+
     const mappedPostWithLikes: PostViewModel =
       await this.postsRepo.mapPostToView(post, userIdFromToken);
 
